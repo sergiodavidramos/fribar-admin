@@ -1,65 +1,301 @@
 import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import TopNavbar from '../components/Navbar'
+import SideNav from '../components/Navbar/SideNav'
 
 export default function Home() {
   return (
-    <div className={styles.container}>
+    <>
       <Head>
         <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+      <TopNavbar />
+      <div id="layoutSidenav">
+        <SideNav />
+        <div id="layoutSidenav_content">
+          <main>
+            <div className="container-fluid">
+              <h2 className="mt-30 page-title">Dashboard</h2>
+              <ol className="breadcrumb mb-30">
+                <li className="breadcrumb-item active">Dashboard</li>
+              </ol>
+              <div className="row">
+                <div className="col-xl-3 col-md-6">
+                  <div className="dashboard-report-card purple">
+                    <div className="card-content">
+                      <span className="card-title">Order Pending</span>
+                      <span className="card-count">2</span>
+                    </div>
+                    <div className="card-media">
+                      <i className="fab fa-rev"></i>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-xl-3 col-md-6">
+                  <div className="dashboard-report-card red">
+                    <div className="card-content">
+                      <span className="card-title">Order Cancel</span>
+                      <span className="card-count">0</span>
+                    </div>
+                    <div className="card-media">
+                      <i className="far fa-times-circle"></i>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-xl-3 col-md-6">
+                  <div className="dashboard-report-card info">
+                    <div className="card-content">
+                      <span className="card-title">Order Process</span>
+                      <span className="card-count">5</span>
+                    </div>
+                    <div className="card-media">
+                      <i className="fas fa-sync-alt rpt_icon"></i>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-xl-3 col-md-6">
+                  <div className="dashboard-report-card success">
+                    <div className="card-content">
+                      <span className="card-title">Today Income</span>
+                      <span className="card-count">$9568.00</span>
+                    </div>
+                    <div className="card-media">
+                      <i className="fas fa-money-bill rpt_icon"></i>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-xl-12 col-md-12">
+                  Hola Mundo
+                  {/* <div className="card card-static-1 mb-30">
+                    <div className="card-body">
+                      <div
+                        id="earningGraph"
+                        data-highcharts-chart="0"
+                        role="region"
+                        aria-label="2020 Income &amp; Order Summary. Highcharts interactive chart."
+                        aria-hidden="false"
+                        style={{ overflow: 'hidden' }}
+                      ></div>
+                    </div>
+                  </div> */}
+                </div>
+                <div className="col-xl-12 col-md-12">
+                  <div className="card card-static-2 mb-30">
+                    <div className="card-title-2">
+                      <h4>Recent Orders</h4>
+                      <a href="orders.html" className="view-btn hover-btn">
+                        View All
+                      </a>
+                    </div>
+                    <div className="card-body-table">
+                      <div className="table-responsive">
+                        <table className="table ucp-table table-hover">
+                          <thead>
+                            <tr>
+                              <th style={{ width: '130px' }}>Order ID</th>
+                              <th>Item</th>
+                              <th style={{ width: '200px' }}>Date</th>
+                              <th style={{ width: '300px' }}>Address</th>
+                              <th style={{ width: '130px' }}>Status</th>
+                              <th style={{ width: '130px' }}>Total</th>
+                              <th style={{ width: '100px' }}>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>ORDER12345</td>
+                              <td>
+                                <a href="#" target="_blank">
+                                  Product Title Here
+                                </a>
+                              </td>
+                              <td>
+                                <span className="delivery-time">
+                                  15/06/2020
+                                </span>
+                                <span className="delivery-time">
+                                  4:00PM - 6.00PM
+                                </span>
+                              </td>
+                              <td>
+                                #0000, St No. 8, Shahid Karnail Singh
+                                Nagar, MBD Mall, Frozpur road, Ludhiana,
+                                141001
+                              </td>
+                              <td>
+                                <span className="badge-item badge-status">
+                                  Pending
+                                </span>
+                              </td>
+                              <td>$90</td>
+                              <td className="action-btns">
+                                <a
+                                  href="order_view.html"
+                                  className="views-btn"
+                                >
+                                  <i className="fas fa-eye"></i>
+                                </a>
+                                <a
+                                  href="order_edit.html"
+                                  className="edit-btn"
+                                >
+                                  <i className="fas fa-edit"></i>
+                                </a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>ORDER12346</td>
+                              <td>
+                                <a href="#" target="_blank">
+                                  Product Title Here
+                                </a>
+                              </td>
+                              <td>
+                                <span className="delivery-time">
+                                  13/06/2020
+                                </span>
+                                <span className="delivery-time">
+                                  2:00PM - 4.00PM
+                                </span>
+                              </td>
+                              <td>
+                                #0000, St No. 8, Shahid Karnail Singh
+                                Nagar, MBD Mall, Frozpur road, Ludhiana,
+                                141001
+                              </td>
+                              <td>
+                                <span className="badge-item badge-status">
+                                  Pending
+                                </span>
+                              </td>
+                              <td>$105</td>
+                              <td className="action-btns">
+                                <a
+                                  href="order_view.html"
+                                  className="views-btn"
+                                >
+                                  <i className="fas fa-eye"></i>
+                                </a>
+                                <a
+                                  href="order_edit.html"
+                                  className="edit-btn"
+                                >
+                                  <i className="fas fa-edit"></i>
+                                </a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>ORDER12347</td>
+                              <td>
+                                <a href="#" target="_blank">
+                                  Product Title Here
+                                </a>
+                              </td>
+                              <td>
+                                <span className="delivery-time">
+                                  13/6/2020
+                                </span>
+                                <span className="delivery-time">
+                                  5:00PM - 7.00PM
+                                </span>
+                              </td>
+                              <td>
+                                #0000, St No. 8, Shahid Karnail Singh
+                                Nagar, MBD Mall, Frozpur road, Ludhiana,
+                                141001
+                              </td>
+                              <td>
+                                <span className="badge-item badge-status">
+                                  Pending
+                                </span>
+                              </td>
+                              <td>$60</td>
+                              <td className="action-btns">
+                                <a
+                                  href="order_view.html"
+                                  className="views-btn"
+                                >
+                                  <i className="fas fa-eye"></i>
+                                </a>
+                                <a
+                                  href="order_edit.html"
+                                  className="edit-btn"
+                                >
+                                  <i className="fas fa-edit"></i>
+                                </a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>ORDER12348</td>
+                              <td>
+                                <a href="#" target="_blank">
+                                  Product Title Here
+                                </a>
+                              </td>
+                              <td>
+                                <span className="delivery-time">
+                                  12/06/2020
+                                </span>
+                                <span className="delivery-time">
+                                  01:00PM - 3.00PM
+                                </span>
+                              </td>
+                              <td>
+                                #0000, St No. 8, Shahid Karnail Singh
+                                Nagar, MBD Mall, Frozpur road, Ludhiana,
+                                141001
+                              </td>
+                              <td>
+                                <span className="badge-item badge-status">
+                                  Pending
+                                </span>
+                              </td>
+                              <td>$120</td>
+                              <td className="action-btns">
+                                <a
+                                  href="order_view.html"
+                                  className="views-btn"
+                                >
+                                  <i className="fas fa-eye"></i>
+                                </a>
+                                <a
+                                  href="order_edit.html"
+                                  className="edit-btn"
+                                >
+                                  <i className="fas fa-edit"></i>
+                                </a>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+          <footer className="py-4 bg-footer mt-auto">
+            <div className="container-fluid">
+              <div className="d-flex align-items-center justify-content-between small">
+                <div className="text-muted-1">
+                  © 2020 <b>Gambo Supermarket</b>. by{' '}
+                  <a href="https://themeforest.net/user/gambolthemes">
+                    Gambolthemes
+                  </a>
+                </div>
+                <div className="footer-links">
+                  <a href="http://gambolthemes.net/html-items/gambo_supermarket_demo/privacy_policy.html">
+                    Privacy Policy
+                  </a>
+                  <a href="http://gambolthemes.net/html-items/gambo_supermarket_demo/term_and_conditions.html">
+                    Terms &amp; Conditions
+                  </a>
+                </div>
+              </div>
+            </div>
+          </footer>
         </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
+      </div>
+    </>
   )
 }
