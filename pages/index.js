@@ -1,8 +1,33 @@
 import Head from 'next/head'
 import TopNavbar from '../components/Navbar'
 import SideNav from '../components/Navbar/SideNav'
+import Footer from '../components/Footer'
+import { useStateValue } from '../components/state'
+import Loader from '../components/Loader'
+// import UserContext from '../components/UserContext'
 
-export default function Home() {
+import { useEffect, useContext } from 'react'
+import axios from 'axios'
+function Home() {
+  //   const { user, token } = useContext(UserContext)
+
+  //   const [user, dispatch] = useStateValue()
+  //   const { categories } = useContext(UserContext)
+  console.log('token index  ', token)
+  //   if (user && token) {
+  //   }
+  useEffect(() => {
+    // console.log(
+    //   'el User',
+    //   JSON.parse(localStorage.getItem('frifolly-user'))
+    // )
+    // addCategories(categorias)
+    // dispatch({
+    //   type: 'addCategories',
+    //   newCategories: categorias,
+    // })
+  }, [])
+
   return (
     <>
       <Head>
@@ -11,8 +36,10 @@ export default function Home() {
       <TopNavbar />
       <div id="layoutSidenav">
         <SideNav />
+
         <div id="layoutSidenav_content">
           <main>
+            {/* {user ? <h1>{user.nombre_comp}</h1> : <h1>hola</h1>} */}
             <div className="container-fluid">
               <h2 className="mt-30 page-title">Dashboard</h2>
               <ol className="breadcrumb mb-30">
@@ -274,28 +301,28 @@ export default function Home() {
               </div>
             </div>
           </main>
-          <footer className="py-4 bg-footer mt-auto">
-            <div className="container-fluid">
-              <div className="d-flex align-items-center justify-content-between small">
-                <div className="text-muted-1">
-                  © 2020 <b>Gambo Supermarket</b>. by{' '}
-                  <a href="https://themeforest.net/user/gambolthemes">
-                    Gambolthemes
-                  </a>
-                </div>
-                <div className="footer-links">
-                  <a href="http://gambolthemes.net/html-items/gambo_supermarket_demo/privacy_policy.html">
-                    Privacy Policy
-                  </a>
-                  <a href="http://gambolthemes.net/html-items/gambo_supermarket_demo/term_and_conditions.html">
-                    Terms &amp; Conditions
-                  </a>
-                </div>
-              </div>
-            </div>
-          </footer>
+          <Footer />
         </div>
       </div>
     </>
   )
 }
+
+export async function getStaticProps() {
+  let categorias
+  //   let
+  await axios
+    .get(`http://localhost:3001/categoria`)
+    .then((p) => {
+      categorias = p.data.body
+    })
+    .catch((err) => (categorias = []))
+  return {
+    props: {
+      categorias,
+    },
+    // revalidate: 1,
+  }
+}
+
+export default Home

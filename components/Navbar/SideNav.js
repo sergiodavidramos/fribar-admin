@@ -1,4 +1,6 @@
-export default () => (
+import Link from 'next/link'
+import { withRouter } from 'next/router'
+const SideNav = (props) => (
   <div id="layoutSidenav_nav">
     <nav
       className="sb-sidenav accordion sb-sidenav-dark"
@@ -6,12 +8,18 @@ export default () => (
     >
       <div className="sb-sidenav-menu">
         <div className="nav">
-          <a className="nav-link active" href="index.html">
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-tachometer-alt"></i>
-            </div>
-            Dashboard
-          </a>
+          <Link href="/">
+            <a
+              className={`nav-link ${
+                props.router.pathname === '/' ? 'active' : ''
+              }`}
+            >
+              <div className="sb-nav-link-icon">
+                <i className="fas fa-tachometer-alt"></i>
+              </div>
+              Dashboard
+            </a>
+          </Link>
           <a
             className="nav-link collapsed"
             href="#"
@@ -128,7 +136,7 @@ export default () => (
             <div className="sb-nav-link-icon">
               <i className="fas fa-list"></i>
             </div>
-            Categories
+            Categorias
             <div className="sb-sidenav-collapse-arrow">
               <i className="fas fa-angle-down"></i>
             </div>
@@ -141,13 +149,13 @@ export default () => (
           >
             <nav className="sb-sidenav-menu-nested nav">
               <a className="nav-link sub_nav_link" href="category.html">
-                All Categories
+                Todas las Categorias
               </a>
               <a
                 className="nav-link sub_nav_link"
                 href="add_category.html"
               >
-                Add Category
+                Agregar Categoria
               </a>
             </nav>
           </div>
@@ -182,42 +190,65 @@ export default () => (
               </a>
             </nav>
           </div>
-          <a
-            className="nav-link collapsed"
-            href="#"
-            data-toggle="collapse"
-            data-target="#collapseProducts"
-            aria-expanded="false"
-            aria-controls="collapseProducts"
-          >
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-box"></i>
-            </div>
-            Products
-            <div className="sb-sidenav-collapse-arrow">
-              <i className="fas fa-angle-down"></i>
-            </div>
-          </a>
+          <Link href="/productos">
+            <a
+              className={`nav-link ${
+                props.router.pathname.split('/')[1] === 'productos'
+                  ? 'active'
+                  : 'collapsed'
+              }`}
+              data-toggle="collapse"
+              data-target="#collapseProducts"
+              aria-expanded="false"
+              aria-controls="collapseProducts"
+            >
+              <div className="sb-nav-link-icon">
+                <i className="fas fa-box"></i>
+              </div>
+              Productos
+              <div className="sb-sidenav-collapse-arrow">
+                <i className="fas fa-angle-down"></i>
+              </div>
+            </a>
+          </Link>
           <div
-            className="collapse"
+            className={`collapse ${
+              props.router.pathname.split('/')[1] === 'productos'
+                ? 'show'
+                : ''
+            }`}
             id="collapseProducts"
             aria-labelledby="headingTwo"
             data-parent="#sidenavAccordion"
           >
             <nav className="sb-sidenav-menu-nested nav">
-              <a className="nav-link sub_nav_link" href="products.html">
-                All Products
-              </a>
-              <a className="nav-link sub_nav_link" href="add_product.html">
-                Add Product
-              </a>
+              <Link href="/productos">
+                <a
+                  className={`nav-link sub_nav_link ${
+                    props.router.pathname === '/productos' ? 'active' : ''
+                  }`}
+                >
+                  Todos los Productos
+                </a>
+              </Link>
+              <Link href="/productos/nuevo">
+                <a
+                  className={`nav-link sub_nav_link ${
+                    props.router.pathname === '/productos/nuevo'
+                      ? 'active'
+                      : ''
+                  }`}
+                >
+                  Agregar Producto
+                </a>
+              </Link>
             </nav>
           </div>
           <a className="nav-link" href="orders.html">
             <div className="sb-nav-link-icon">
               <i className="fas fa-cart-arrow-down"></i>
             </div>
-            Orders
+            Pedidos
           </a>
           <a className="nav-link" href="customers.html">
             <div className="sb-nav-link-icon">
@@ -229,77 +260,18 @@ export default () => (
             <div className="sb-nav-link-icon">
               <i className="fas fa-gift"></i>
             </div>
-            Offers
+            Ofertas
           </a>
-          <a className="nav-link" href="pages.html">
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-book-open"></i>
-            </div>
-            Pages
-          </a>
-          <a className="nav-link" href="menu.html">
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-layer-group"></i>
-            </div>
-            Menu
-          </a>
-          <a className="nav-link" href="updater.html">
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-cloud-upload-alt"></i>
-            </div>
-            Updater
-          </a>
-          <a
-            className="nav-link collapsed"
-            href="#"
-            data-toggle="collapse"
-            data-target="#collapseSettings"
-            aria-expanded="false"
-            aria-controls="collapseSettings"
-          >
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-cog"></i>
-            </div>
-            Setting
-            <div className="sb-sidenav-collapse-arrow">
-              <i className="fas fa-angle-down"></i>
-            </div>
-          </a>
-          <div
-            className="collapse"
-            id="collapseSettings"
-            aria-labelledby="headingTwo"
-            data-parent="#sidenavAccordion"
-          >
-            <nav className="sb-sidenav-menu-nested nav">
-              <a
-                className="nav-link sub_nav_link"
-                href="general_setting.html"
-              >
-                General Settings
-              </a>
-              <a
-                className="nav-link sub_nav_link"
-                href="payment_setting.html"
-              >
-                Payment Settings
-              </a>
-              <a
-                className="nav-link sub_nav_link"
-                href="email_setting.html"
-              >
-                Email Settings
-              </a>
-            </nav>
-          </div>
+
           <a className="nav-link" href="reports.html">
             <div className="sb-nav-link-icon">
               <i className="fas fa-chart-bar"></i>
             </div>
-            Reports
+            Reportes
           </a>
         </div>
       </div>
     </nav>
   </div>
 )
+export default withRouter(SideNav)

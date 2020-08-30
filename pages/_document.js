@@ -16,30 +16,13 @@ class MyDocument extends Document {
         <Head>
           <meta name="theme-color" content="#ff5a09"></meta>
           <link rel="icon" href="/img/icon5.svg" />
-          {/* Styles */}
-          <link href="css/styles.css" rel="stylesheet" />
-          <link href="css/admin-style.css" rel="stylesheet" />
-          {/* Vendor styles */}
-          <link
-            href="/vendor/bootstrap/css/bootstrap.min.css"
-            rel="stylesheet"
-          />
-          <link
-            href="/vendor/fontawesome-free/css/all.min.css"
-            rel="stylesheet"
-          />
         </Head>
         <body className="sb-nav-fixed">
           <Main />
           <NextScript />
           <script src="/js/jquery-3.4.1.min.js"></script>
           <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-          {/* <script src="/vendor/chart/highcharts.js"></script>
-          <script src="/vendor/chart/exporting.js"></script>
-          <script src="/vendor/chart/export-data.js"></script>
-          <script src="/vendor/chart/accessibility.js"></script> */}
           <script src="/js/scripts.js"></script>
-          {/* <script src="/js/chart.js"></script> */}
         </body>
       </Html>
     )

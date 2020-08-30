@@ -8,8 +8,15 @@
     "start": "next start"
   },
   "dependencies": {
+    "axios": "^0.19.2",
+    "base-64": "^0.1.0",
+    "form-data": "^3.0.0",
+    "moment": "^2.27.0",
     "next": "9.5.2",
     "react": "16.13.1",
-    "react-dom": "16.13.1"
+    "react-dom": "16.13.1",
+    "react-facebook-login": "^4.1.1",
+    "react-notify-toast": "^0.5.1",
+    "react-paginate": "^6.3.2"
   }
 }
