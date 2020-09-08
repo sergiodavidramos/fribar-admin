@@ -2,31 +2,15 @@ import Head from 'next/head'
 import TopNavbar from '../components/Navbar'
 import SideNav from '../components/Navbar/SideNav'
 import Footer from '../components/Footer'
-import { useStateValue } from '../components/state'
 import Loader from '../components/Loader'
-// import UserContext from '../components/UserContext'
-
+import UserContext from '../components/UserContext'
 import { useEffect, useContext } from 'react'
 import axios from 'axios'
 function Home() {
-  //   const { user, token } = useContext(UserContext)
+  const { user, token } = useContext(UserContext)
+  console.log('token index  ', user)
 
-  //   const [user, dispatch] = useStateValue()
-  //   const { categories } = useContext(UserContext)
-  console.log('token index  ', token)
-  //   if (user && token) {
-  //   }
-  useEffect(() => {
-    // console.log(
-    //   'el User',
-    //   JSON.parse(localStorage.getItem('frifolly-user'))
-    // )
-    // addCategories(categorias)
-    // dispatch({
-    //   type: 'addCategories',
-    //   newCategories: categorias,
-    // })
-  }, [])
+  useEffect(() => {}, [])
 
   return (
     <>

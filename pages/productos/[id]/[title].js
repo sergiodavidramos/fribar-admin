@@ -1,12 +1,10 @@
 import Head from 'next/head'
 import TopNavbar from '../../../components/Navbar'
 import SideNav from '../../../components/Navbar/SideNav'
-import { useRouter } from 'next/router'
 import Link from 'next/link'
-import axios from 'axios'
-
-function ProductView({ data }) {
-  console.log(data)
+import moment from 'moment'
+function ProductView({ pro }) {
+  moment.locale('es')
   //   const router = useRouter()
   //   if (router.isFallback) {
   //     return <div>Loading...</div>
@@ -22,7 +20,6 @@ function ProductView({ data }) {
 
   return (
     <>
-      <Head></Head>
       <TopNavbar />
       <div id="layoutSidenav">
         <SideNav />
@@ -46,17 +43,20 @@ function ProductView({ data }) {
                 </li>
               </ol>
               <div className="row">
-                <div className="col-lg-5 col-md-6">
+                <div className="col-lg-6 col-md-6">
                   <div className="card card-static-2 mb-30">
                     <div className="card-body-table">
                       <div className="shopowner-content-left text-center pd-20">
                         <div className="shop_img">
-                          <img src="images/product/img-1.jpg" alt="" />
+                          <img
+                            src={`http://localhost:3001/upload/producto/${pro.img[0]}`}
+                            alt=""
+                          />
                         </div>
                         <ul className="product-dt-purchases">
                           <li>
                             <div className="product-status">
-                              Orders{' '}
+                              Ventas/Pedidos
                               <span className="badge-item-2 badge-status">
                                 10
                               </span>
@@ -64,26 +64,53 @@ function ProductView({ data }) {
                           </li>
                           <li>
                             <div className="product-status">
-                              Shop{' '}
+                              Stock
                               <span className="badge-item-2 badge-status">
-                                2
+                                {pro.stock}
                               </span>
                             </div>
                           </li>
                         </ul>
                         <div className="shopowner-dts">
                           <div className="shopowner-dt-list">
-                            <span className="left-dt">Price</span>
-                            <span className="right-dt">$15</span>
+                            <span className="left-dt">Nombre</span>
+                            <span className="right-dt">{pro.name}</span>
                           </div>
                           <div className="shopowner-dt-list">
-                            <span className="left-dt">Status</span>
-                            <span className="right-dt">Active</span>
-                          </div>
-                          <div className="shopowner-dt-list">
-                            <span className="left-dt">Created</span>
+                            <span className="left-dt">Precio Compra</span>
                             <span className="right-dt">
-                              5 May 2020, 03.45 PM
+                              {pro.precioCompra} Bs
+                            </span>
+                          </div>
+                          <div className="shopowner-dt-list">
+                            <span className="left-dt">Precio Venta</span>
+                            <span className="right-dt">
+                              {pro.precioVenta} Bs
+                            </span>
+                          </div>
+                          <div className="shopowner-dt-list">
+                            <span className="left-dt">Categoria</span>
+                            <span className="right-dt">
+                              {' '}
+                              {pro.category[0].name}
+                            </span>
+                          </div>
+                          <div className="shopowner-dt-list">
+                            <span className="left-dt">Detalle</span>
+                            <span className="right-dt">{pro.detail}</span>
+                          </div>
+                          <div className="shopowner-dt-list">
+                            <span className="left-dt">Estado</span>
+                            <span className="right-dt">
+                              {pro.status ? 'Activo' : 'Inactivo'}
+                            </span>
+                          </div>
+                          <div className="shopowner-dt-list">
+                            <span className="left-dt">
+                              Fecha de Vencimiento
+                            </span>
+                            <span className="right-dt">
+                              {moment(pro.vence).format('LL') || ''}
                             </span>
                           </div>
                         </div>
@@ -101,33 +128,33 @@ function ProductView({ data }) {
 }
 
 export async function getStaticPaths() {
-  const pro = await axios.get(`http://localhost:3001/productos/all`, {
-    responseType: 'json',
+  const pro = await fetch(`http://localhost:3001/productos/all`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
   })
-  //   console.log(pro.data.body)
-  const temp = pro.data.body
-  const paths = temp.map((pro) => ({
+  const temp = await pro.json()
+  const paths = temp.body.map((pro) => ({
     params: {
       id: pro._id,
       title: pro.name.toLowerCase().replace(/\s/g, '-'),
     },
   }))
-
   return {
     paths,
     fallback: false,
   }
 }
 export async function getStaticProps({ params }) {
-  const pro = await axios.get(
+  const pro = await fetch(
     `http://localhost:3001/productos?id=${params.id}`,
     {
-      responseType: 'json',
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
     }
   )
-  const data = pro.data
+  const data = await pro.json()
   return {
-    props: { data },
+    props: { pro: data.body[0][0] },
     revalidate: 1,
   }
 }

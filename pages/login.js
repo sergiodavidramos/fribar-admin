@@ -4,26 +4,32 @@ import Notifications, { notify } from 'react-notify-toast'
 import axios from 'axios'
 import FacebookLogin from 'react-facebook-login'
 import { encode } from 'base-64'
-// import { useStateValue } from '../components/state'
+import { useStateValue } from '../components/state'
 import Router from 'next/router'
 import UserContext from '../components/UserContext'
 const Login = () => {
   var auth2
-  //   const [{}, dispatch] = useStateValue()
+  //   const [state, dispatch] = useStateValue()
   const { signIn } = useContext(UserContext)
   const setUser = (userResponse) => {
-    signIn(userResponse.body.usuario, userResponse.body.token)
-    // dispatch({
-    //   type: 'addUser',
-    //   newUser: userResponse.body.usuario,
-    // })
-    // dispatch({
-    //   type: 'addToken',
-    //   newToken: userResponse.body.token,
-    // })
-    // localStorage.setItem('frifolly-user', userResponse.body.usuario)
-    // localStorage.setItem('frifolly-token', userResponse.body.token)
-    // Router.replace('/')
+    if (userResponse.body.usuario.status !== false) {
+      if (
+        userResponse.body.usuario.role === 'ADMIN-ROLE' ||
+        userResponse.body.usuario.role === 'USER-ROLE' ||
+        userResponse.body.usuario.role === 'DELIVERY-ROLE'
+      ) {
+        signIn(userResponse.body.usuario, userResponse.body.token)
+        Router.push('/')
+      } else
+        notify.show(
+          'Su cuenta no tiene permisos para ingresar al sistema de administracion ',
+          'warning'
+        )
+    } else
+      notify.show(
+        'Su cuenta no tiene permisos para ingresar al sistema de administracion ',
+        'warning'
+      )
   }
   var startApp = function () {
     gapi.load('auth2', function () {
@@ -62,7 +68,7 @@ const Login = () => {
           })
       },
       function (error) {
-        alert(JSON.stringify(error, undefined, 2))
+        notify.show(`No se pudo iniciar sesion: ${error.error}`, 'error')
       }
     )
   }
@@ -85,14 +91,13 @@ const Login = () => {
       .then((response) => {
         response.error
           ? notify.show(response.body.message, 'warning')
-          : console.log('la respoinse', response)
+          : setUser(response)
       })
       .catch((err) => {
         notify.show('Error en el Servidor', 'error')
       })
   }
   const responseFacebook = (response) => {
-    console.log('LA Response', response)
     fetch('http://localhost:3001/login/facebook', {
       method: 'POST',
       body: JSON.stringify({
@@ -107,12 +112,13 @@ const Login = () => {
       .then((response) => {
         response.error
           ? notify.show(response.body.message, 'warning')
-          : console.log('la respoinse', response)
+          : setUser(response)
       })
       .catch((err) => {
         notify.show('Error en el Servidor', 'error')
       })
   }
+  const componentClicked = () => {}
   return (
     <>
       <Head>
@@ -152,6 +158,7 @@ const Login = () => {
                         <FacebookLogin
                           appId="284295679548568"
                           autoLoad={false}
+                          onClick={componentClicked}
                           callback={responseFacebook}
                           cssClass="btn btn-lg btn-facebook"
                           icon="fab fa-facebook-f mr-2"
@@ -249,7 +256,6 @@ const Login = () => {
 
 export async function getStaticProps() {
   //   startApp()
-  console.log('HOla desde get')
   // let categorias
   // await axios
   //   .get(`http://localhost:3001/categoria`)

@@ -125,69 +125,58 @@ const SideNav = (props) => (
               </a>
             </nav>
           </div>
-          <a
-            className="nav-link collapsed"
-            href="#"
-            data-toggle="collapse"
-            data-target="#collapseCategories"
-            aria-expanded="false"
-            aria-controls="collapseCategories"
-          >
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-list"></i>
-            </div>
-            Categorias
-            <div className="sb-sidenav-collapse-arrow">
-              <i className="fas fa-angle-down"></i>
-            </div>
-          </a>
+          <Link href="/categorias">
+            <a
+              className={`nav-link ${
+                props.router.pathname.split('/')[1] === 'categorias'
+                  ? 'active'
+                  : 'collapsed'
+              }`}
+              data-toggle="collapse"
+              data-target="#collapseCategories"
+              aria-expanded="false"
+              aria-controls="collapseCategories"
+            >
+              <div className="sb-nav-link-icon">
+                <i className="fas fa-list"></i>
+              </div>
+              Categorias
+              <div className="sb-sidenav-collapse-arrow">
+                <i className="fas fa-angle-down"></i>
+              </div>
+            </a>
+          </Link>
           <div
-            className="collapse"
+            className={`collapse ${
+              props.router.pathname.split('/')[1] === 'categorias'
+                ? 'show'
+                : ''
+            }`}
             id="collapseCategories"
             aria-labelledby="headingTwo"
             data-parent="#sidenavAccordion"
           >
             <nav className="sb-sidenav-menu-nested nav">
-              <a className="nav-link sub_nav_link" href="category.html">
-                Todas las Categorias
-              </a>
-              <a
-                className="nav-link sub_nav_link"
-                href="add_category.html"
-              >
-                Agregar Categoria
-              </a>
-            </nav>
-          </div>
-          <a
-            className="nav-link collapsed"
-            href="#"
-            data-toggle="collapse"
-            data-target="#collapseShops"
-            aria-expanded="false"
-            aria-controls="collapseShops"
-          >
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-store"></i>
-            </div>
-            Shops
-            <div className="sb-sidenav-collapse-arrow">
-              <i className="fas fa-angle-down"></i>
-            </div>
-          </a>
-          <div
-            className="collapse"
-            id="collapseShops"
-            aria-labelledby="headingTwo"
-            data-parent="#sidenavAccordion"
-          >
-            <nav className="sb-sidenav-menu-nested nav">
-              <a className="nav-link sub_nav_link" href="shops.html">
-                All Shops
-              </a>
-              <a className="nav-link sub_nav_link" href="add_shop.html">
-                Add Shop
-              </a>
+              <Link href="/categorias">
+                <a
+                  className={`nav-link sub_nav_link ${
+                    props.router.pathname === '/categorias' ? 'active' : ''
+                  }`}
+                >
+                  Todas las Categorias
+                </a>
+              </Link>
+              <Link href="/categorias/nuevo">
+                <a
+                  className={`nav-link sub_nav_link ${
+                    props.router.pathname === '/categorias/nuevo'
+                      ? 'active'
+                      : ''
+                  }`}
+                >
+                  Agregar Categoria
+                </a>
+              </Link>
             </nav>
           </div>
           <Link href="/productos">
@@ -250,11 +239,23 @@ const SideNav = (props) => (
             </div>
             Pedidos
           </a>
-          <a className="nav-link" href="customers.html">
+          <Link href="/clientes">
+            <a
+              className={`nav-link ${
+                props.router.pathname === '/clientes' ? 'active' : ''
+              }`}
+            >
+              <div className="sb-nav-link-icon">
+                <i className="fas fa-users"></i>
+              </div>
+              Clientes
+            </a>
+          </Link>
+          <a className="nav-link">
             <div className="sb-nav-link-icon">
-              <i className="fas fa-users"></i>
+              <i className="fas fa-user-tie"></i>
             </div>
-            Customers
+            Usuarios
           </a>
           <a className="nav-link" href="offers.html">
             <div className="sb-nav-link-icon">

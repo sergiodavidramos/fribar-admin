@@ -1,17 +1,19 @@
 import Head from 'next/head'
-import TopNavbar from '../../components/Navbar'
-import SideNav from '../../components/Navbar/SideNav'
-import Footer from '../../components/Footer'
+import TopNavbar from '../../../components/Navbar'
+import SideNav from '../../../components/Navbar/SideNav'
+import Footer from '../../../components/Footer'
 import Link from 'next/link'
 import { useState, useEffect, useContext } from 'react'
 import moment from 'moment'
 import Notifications, { notify } from 'react-notify-toast'
 import FormData from 'form-data'
-import UserContext from '../../components/UserContext'
-const ProductoNuevo = ({ categorias }) => {
+import UserContext from '../../../components/UserContext'
+const ProductoNuevo = ({ categorias, pro }) => {
   const [token, setToken] = useState(false)
   const { signOut } = useContext(UserContext)
+  const [images, setImages] = useState([])
   useEffect(() => {
+    setImages(pro.img)
     const tokenLocal = localStorage.getItem('frifolly-token')
     if (!tokenLocal) {
       signOut()
@@ -22,8 +24,7 @@ const ProductoNuevo = ({ categorias }) => {
     categorias.body = []
   }
   const [butt, setButt] = useState(false)
-  const [images, setImages] = useState([])
-  const [im, setIm] = useState([])
+  const [im, setIm] = useState(false)
   var fileObj = []
   var fileArray = []
   const handlerSubmit = () => {
@@ -41,16 +42,17 @@ const ProductoNuevo = ({ categorias }) => {
         )
       } else {
         setButt(true)
-        fetch('http://localhost:3001/productos', {
-          method: 'POST',
+        fetch(`http://localhost:3001/productos/${pro._id}`, {
+          method: 'PATCH',
           body: JSON.stringify({
             name: target[0].value,
-            detail: target[6].value,
-            stock: target[2].value,
-            precioCompra: target[3].value,
-            precioVenta: target[4].value,
-            category: target[1].value,
-            vence: target[5].value,
+            status: target[1].value === '1' ? true : false,
+            category: target[2].value,
+            stock: target[3].value,
+            precioCompra: target[4].value,
+            precioVenta: target[5].value,
+            vence: target[6].value,
+            detail: target[7].value,
           }),
           headers: {
             Authorization: `Bearer ${token}`,
@@ -66,52 +68,51 @@ const ProductoNuevo = ({ categorias }) => {
               notify.show(response.body, 'error', 2000)
               setButt(false)
             } else {
-              if (im.length < 4) {
-                for (const file of im) formData.append('imagen', file)
-              } else
-                for (let i = 0; i < 4; i++) {
-                  formData.append('imagen', im[i])
-                }
-              fetch(
-                `http://localhost:3001/upload/producto/${response.body._id}`,
-                {
-                  method: 'PUT',
-                  body: formData,
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                }
-              )
-                .then((response) => response.json())
-                .then((response) => {
-                  if (response.error) {
-                    notify.show(response.body, 'error', 2000)
-                    setButt(false)
-                  } else {
-                    target[0].value = ''
-                    target[6].value = ''
-                    target[2].value = ''
-                    target[3].value = ''
-                    target[4].value = ''
-                    target[1].value = '0'
-                    setImages([])
-                    notify.show(
-                      'Producto agregado con Exito! ',
-                      'success',
-                      2000
-                    )
-                    setButt(false)
+              if (im) {
+                if (im.length < 4) {
+                  for (const file of im) formData.append('imagen', file)
+                } else
+                  for (let i = 0; i < 4; i++) {
+                    formData.append('imagen', im[i])
                   }
-                })
-                .catch((error) => {
-                  console.log(error)
-                  notify.show('No se pudo subir las imagenes', 'error')
-                  setButt(false)
-                })
+                fetch(
+                  `http://localhost:3001/upload/producto/${response.body._id}`,
+                  {
+                    method: 'PUT',
+                    body: formData,
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                )
+                  .then((response) => response.json())
+                  .then((response) => {
+                    if (response.error) {
+                      notify.show(response.body, 'error', 2000)
+                      setButt(false)
+                    } else {
+                      notify.show(
+                        'Producto agregado con Exito! ',
+                        'success',
+                        2000
+                      )
+                      setButt(false)
+                    }
+                  })
+                  .catch((error) => {
+                    notify.show('No se pudo subir las imagenes', 'error')
+                    setButt(false)
+                  })
+              } else {
+                notify.show(
+                  'Producto agregado con Exito! ',
+                  'success',
+                  2000
+                )
+              }
             }
           })
           .catch((error) => {
-            console.log(error)
             notify.show('Error en el Servidor', 'error')
             setButt(false)
           })
@@ -136,7 +137,6 @@ const ProductoNuevo = ({ categorias }) => {
   }
   return (
     <>
-      <Head></Head>
       <TopNavbar />
       <div id="layoutSidenav">
         <SideNav />
@@ -145,7 +145,7 @@ const ProductoNuevo = ({ categorias }) => {
             <Notifications options={{ zIndex: 9999, top: '56px' }} />
 
             <div className="container-fluid">
-              <h2 className="mt-30 page-title">Nuevo Producto</h2>
+              <h2 className="mt-30 page-title">Producto</h2>
               <ol className="breadcrumb mb-30">
                 <li className="breadcrumb-item">
                   <Link href="/">
@@ -166,7 +166,7 @@ const ProductoNuevo = ({ categorias }) => {
                 <div className="col-lg-6 col-md-6">
                   <div className="card card-static-2 mb-30">
                     <div className="card-title-2">
-                      <h4>Agregar Nuevo Producto</h4>
+                      <h4>Editar Producto</h4>
                     </div>
                     <div className="card-body-table">
                       <form onSubmit={handlerSubmit}>
@@ -177,10 +177,23 @@ const ProductoNuevo = ({ categorias }) => {
                               type="text"
                               className="form-control"
                               placeholder="Nombre del Producto"
+                              defaultValue={pro.name}
                               required
                             />
                           </div>
-
+                          <div className="form-group">
+                            <label className="form-label">Estado*</label>
+                            <select
+                              className="form-control"
+                              defaultValue={pro.status ? '1' : '2'}
+                            >
+                              <option value="0">
+                                --Seleccionar Estado del Producto--
+                              </option>
+                              <option value="1">Activo</option>
+                              <option value="2">Inactivo</option>
+                            </select>
+                          </div>
                           <div className="form-group">
                             <label className="form-label">
                               Categoria*
@@ -189,7 +202,7 @@ const ProductoNuevo = ({ categorias }) => {
                               id="categtory"
                               name="categtory"
                               className="form-control"
-                              defaultValue={0}
+                              defaultValue={pro.category[0]._id}
                             >
                               <option value="0">
                                 --Seleccionar Categoria--
@@ -208,6 +221,7 @@ const ProductoNuevo = ({ categorias }) => {
                               className="form-control"
                               placeholder="Cantidad disponible"
                               required
+                              defaultValue={pro.stock}
                             />
                           </div>
                           <div className="form-group">
@@ -216,9 +230,9 @@ const ProductoNuevo = ({ categorias }) => {
                             </label>
                             <input
                               type="number"
-                              step=".01"
                               className="form-control"
                               placeholder="Bs 0"
+                              defaultValue={pro.precioCompra}
                               required
                             />
                           </div>
@@ -228,9 +242,9 @@ const ProductoNuevo = ({ categorias }) => {
                             </label>
                             <input
                               type="number"
-                              step=".01"
                               className="form-control"
                               placeholder="Bs 0"
+                              defaultValue={pro.precioVenta}
                               required
                             />
                           </div>
@@ -242,7 +256,9 @@ const ProductoNuevo = ({ categorias }) => {
                               type="date"
                               className="form-control"
                               placeholder="Bs 0"
-                              defaultValue={moment().format('YYYY-MM-DD')}
+                              defaultValue={moment(pro.vence).format(
+                                'YYYY-MM-DD'
+                              )}
                               required
                             />
                           </div>
@@ -253,6 +269,7 @@ const ProductoNuevo = ({ categorias }) => {
                             <textarea
                               type="textarea"
                               className="form-control"
+                              defaultValue={pro.detail}
                               required
                             />
                             <div className="card card-editor">
@@ -270,7 +287,6 @@ const ProductoNuevo = ({ categorias }) => {
                                   className="custom-file-input"
                                   id="inputGroupFile05"
                                   aria-describedby="inputGroupFileAddon05"
-                                  required
                                   multiple
                                   onChange={uploadMultipleFile}
                                   accept="image/x-png,image/gif,image/jpeg"
@@ -291,7 +307,11 @@ const ProductoNuevo = ({ categorias }) => {
                                     htmlFor="inputGroupFile05"
                                   >
                                     <img
-                                      src={url}
+                                      src={
+                                        im
+                                          ? url
+                                          : `http://localhost:3001/upload/producto/${url}`
+                                      }
                                       alt="Seleecione una imagen de producto frifolly"
                                     />
                                   </div>
@@ -322,13 +342,39 @@ const ProductoNuevo = ({ categorias }) => {
   )
 }
 
-export async function getStaticProps() {
+export async function getStaticPaths() {
+  const pro = await fetch(`http://localhost:3001/productos/all`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  const temp = await pro.json()
+  const paths = temp.body.map((pro) => ({
+    params: {
+      id: pro._id,
+    },
+  }))
+  return {
+    paths,
+    fallback: false,
+  }
+}
+
+export async function getStaticProps({ params }) {
   try {
     const res = await fetch('http://localhost:3001/categoria')
     const categorias = await res.json()
+    const pro = await fetch(
+      `http://localhost:3001/productos?id=${params.id}`,
+      {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
+    const data = await pro.json()
     return {
       props: {
         categorias,
+        pro: data.body[0][0],
       },
       revalidate: 1,
     }

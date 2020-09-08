@@ -17,5 +17,10 @@ export default () => (
         </div> */}
       </div>
     </div>
+    <style jsx>{`
+      .fa-heart {
+        color: #f55d2c;
+      }
+    `}</style>
   </footer>
 )

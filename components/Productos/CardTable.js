@@ -2,43 +2,40 @@ import Fila from './Fila'
 import ReactPaginate from 'react-paginate'
 import Notifications, { notify } from 'react-notify-toast'
 import { useState, useEffect } from 'react'
-import { useContext } from 'react'
-import UserContext from '../UserContext'
-const CardTable = ({ token }) => {
+// import { useContext } from 'react'
+// import UserContext from '../UserContext'
+const CardTable = ({ proFilter }) => {
   const [product, setProduct] = useState(false)
   const [pageState, setPageState] = useState(0)
-  //   const { token, user, signOut } = useContext(UserContext)
-  console.log('EL token', token)
-  //   console.log('EL user', user)
+  const [count, setCount] = useState(0)
   async function paginationHandler(page) {
     setPageState(page.selected)
   }
   useEffect(() => {
-    fetch(
-      `http://localhost:3001/productos?desde=${pageState * 10}&limite=${
-        pageState * 10 + 10
-      }`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
-      .then((res) => {
-        if (res.status === 401) {
-          //   signOut()
-          //   notify.show('No estas Autorizado', 'error')
+    if (!proFilter) {
+      fetch(
+        `http://localhost:3001/productos?desde=${
+          pageState * 10
+        }&limite=${10}`,
+        {
+          method: 'GET',
         }
-        return res.json()
-      })
-      .then((data) => {
-        console.log(data)
-        setProduct(data.body)
-      })
-      .catch((error) => console.log('errorrr', error))
-  }, [token])
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            notify.show('Error el en servidor', 'error')
+          } else {
+            setProduct(data.body[0])
+            setCount(data.body[1])
+          }
+        })
+        .catch((error) => console.log('errorrr', error))
+    } else {
+      setProduct(proFilter)
+      setCount(0)
+    }
+  }, [proFilter, pageState])
 
   return (
     <div className="card-body-table">
@@ -51,11 +48,11 @@ const CardTable = ({ token }) => {
                 <input type="checkbox" className="check-all" />
               </th>
               <th style={{ width: '60px' }}>ID</th>
-              <th style={{ width: '100px' }}>Image</th>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Created</th>
-              <th>Status</th>
+              <th style={{ width: '100px' }}>Imagen</th>
+              <th>Nombre</th>
+              <th>Categoria</th>
+              <th>Fecha de vencimiento</th>
+              <th>Estado</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -65,9 +62,7 @@ const CardTable = ({ token }) => {
                 <td>...</td>
               </tr>
             ) : (
-              product.products.map((pro, index) => (
-                <Fila key={index} pro={pro} />
-              ))
+              product.map((pro, index) => <Fila key={index} pro={pro} />)
             )}
           </tbody>
         </table>
@@ -80,7 +75,7 @@ const CardTable = ({ token }) => {
             activeClassName={'active-page'}
             containerClassName={'pagination'}
             initialPage={0}
-            pageCount={product.count / 10}
+            pageCount={count / 10}
             marginPagesDisplayed={3}
             pageRangeDisplayed={5}
             onPageChange={paginationHandler}

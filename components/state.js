@@ -1,10 +1,5 @@
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-  useEffect,
-} from 'react'
-export const stateContext = createContext()
+import React, { createContext, useContext, useReducer } from 'react'
+export const StateContext = createContext()
 // let user = false
 // let token = false
 // useEffect(() => {
@@ -18,8 +13,8 @@ const initialState = {
 }
 
 export const StateProvider = ({ reducer, children }) => (
-  <stateContext.Provider value={useReducer(reducer, initialState)}>
+  <StateContext.Provider value={useReducer(reducer, initialState)}>
     {children}
-  </stateContext.Provider>
+  </StateContext.Provider>
 )
-export const useStateValue = () => useContext(stateContext)
+export const useStateValue = () => useContext(StateContext)
