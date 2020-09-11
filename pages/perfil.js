@@ -7,8 +7,9 @@ import { useContext, useState } from 'react'
 import Link from 'next/link'
 import Notifications, { notify } from 'react-notify-toast'
 import FormData from 'form-data'
+import GetImg from '../components/GetImg'
 export default function Perfil() {
-  const urlGetImg = 'http://localhost:3001/upload'
+  const urlGetImg = 'http://localhost:3001/upload/user'
   const { user, token, signOut, setUser } = useContext(UserContext)
   const [image, setImage] = useState(null)
   const [imageUpload, setImageUpload] = useState(null)
@@ -101,24 +102,6 @@ export default function Perfil() {
         )
     }
   }
-  function obtenerImg(user) {
-    let imgEx = false
-    if (user.img) {
-      imgEx = user.img.split('.')[1]
-      if (imgEx) {
-        if (
-          imgEx === 'png' ||
-          imgEx === 'jpg' ||
-          imgEx === 'gif' ||
-          imgEx === 'jpeg'
-        ) {
-          return `${urlGetImg}/user/${user.img}`
-        } else {
-          return user.img
-        }
-      }
-    } else return `${urlGetImg}/user/no-img}`
-  }
   return (
     <>
       <Head>
@@ -148,7 +131,7 @@ export default function Perfil() {
                         <div className="shopowner-content-left text-center pd-20">
                           <div className="shop_img mb-3">
                             <img
-                              src={obtenerImg(user)}
+                              src={GetImg(user.img, urlGetImg)}
                               alt="Usuario Frifolly"
                             />
                           </div>
@@ -280,7 +263,9 @@ export default function Perfil() {
                                   <div className="add-cate-img-1">
                                     <img
                                       src={
-                                        !image ? obtenerImg(user) : image
+                                        !image
+                                          ? GetImg(user.img, urlGetImg)
+                                          : image
                                       }
                                       alt="Usuario Frifolly"
                                     />

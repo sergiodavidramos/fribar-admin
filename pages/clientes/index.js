@@ -7,76 +7,127 @@ import Notifications, { notify } from 'react-notify-toast'
 import { useState, useEffect, useContext } from 'react'
 import UserContext from '../../components/UserContext'
 import Model from '../../components/Model'
-const Clientes = ({ clientFilter }) => {
-  const urlGetImg = 'http://localhost:3001/upload'
-  const { signOut, token } = useContext(UserContext)
-  //   const [token, setToken] = useState(false)
+import GetImg from '../../components/GetImg'
+const Clientes = () => {
+  const [token, setToken] = useState(false)
+  const { signOut } = useContext(UserContext)
   const [clientes, setClientes] = useState(false)
+  const [clientFilter, setClientFilter] = useState(null)
   const [pageState, setPageState] = useState(0)
   const [count, setCount] = useState(0)
   const [id, setId] = useState(null)
   async function paginationHandler(page) {
     setPageState(page.selected)
   }
-  useEffect(() => {
-    if (!clientFilter) {
-      if (token) {
-        fetch(
-          `http://localhost:3001/user?desde=${
-            pageState * 10
-          }&limite=${10}`,
-          {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-          .then((res) => {
-            if (res.status === 401) {
-              signOut()
-            }
-            return res.json()
-          })
-          .then((data) => {
-            if (data.error) {
-              notify.show('Error el en servidor', 'error')
-            } else {
-              setClientes(data.body.users)
-              setCount(data.body.count)
-            }
-          })
-          .catch((error) =>
-            notify.show('Error en el servidor', 'error', 2000)
-          )
+  function getUserAPi(tokenLocal) {
+    fetch(
+      `http://localhost:3001/user?desde=${pageState * 10}&limite=${10}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${tokenLocal}`,
+          'Content-Type': 'application/json',
+        },
       }
+    )
+      .then((res) => {
+        if (res.status === 401) {
+          signOut()
+        }
+        return res.json()
+      })
+      .then((data) => {
+        if (data.error) {
+          notify.show('Error el en servidor', 'error')
+        } else {
+          setClientes(data.body.users)
+          setCount(data.body.count)
+        }
+      })
+      .catch((error) => notify.show('Error en el servidor', 'error', 2000))
+  }
+  useEffect(() => {
+    const tokenLocal = localStorage.getItem('frifolly-token')
+    if (!tokenLocal) {
+      signOut()
+    }
+    setToken(tokenLocal)
+    if (!clientFilter) {
+      getUserAPi(tokenLocal)
     } else {
       setClientes(clientFilter)
       setCount(0)
     }
-  }, [pageState, token])
-
-  function obtenerImg(user) {
-    let imgEx = false
-    if (user.img) {
-      imgEx = user.img.split('.')[1]
-      if (imgEx) {
-        if (
-          imgEx === 'png' ||
-          imgEx === 'jpg' ||
-          imgEx === 'gif' ||
-          imgEx === 'jpeg'
-        ) {
-          return `${urlGetImg}/user/${user.img}`
-        } else {
-          return user.img
-        }
-      }
-    } else return `${urlGetImg}/user/no-img}`
-  }
+  }, [pageState, clientFilter])
   function handlerDelete(id) {
     setId(id)
+  }
+  function handleChangeClientes() {
+    if (event.target.value !== '0') {
+      fetch(
+        `http://localhost:3001/user/state?state=${event.target.value}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+        .then((res) => {
+          if (res.status === 401) {
+            signOut()
+          }
+          return res.json()
+        })
+        .then((data) => {
+          if (data.error) {
+            console.log(data)
+            notify.show('Error el en servidor', 'error')
+          } else {
+            setClientes(data.body)
+            setCount(0)
+          }
+        })
+        .catch((error) =>
+          notify.show('Error en el servidor', 'error', 2000)
+        )
+    } else {
+      getUserAPi(token)
+      setClientFilter(null)
+    }
+  }
+  function handlerSubmit() {
+    event.preventDefault()
+    if (event.target[0].value !== '') {
+      fetch(`http://localhost:3001/user/buscar/${event.target[0].value}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((res) => {
+          if (res.status === 401) {
+            signOut()
+          }
+          return res.json()
+        })
+        .then((data) => {
+          if (data.error) {
+            console.log(data)
+            notify.show('Error el en servidor', 'error')
+          } else {
+            setClientes(data.body)
+            setCount(0)
+          }
+        })
+        .catch((error) =>
+          notify.show('Error en el servidor', 'error', 2000)
+        )
+    } else {
+      getUserAPi(token)
+    }
   }
   return (
     <>
@@ -97,6 +148,46 @@ const Clientes = ({ clientFilter }) => {
                 </li>
                 <li className="breadcrumb-item active">Clientes</li>
               </ol>
+              <div className="row justify-content-between">
+                <div className="col-lg-4 col-md-4">
+                  <div className="bulk-section mt-30">
+                    <div className="input-group">
+                      <select
+                        id="action"
+                        name="action"
+                        className="form-control"
+                        defaultValue="0"
+                        onChange={handleChangeClientes}
+                      >
+                        <option value="0">Todos los Clientes</option>
+                        <option value={true}>Activos</option>
+                        <option value={false}>Inactivos</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-lg-5 col-md-6">
+                  <form onSubmit={handlerSubmit}>
+                    <div className="bulk-section mt-30">
+                      <div className="search-by-name-input">
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Buscar"
+                        />
+                      </div>
+                      <div className="input-group-append">
+                        <button
+                          className="status-btn hover-btn"
+                          type="submit"
+                        >
+                          Buscar cliente
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
               <div className="row">
                 <div className="col-lg-12 col-md-12">
                   <div className="card card-static-2 mb-30">
@@ -119,6 +210,7 @@ const Clientes = ({ clientFilter }) => {
                               <th>Nombre</th>
                               <th>Email</th>
                               <th>Telefono</th>
+                              <th>Estado</th>
                               <th>Action</th>
                             </tr>
                           </thead>
@@ -142,7 +234,10 @@ const Clientes = ({ clientFilter }) => {
                                   <td>
                                     <div className="cate-img-6">
                                       <img
-                                        src={obtenerImg(cli)}
+                                        src={GetImg(
+                                          cli.img,
+                                          'http://localhost:3001/upload/user'
+                                        )}
                                         alt="cliente-frifolly"
                                       />
                                     </div>
@@ -150,21 +245,37 @@ const Clientes = ({ clientFilter }) => {
                                   <td>{cli.nombre_comp}</td>
                                   <td>{cli.email}</td>
                                   <td>{cli.phone}</td>
+                                  <td>
+                                    {cli.status ? (
+                                      <span className="badge-item badge-status">
+                                        Activo
+                                      </span>
+                                    ) : (
+                                      <span className="badge-item badge-status-false">
+                                        Inactivo
+                                      </span>
+                                    )}
+                                  </td>
                                   <td className="action-btns">
-                                    <a
-                                      href="customer_view.html"
-                                      className="view-shop-btn"
-                                      title="View"
+                                    <Link
+                                      href="/clientes/[id]"
+                                      as={`/clientes/${cli._id}`}
                                     >
-                                      <i className="fas fa-eye"></i>
-                                    </a>
-                                    <a
-                                      href="customer_edit.html"
-                                      className="edit-btn"
-                                      title="Edit"
+                                      <a
+                                        className="view-shop-btn"
+                                        title="View"
+                                      >
+                                        <i className="fas fa-eye"></i>
+                                      </a>
+                                    </Link>
+                                    <Link
+                                      href="/clientes/editar/[id]"
+                                      as={`/clientes/editar/${cli._id}`}
                                     >
-                                      <i className="fas fa-edit"></i>
-                                    </a>
+                                      <a className="edit-btn" title="Edit">
+                                        <i className="fas fa-edit"></i>
+                                      </a>
+                                    </Link>
                                     <a
                                       className="delete-btn"
                                       title="Edit"

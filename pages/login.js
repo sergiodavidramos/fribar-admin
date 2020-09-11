@@ -1,10 +1,8 @@
 import Head from 'next/head'
 import { useEffect, useContext } from 'react'
 import Notifications, { notify } from 'react-notify-toast'
-import axios from 'axios'
 import FacebookLogin from 'react-facebook-login'
 import { encode } from 'base-64'
-import { useStateValue } from '../components/state'
 import Router from 'next/router'
 import UserContext from '../components/UserContext'
 const Login = () => {
@@ -94,7 +92,7 @@ const Login = () => {
           : setUser(response)
       })
       .catch((err) => {
-        notify.show('Error en el Servidor', 'error')
+        notify.show(err.message, 'error')
       })
   }
   const responseFacebook = (response) => {

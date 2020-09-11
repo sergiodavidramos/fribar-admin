@@ -8,9 +8,9 @@ export default () => {
   }
   return (
     <nav className="sb-topnav navbar navbar-expand navbar-light bg-clr">
-      <a className="navbar-brand logo-brand" href="index.html">
-        FriFolly
-      </a>
+      <Link href="/">
+        <a className="navbar-brand logo-brand">FriFolly</a>
+      </Link>
       <button
         className="btn btn-link btn-sm order-1 order-lg-0"
         id="sidebarToggle"

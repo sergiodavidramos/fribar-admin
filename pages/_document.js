@@ -10,7 +10,7 @@ class MyDocument extends Document {
     return (
       <Html lang="es">
         <Head>
-          <meta name="theme-color" content="#ff5a09"></meta>
+          <meta name="theme-color" content="#e65c5b"></meta>
           <link rel="icon" href="/img/icon5.svg" />
         </Head>
         <body>

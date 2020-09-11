@@ -1,4 +1,3 @@
-import Head from 'next/head'
 import TopNavbar from '../../../components/Navbar'
 import SideNav from '../../../components/Navbar/SideNav'
 import Link from 'next/link'

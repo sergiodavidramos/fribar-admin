@@ -1570,21 +1570,16 @@ div#editor {
 }
 
 .bg-sign {
-  background: #f55d2c;
   transition: all 0.2s ease-in-out;
   -webkit-transition: all 0.2s ease-in-out;
   -o-transition: all 0.2s ease-in-out;
   -ms-transition: all 0.2s ease-in-out;
   -webkit-transition: all 0.2s ease-in-out;
-  background-image: -webkit-linear-gradient(
-    left,
-    rgba(230, 92, 91, 0.9),
-    rgba(245, 93, 44, 0.9)
-  );
   background-image: linear-gradient(
-    to right,
-    rgba(230, 92, 91, 0.9),
-    rgba(245, 93, 44, 0.9)
+    to top,
+    #f55d2c 0%,
+    #dc2c28 52%,
+    #e65c5b 100%
   );
 }
 

@@ -44,7 +44,9 @@ export default function Productos() {
             setProFiltrado(data.body)
           }
         })
-        .catch((error) => console.log('errorrr', error))
+        .catch((error) =>
+          notify.show('Error en el servidor', 'error', 2000)
+        )
     } else {
       setProFiltrado(null)
     }
