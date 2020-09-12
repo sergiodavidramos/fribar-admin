@@ -8,28 +8,19 @@ import { useState, useEffect, useContext } from 'react'
 import UserContext from '../../components/UserContext'
 import Model from '../../components/Model'
 import GetImg from '../../components/GetImg'
-const Clientes = () => {
+const Users = () => {
   const [token, setToken] = useState(false)
   const { signOut } = useContext(UserContext)
   const [clientes, setClientes] = useState(false)
-  const [clientFilter, setClientFilter] = useState(null)
-  const [pageState, setPageState] = useState(0)
-  const [count, setCount] = useState(0)
   const [id, setId] = useState(null)
-  async function paginationHandler(page) {
-    setPageState(page.selected)
-  }
   function getUserAPi(tokenLocal) {
-    fetch(
-      `http://localhost:3001/user?desde=${pageState * 10}&limite=${10}`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${tokenLocal}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+    fetch(`http://localhost:3001/user/role`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${tokenLocal}`,
+        'Content-Type': 'application/json',
+      },
+    })
       .then((res) => {
         if (res.status === 401) {
           signOut()
@@ -40,11 +31,13 @@ const Clientes = () => {
         if (data.error) {
           notify.show('Error el en servidor', 'error')
         } else {
-          setClientes(data.body.users)
-          setCount(data.body.count)
+          setClientes(data.body)
         }
       })
-      .catch((error) => notify.show('Error en el servidor', 'error', 2000))
+      .catch((error) => {
+        console.log(error)
+        notify.show('Error en el servidor', 'error', 2000)
+      })
   }
   useEffect(() => {
     const tokenLocal = localStorage.getItem('frifolly-token')
@@ -52,54 +45,14 @@ const Clientes = () => {
       signOut()
     }
     setToken(tokenLocal)
-    if (!clientFilter) {
-      getUserAPi(tokenLocal)
-    } else {
-      setClientes(clientFilter)
-      setCount(0)
-    }
-  }, [pageState, clientFilter])
+    getUserAPi(tokenLocal)
+  }, [])
   function handlerDelete(id) {
     setId(id)
   }
   function handleChangeClientes() {
     if (event.target.value !== '0') {
-      fetch(
-        `http://localhost:3001/user/state?state=${event.target.value}`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-        .then((res) => {
-          if (res.status === 401) {
-            signOut()
-          }
-          return res.json()
-        })
-        .then((data) => {
-          if (data.error) {
-            notify.show('Error el en servidor', 'error')
-          } else {
-            setClientes(data.body)
-            setCount(0)
-          }
-        })
-        .catch((error) =>
-          notify.show('Error en el servidor', 'error', 2000)
-        )
-    } else {
-      getUserAPi(token)
-      setClientFilter(null)
-    }
-  }
-  function handlerSubmit() {
-    event.preventDefault()
-    if (event.target[0].value !== '') {
-      fetch(`http://localhost:3001/user/buscar/${event.target[0].value}`, {
+      fetch(`http://localhost:3001/user/role?role=${event.target.value}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -118,12 +71,11 @@ const Clientes = () => {
             notify.show('Error el en servidor', 'error')
           } else {
             setClientes(data.body)
-            setCount(0)
           }
         })
-        .catch((error) =>
+        .catch((error) => {
           notify.show('Error en el servidor', 'error', 2000)
-        )
+        })
     } else {
       getUserAPi(token)
     }
@@ -138,60 +90,38 @@ const Clientes = () => {
           <main>
             <Notifications options={{ zIndex: 9999, top: '56px' }} />
             <div className="container-fluid">
-              <h2 className="mt-30 page-title">Clientes</h2>
+              <h2 className="mt-30 page-title">Usuarios</h2>
               <ol className="breadcrumb mb-30">
                 <li className="breadcrumb-item">
                   <Link href="/">
                     <a>Tablero</a>
                   </Link>
                 </li>
-                <li className="breadcrumb-item active">Clientes</li>
+                <li className="breadcrumb-item active">Usuarios</li>
               </ol>
-              <div className="row justify-content-between">
-                <div className="col-lg-4 col-md-4">
-                  <div className="bulk-section mt-30">
-                    <div className="input-group">
-                      <select
-                        id="action"
-                        name="action"
-                        className="form-control"
-                        defaultValue="0"
-                        onChange={handleChangeClientes}
-                      >
-                        <option value="0">Todos los Clientes</option>
-                        <option value={true}>Activos</option>
-                        <option value={false}>Inactivos</option>
-                      </select>
-                    </div>
+              <div className="col-lg-4 col-md-4">
+                <div className="bulk-section mt-30">
+                  <div className="input-group">
+                    <select
+                      id="action"
+                      name="action"
+                      className="form-control"
+                      defaultValue="0"
+                      onChange={handleChangeClientes}
+                    >
+                      <option value="0">Todos los Usuarios</option>
+                      <option value={'ADMIN-ROLE'}>Administradores</option>
+                      <option value={'USER-ROLE'}>Vendedores</option>
+                      <option value={'DELIVERY-ROLE'}>Repartidores</option>
+                    </select>
                   </div>
-                </div>
-                <div className="col-lg-5 col-md-6">
-                  <form onSubmit={handlerSubmit}>
-                    <div className="bulk-section mt-30">
-                      <div className="search-by-name-input">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Buscar"
-                        />
-                      </div>
-                      <div className="input-group-append">
-                        <button
-                          className="status-btn hover-btn"
-                          type="submit"
-                        >
-                          Buscar cliente
-                        </button>
-                      </div>
-                    </div>
-                  </form>
                 </div>
               </div>
               <div className="row">
                 <div className="col-lg-12 col-md-12">
                   <div className="card card-static-2 mb-30">
                     <div className="card-title-2">
-                      <h4>Todos los clientes</h4>
+                      <h4>Todos los Usuarios</h4>
                     </div>
                     <div className="card-body-table">
                       <div className="table-responsive">
@@ -209,6 +139,7 @@ const Clientes = () => {
                               <th>Nombre</th>
                               <th>Email</th>
                               <th>Telefono</th>
+                              <th>Rol</th>
                               <th>Estado</th>
                               <th>Action</th>
                             </tr>
@@ -244,6 +175,7 @@ const Clientes = () => {
                                   <td>{cli.nombre_comp}</td>
                                   <td>{cli.email}</td>
                                   <td>{cli.phone}</td>
+                                  <td>{cli.role}</td>
                                   <td>
                                     {cli.status ? (
                                       <span className="badge-item badge-status">
@@ -292,21 +224,6 @@ const Clientes = () => {
                             )}
                           </tbody>
                         </table>
-                        <div className="pages">
-                          <ReactPaginate
-                            previousLabel={'previous'}
-                            nextLabel={'next'}
-                            breakLabel={'...'}
-                            breakClassName={'break-me'}
-                            activeClassName={'active-page'}
-                            containerClassName={'pagination'}
-                            initialPage={0}
-                            pageCount={count / 10}
-                            marginPagesDisplayed={3}
-                            pageRangeDisplayed={5}
-                            onPageChange={paginationHandler}
-                          />
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -322,4 +239,4 @@ const Clientes = () => {
   )
 }
 
-export default Clientes
+export default Users
