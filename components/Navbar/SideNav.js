@@ -200,6 +200,7 @@ const SideNav = (props) => (
               </div>
             </a>
           </Link>
+
           <div
             className={`collapse ${
               props.router.pathname.split('/')[1] === 'productos'
@@ -251,19 +252,30 @@ const SideNav = (props) => (
               Clientes
             </a>
           </Link>
-          <a className="nav-link">
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-user-tie"></i>
-            </div>
-            Usuarios
-          </a>
-          <a className="nav-link" href="offers.html">
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-gift"></i>
-            </div>
-            Ofertas
-          </a>
-
+          <Link href="/usuarios">
+            <a
+              className={`nav-link ${
+                props.router.pathname === '/usuarios' ? 'active' : ''
+              }`}
+            >
+              <div className="sb-nav-link-icon">
+                <i className="fas fa-user-tie"></i>
+              </div>
+              Usuarios
+            </a>
+          </Link>
+          <Link href="/ofertas">
+            <a
+              className={`nav-link ${
+                props.router.pathname === '/ofertas' ? 'active' : ''
+              }`}
+            >
+              <div className="sb-nav-link-icon">
+                <i className="fas fa-gift"></i>
+              </div>
+              Ofertas
+            </a>
+          </Link>
           <a className="nav-link" href="reports.html">
             <div className="sb-nav-link-icon">
               <i className="fas fa-chart-bar"></i>

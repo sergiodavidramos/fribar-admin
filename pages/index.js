@@ -6,11 +6,21 @@ import Loader from '../components/Loader'
 import UserContext from '../components/UserContext'
 import { useEffect, useContext } from 'react'
 import axios from 'axios'
+import io from 'socket.io-client'
+
 function Home() {
   const { user, token } = useContext(UserContext)
   console.log('token index  ', user)
 
-  useEffect(() => {}, [])
+  useEffect(() => {
+    const socket = io('http://localhost:3001')
+    socket.on('connect', () => {
+      console.log('conectado al servidor')
+    })
+    socket.on('disconnect', () => {
+      console.log('desconectado del servidor')
+    })
+  }, [])
 
   return (
     <>
