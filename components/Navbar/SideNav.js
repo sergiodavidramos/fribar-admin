@@ -234,12 +234,18 @@ const SideNav = (props) => (
               </Link>
             </nav>
           </div>
-          <a className="nav-link" href="orders.html">
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-cart-arrow-down"></i>
-            </div>
-            Pedidos
-          </a>
+          <Link href="/pedidos">
+            <a
+              className={`nav-link sub_nav_link ${
+                props.router.pathname === '/pedidos' ? 'active' : ''
+              }`}
+            >
+              <div className="sb-nav-link-icon">
+                <i className="fas fa-cart-arrow-down"></i>
+              </div>
+              Pedidos
+            </a>
+          </Link>
           <Link href="/clientes">
             <a
               className={`nav-link ${

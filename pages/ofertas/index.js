@@ -44,9 +44,6 @@ const Ofertas = () => {
     setToken(tokenLocal)
     getUserAPi()
   }, [])
-  function handlerDelete(id) {
-    setId(id)
-  }
   return (
     <>
       <Model id={id} token={token} notify={notify} />

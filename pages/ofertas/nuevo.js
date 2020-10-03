@@ -14,9 +14,11 @@ const OfertaNueva = ({ productos }) => {
   const [image, setImage] = useState(null)
   const [imageUpload, setImageUpload] = useState(null)
   const options = []
-  productos.body.map((data) =>
-    options.push({ value: data._id, label: data.name })
-  )
+  productos.error
+    ? ''
+    : productos.body.map((data) =>
+        options.push({ value: data._id, label: data.name })
+      )
   const handlerSubmit = async () => {
     let target = event.target
 
