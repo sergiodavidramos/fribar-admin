@@ -4,12 +4,11 @@ import Footer from '../../components/Footer'
 import Notifications, { notify } from 'react-notify-toast'
 import Select from 'react-select'
 import makeAnimated from 'react-select/animated'
-import { PostUrl } from '../../components/PostUrl'
 import { useState, useContext, useEffect } from 'react'
 import UserContext from '../../components/UserContext'
-import GetImg from '../../components/GetImg'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { API_URL } from '../../components/Config'
 function EditOffer() {
   const { signOut } = useContext(UserContext)
   const [selectedOption, setSelectedOption] = useState(null)
@@ -31,13 +30,13 @@ function EditOffer() {
     if (!oferta && router && router.query && router.query.id) {
       const { id } = router.query
       Promise.all([
-        fetch(`http://localhost:3001/offers/${id}`, {
+        fetch(`${API_URL}/offers/${id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
         }),
-        fetch('http://localhost:3001/productos/all'),
+        fetch(`${API_URL}/productos/all`),
       ])
         .then((data) => {
           if (data.error) {
@@ -74,7 +73,7 @@ function EditOffer() {
       : defaultValue.map((d) => product.push(d.value))
     if (!image) {
       formData.append('imagen', imageUpload)
-      fetch(`http://localhost:3001/offers/${oferta._id}`, {
+      fetch(`${API_URL}/offers/${oferta._id}`, {
         method: 'PATCH',
         body: JSON.stringify({
           titulo: target[0].value,
@@ -104,7 +103,7 @@ function EditOffer() {
         })
     } else {
       formData.append('imagen', imageUpload)
-      fetch(`http://localhost:3001/upload/oferta/${oferta._id}`, {
+      fetch(`${API_URL}/upload/oferta/${oferta._id}`, {
         method: 'PUT',
         body: formData,
         headers: {
@@ -116,7 +115,7 @@ function EditOffer() {
           if (response.error) {
             notify.show(response.body, 'error', 2000)
           } else {
-            fetch(`http://localhost:3001/offers/${oferta._id}`, {
+            fetch(`${API_URL}/offers/${oferta._id}`, {
               method: 'PATCH',
               body: JSON.stringify({
                 titulo: target[0].value,
@@ -276,7 +275,7 @@ function EditOffer() {
                                   src={
                                     image
                                       ? image
-                                      : `http://localhost:3001/upload/oferta/${oferta.img}`
+                                      : `${API_URL}/upload/oferta/${oferta.img}`
                                   }
                                   alt="Oferta"
                                 />

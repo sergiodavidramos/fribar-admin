@@ -5,7 +5,14 @@ import Footer from '../../components/Footer'
 import Link from 'next/link'
 import chroma from 'chroma-js'
 import Select from 'react-select'
+import { useEffect, useState } from 'react'
+import { API_URL } from '../../components/Config'
+import moment from 'moment'
+import io from 'socket.io-client'
 const Pedidos = () => {
+  const mediaHora = '00:30:00'
+  const [pedidos, setPedidos] = useState([])
+  const [estado, setEstado] = useState(false)
   const colourOptions = [
     { value: '0', label: 'Pendiente', color: 'orange' },
     { value: '1', label: 'Proceso', color: 'purple' },
@@ -60,6 +67,67 @@ const Pedidos = () => {
     placeholder: (styles) => ({ ...styles, ...dot() }),
     singleValue: (styles, { data }) => ({ ...styles, ...dot(data.color) }),
   }
+
+  const getPedidosDia = async () => {
+    try {
+      const pedidosDia = await fetch(
+        `${API_URL}/pedido/${moment().format('YYYY-MM-DD')}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      const response = await pedidosDia.json()
+      response.error
+        ? notify.show(
+            'Error en el servidor, comuníquese con el administrador',
+            'error',
+            4000
+          )
+        : setPedidos(response.body)
+    } catch (err) {
+      console.error('Errorrrr', err)
+      notify.show(
+        'Error en el servidor, comuníquese con el administrador',
+        'error',
+        4000
+      )
+    }
+  }
+  const handleChange = async (selectedOption, id) => {
+    try {
+      const newP = await fetch(`${API_URL}/pedido/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          state: selectedOption.value,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      const newPedido = await newP.json()
+      newPedido.error
+        ? notify.show('Error al cambiar estado', 'error', 500)
+        : notify.show('Estado Cambiado', 'success', 500)
+    } catch (err) {
+      console.error('Error en el Servidor', err)
+    }
+  }
+  const socket = io(API_URL)
+
+  useEffect(() => {
+    socket.on('escuchar-pedido', (pedido) => {
+      if (pedidos.length > 0) {
+        setPedidos([...pedidos, pedido])
+      } else {
+        getPedidosDia()
+      }
+    })
+    getPedidosDia()
+    return () => socket.disconnect()
+  }, [])
   return (
     <>
       <TopNavbar />
@@ -79,7 +147,7 @@ const Pedidos = () => {
                 <li className="breadcrumb-item active">Pedidos</li>
               </ol>
               <div className="row justify-content-between">
-                <div className="col-lg-3 col-md-4">
+                {/* <div className="col-lg-3 col-md-4">
                   <div className="bulk-section mb-30">
                     <div className="input-group">
                       <select
@@ -96,7 +164,7 @@ const Pedidos = () => {
                       </select>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="col-lg-12 col-md-12">
                   <div className="card card-static-2 mb-30">
@@ -108,9 +176,6 @@ const Pedidos = () => {
                         <table className="table ucp-table table-hover">
                           <thead>
                             <tr>
-                              {/* <th style={{ width: '100px' }}>
-                                ID de orden
-                              </th> */}
                               <th>Item</th>
                               <th style={{ width: '150px' }}>Fecha</th>
                               <th style={{ width: '300px' }}>Direccion</th>
@@ -120,47 +185,76 @@ const Pedidos = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            <tr>
-                              {/* <td>ORDER12345</td> */}
-                              <td>
-                                <a href="#" target="_blank">
-                                  Product Title Here
-                                </a>
-                              </td>
-                              <td>
-                                <span className="delivery-time">
-                                  15/06/2020
-                                </span>
-                                <span className="delivery-time">
-                                  4:00PM - 6.00PM
-                                </span>
-                              </td>
-                              <td>
-                                #0000, St No. 8, Shahid Karnail Singh
-                                Nagar, MBD Mall, Frozpur road, Ludhiana,
-                                141001
-                              </td>
-                              <td style={{ width: '15%' }}>
-                                <Select
-                                  defaultValue={colourOptions[0]}
-                                  label="Single select"
-                                  options={colourOptions}
-                                  styles={colourStyles}
-                                  instanceId="state"
-                                />
-                              </td>
-                              <td>$9000</td>
-                              <td className="action-btns">
-                                <Link
-                                  href="/pedidos/[id]"
-                                  as={`/pedidos/sdsd`}
-                                >
-                                  <a className="views-btn">
-                                    <i className="fas fa-eye"></i>
-                                  </a>
-                                </Link>
-                              </td>
-                            </tr>
+                            {pedidos.map((pedido, index) => (
+                              <tr key={index}>
+                                <td>
+                                  {pedido.detalleVenta.detalle.map(
+                                    (pro) => {
+                                      return (
+                                        <div key={pro._id}>
+                                          <Link
+                                            href="/productos/[id]/[title]"
+                                            as={`/productos/${
+                                              pro.producto._id
+                                            }/${pro.producto.name
+                                              .toLowerCase()
+                                              .replace(/\s/g, '-')}`}
+                                          >
+                                            <a target="_blank">
+                                              {pro.producto.name}
+                                            </a>
+                                          </Link>
+                                          {'  '}
+                                          {pro.cantidad}-
+                                          {pro.producto.tipoVenta}
+                                          <br />
+                                        </div>
+                                      )
+                                    }
+                                  )}
+                                </td>
+                                <td>
+                                  <span className="delivery-time">
+                                    {moment(pedido.fecha).format('L')}
+                                  </span>
+                                  <span className="delivery-time">
+                                    {moment(pedido.fecha).format('LT')}-
+                                    {moment(pedido.fecha)
+                                      .add(moment.duration(mediaHora))
+                                      .format('LT')}
+                                  </span>
+                                </td>
+                                <td>{pedido.direction.direccion}</td>
+                                <td style={{ width: '15%' }}>
+                                  <Select
+                                    defaultValue={
+                                      colourOptions[pedido.state]
+                                    }
+                                    label="Single select"
+                                    options={colourOptions}
+                                    styles={colourStyles}
+                                    instanceId="state"
+                                    onChange={(selectedOption) =>
+                                      handleChange(
+                                        selectedOption,
+                                        pedido._id
+                                      )
+                                    }
+                                  />
+                                </td>
+                                <td>{pedido.total} Bs</td>
+                                <td className="action-btns">
+                                  <Link
+                                    href="/pedidos/[id]"
+                                    as={`/pedidos/${pedido._id}`}
+                                  >
+                                    <a className="views-btn">
+                                      <i className="fas fa-eye"></i>
+                                    </a>
+                                  </Link>
+                                </td>
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>

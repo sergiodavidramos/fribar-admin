@@ -7,13 +7,6 @@ export function PostUrl(url, data, signOut, token) {
       'Content-Type': 'application/json',
     },
   })
-  //     .then((res) => {
-  //       if (res.status === 401) signOut()
-  //       return res.json()
-  //     })
-  //     .then((response) => (r = response))
-  //     .catch((error) => (r = false))
-  //   return r
 }
 
 export const PostImg = () => {}

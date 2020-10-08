@@ -13,13 +13,13 @@ function Home() {
   console.log('token index  ', user)
 
   useEffect(() => {
-    const socket = io('http://localhost:3001')
-    socket.on('connect', () => {
-      console.log('conectado al servidor')
-    })
-    socket.on('disconnect', () => {
-      console.log('desconectado del servidor')
-    })
+    // const socket = io('http://localhost:3001')
+    // socket.on('connect', () => {
+    //   console.log('conectado al servidor')
+    // })
+    // socket.on('disconnect', () => {
+    //   console.log('desconectado del servidor')
+    // })
   }, [])
 
   return (
