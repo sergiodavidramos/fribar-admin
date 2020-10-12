@@ -3,7 +3,7 @@ import '../public/css/admin-style.css'
 import '../public/vendor/bootstrap/css/bootstrap.min.css'
 import '../public/vendor/fontawesome-free/css/all.min.css'
 import React from 'react'
-import App, { Container } from 'next/app'
+import App from 'next/app'
 import Head from 'next/head'
 import UserContext from '../components/UserContext'
 import Router from 'next/router'
@@ -46,7 +46,7 @@ export default class MyApp extends App {
         token,
       })
     } else {
-      Router.push('/login')
+      //   Router.push('/login')
     }
   }
 
