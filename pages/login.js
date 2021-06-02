@@ -88,7 +88,7 @@ const Login = () => {
       .then((res) => res.json())
       .then((response) => {
         response.error
-          ? notify.show(response.body.message, 'warning')
+          ? notify.show(response, 'warning')
           : setUser(response)
       })
       .catch((err) => {
@@ -113,6 +113,7 @@ const Login = () => {
           : setUser(response)
       })
       .catch((err) => {
+        console.log('el errr', err)
         notify.show('Error en el Servidor', 'error')
       })
   }
