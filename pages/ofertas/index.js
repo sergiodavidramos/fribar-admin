@@ -7,13 +7,14 @@ import { useState, useEffect, useContext } from 'react'
 import UserContext from '../../components/UserContext'
 import Model from '../../components/Model'
 import GetImg from '../../components/GetImg'
+import { API_URL } from '../../components/Config'
 const Ofertas = () => {
   const [token, setToken] = useState(false)
   const { signOut } = useContext(UserContext)
   const [ofertas, setOfertas] = useState(false)
   const [id, setId] = useState(null)
   function getUserAPi() {
-    fetch(`http://localhost:3001/offers`, {
+    fetch(`${API_URL}/offers`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

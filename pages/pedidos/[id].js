@@ -3,7 +3,46 @@ import TopNavbar from '../../components/Navbar'
 import SideNav from '../../components/Navbar/SideNav'
 import Footer from '../../components/Footer'
 import Link from 'next/link'
+import { API_URL } from '../../components/Config'
+import UserContext from '../../components/UserContext'
+import { useEffect, useContext, useState } from 'react'
+import { useRouter } from 'next/router'
+import moment from 'moment'
 const ViewPedidos = () => {
+  moment.locale('es')
+  const router = useRouter()
+  const { signOut } = useContext(UserContext)
+  const [pedido, setPedido] = useState(null)
+  useEffect(() => {
+    const tokenLocal = localStorage.getItem('frifolly-token')
+    if (!tokenLocal) {
+      signOut()
+    }
+    if (router && router.query && router.query.id) {
+      const { id } = router.query
+      fetch(`${API_URL}/pedido/detalle/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((res) => res.json())
+        .then((pedido) => {
+          if (pedido.error) {
+            notify.show('Error el en servidor', 'error')
+          } else {
+            setPedido(pedido.body)
+          }
+        })
+        .catch((err) =>
+          notify.show(
+            'Error en el servidor, comuníquese con el administrador',
+            'error',
+            2000
+          )
+        )
+    }
+  }, [router])
   return (
     <>
       <TopNavbar />
@@ -27,138 +66,168 @@ const ViewPedidos = () => {
                 </li>
                 <li className="breadcrumb-item active">Vista de pedido</li>
               </ol>
-              <div className="row">
-                <div className="col-xl-12 col-md-12">
-                  <div className="card card-static-2 mb-30">
-                    <div className="card-title-2">
-                      <h2 className="title1458">Invoice</h2>
-                      <span className="order-id">Order #ORDR-123456</span>
-                    </div>
-                    <div className="invoice-content">
-                      <div className="row">
-                        <div className="col-lg-6 col-sm-6">
-                          <div className="ordr-date">
-                            <b>Order Date :</b> 29 May 2020
-                          </div>
-                        </div>
-                        <div className="col-lg-6 col-sm-6">
-                          <div className="ordr-date right-text">
-                            <b>Order Date :</b>
-                            <br />
-                            #0000, St No. 8,
-                            <br />
-                            Shahid Karnail Singh Nagar,
-                            <br />
-                            MBD Mall,
-                            <br />
-                            Frozpur road,
-                            <br />
-                            Ludhiana,
-                            <br />
-                            141001
-                            <br />
-                          </div>
-                        </div>
-                        <div className="col-lg-12">
-                          <div className="card card-static-2 mb-30 mt-30">
-                            <div className="card-title-2">
-                              <h4>Recent Orders</h4>
+              {pedido ? (
+                <div className="row">
+                  <div className="col-xl-12 col-md-12">
+                    <div className="card card-static-2 mb-30">
+                      <div className="card-title-2">
+                        <h2 className="title1458">Factura</h2>
+                        <span className="order-id">
+                          Orden {pedido._id}
+                        </span>
+                      </div>
+                      <div className="invoice-content">
+                        <div className="row">
+                          <div className="col-lg-6 col-sm-6">
+                            <div className="ordr-date">
+                              <b>Fecha del pedido :</b>{' '}
+                              {moment(pedido.fecha).format('LL')}
                             </div>
-                            <div className="card-body-table">
-                              <div className="table-responsive">
-                                <table className="table ucp-table table-hover">
-                                  <thead>
-                                    <tr>
-                                      <th style={{ width: '130px' }}>#</th>
-                                      <th>Item</th>
-                                      <th
-                                        style={{ width: '150px' }}
-                                        className="text-center"
-                                      >
-                                        Price
-                                      </th>
-                                      <th
-                                        style={{ width: '150px' }}
-                                        className="text-center"
-                                      >
-                                        Qty
-                                      </th>
-                                      <th
-                                        style={{ width: '100px' }}
-                                        className="text-center"
-                                      >
-                                        Total
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr>
-                                      <td>1</td>
-                                      <td>
-                                        <a href="#" target="_blank">
-                                          Product Title Here
-                                        </a>
-                                      </td>
-                                      <td className="text-center">$15</td>
-                                      <td className="text-center">1</td>
-                                      <td className="text-center">$15</td>
-                                    </tr>
-                                    <tr>
-                                      <td>2</td>
-                                      <td>
-                                        <a href="#" target="_blank">
-                                          Product Title Here
-                                        </a>
-                                      </td>
-                                      <td className="text-center">$12</td>
-                                      <td className="text-center">1</td>
-                                      <td className="text-center">$12</td>
-                                    </tr>
-                                  </tbody>
-                                </table>
+                          </div>
+                          <div className="col-lg-6 col-sm-6">
+                            <div className="ordr-date right-text">
+                              <b>Datos del Pedido :</b>
+                              <br />
+                              {pedido.direction.direccion}
+                              <br />
+                              Latitud: {pedido.direction.lat}
+                              <br />
+                              Longitud: {pedido.direction.lon}
+                            </div>
+                          </div>
+                          <div className="col-lg-12">
+                            <div className="card card-static-2 mb-30 mt-30">
+                              <div className="card-title-2">
+                                <h4>Recent Orders</h4>
+                              </div>
+                              <div className="card-body-table">
+                                <div className="table-responsive">
+                                  <table className="table ucp-table table-hover">
+                                    <thead>
+                                      <tr>
+                                        <th style={{ width: '130px' }}>
+                                          #
+                                        </th>
+                                        <th>Item</th>
+                                        <th
+                                          style={{ width: '150px' }}
+                                          className="text-center"
+                                        >
+                                          Precio
+                                        </th>
+                                        <th
+                                          style={{ width: '150px' }}
+                                          className="text-center"
+                                        >
+                                          Cantidad
+                                        </th>
+                                        <th
+                                          style={{ width: '100px' }}
+                                          className="text-center"
+                                        >
+                                          Total
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {pedido.detalleVenta.detalle.map(
+                                        (p, index) => (
+                                          <tr key={index}>
+                                            <td>{index + 1}</td>
+                                            <td>
+                                              <Link
+                                                href="/productos/[id]/[title]"
+                                                as={`/productos/${
+                                                  p.producto._id
+                                                }/${p.producto.name
+                                                  .toLowerCase()
+                                                  .replace(/\s/g, '-')}`}
+                                              >
+                                                <a target="_blank">
+                                                  {p.producto.name}
+                                                </a>
+                                              </Link>
+                                            </td>
+                                            <td className="text-center">
+                                              {p.producto.precioVenta} Bs
+                                            </td>
+                                            <td className="text-center">
+                                              {p.cantidad} -{' '}
+                                              {p.producto.tipoVenta}
+                                            </td>
+                                            <td className="text-center">
+                                              {p.cantidad *
+                                                p.producto
+                                                  .precioVenta}{' '}
+                                              Bs
+                                            </td>
+                                          </tr>
+                                        )
+                                      )}
+                                    </tbody>
+                                  </table>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="col-lg-7"></div>
-                        <div className="col-lg-5">
-                          <div className="order-total-dt">
-                            <div className="order-total-left-text">
-                              Sub Total
+                          <div className="col-lg-7"></div>
+                          <div className="col-lg-5">
+                            <div className="order-total-dt">
+                              <div className="order-total-left-text">
+                                Sub Total
+                              </div>
+                              <div className="order-total-right-text">
+                                {pedido.total - pedido.deliveryFees} Bs
+                              </div>
                             </div>
-                            <div className="order-total-right-text">
-                              $27
+                            <div className="order-total-dt">
+                              <div className="order-total-left-text">
+                                Cargos por envío
+                              </div>
+                              <div className="order-total-right-text">
+                                {pedido.deliveryFees || 0} Bs
+                              </div>
+                            </div>
+                            <div className="order-total-dt">
+                              <div className="order-total-left-text fsz-18">
+                                Total
+                              </div>
+                              <div className="order-total-right-text fsz-18">
+                                {pedido.total} Bs
+                              </div>
                             </div>
                           </div>
-                          <div className="order-total-dt">
-                            <div className="order-total-left-text">
-                              Delivery Fees
+                          <div className="col-lg-7"></div>
+                          <div className="col-lg-5">
+                            <div className="select-status">
+                              <label htmlFor="status">Estado*</label>
+                              {pedido.state === 0 ? (
+                                <div className="status-active">
+                                  Pendiente
+                                </div>
+                              ) : pedido.state === 1 ? (
+                                <div className="status-active">
+                                  Proceso
+                                </div>
+                              ) : pedido.state === 2 ? (
+                                <div className="status-active">
+                                  Completo
+                                </div>
+                              ) : (
+                                <div className="status-active">
+                                  Cancelado
+                                </div>
+                              )}
                             </div>
-                            <div className="order-total-right-text">
-                              $0
-                            </div>
-                          </div>
-                          <div className="order-total-dt">
-                            <div className="order-total-left-text fsz-18">
-                              Total Amount
-                            </div>
-                            <div className="order-total-right-text fsz-18">
-                              $27
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-lg-7"></div>
-                        <div className="col-lg-5">
-                          <div className="select-status">
-                            <label htmlFor="status">Status*</label>
-                            <div className="status-active">Pending</div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                ''
+              )}
             </div>
           </main>
           <Footer />

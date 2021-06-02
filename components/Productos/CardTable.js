@@ -2,6 +2,7 @@ import Fila from './Fila'
 import ReactPaginate from 'react-paginate'
 import Notifications, { notify } from 'react-notify-toast'
 import { useState, useEffect } from 'react'
+import {API_URL} from '../Config'
 // import { useContext } from 'react'
 // import UserContext from '../UserContext'
 const CardTable = ({ proFilter }) => {
@@ -14,7 +15,7 @@ const CardTable = ({ proFilter }) => {
   useEffect(() => {
     if (!proFilter) {
       fetch(
-        `http://localhost:3001/productos?desde=${
+        `${API_URL}/productos?desde=${
           pageState * 10
         }&limite=${10}`,
         {

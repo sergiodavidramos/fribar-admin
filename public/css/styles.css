@@ -375,6 +375,9 @@ mark,
 }
 
 @media (max-width: 575.98px) {
+  #fly {
+    height: 50px !important;
+  }
   .frnt-link {
     margin-left: 0 !important;
   }
@@ -1061,4 +1064,33 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+.img_pointer {
+  position: relative;
+  height: 60px;
+  width: 60px;
+  cursor: pointer;
+  z-index: 9;
+}
+.img_perfil {
+  position: absolute;
+  border-radius: 50%;
+  height: 60px;
+  width: 60px;
+  top: 0;
+  left: 0;
+}
+#fly {
+  display: block;
+  position: relative;
+  margin: 0px auto;
+  width: 50%;
+  height: 40px;
+  padding: 10px;
+  border: none;
+  border-radius: 3px;
+  font-size: 12px;
+  text-align: center;
+  color: #fff;
+  background: #ee8a65;
 }

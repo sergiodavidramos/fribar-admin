@@ -30,8 +30,12 @@ const ProductoNuevo = ({ categorias }) => {
     let target = event.target
     event.preventDefault()
     let formData = new FormData()
-    if (target[1].value === '0') {
-      notify.show('Por favor seleccione una Categoria', 'warning', 2000)
+    if (target[1].value === '0' || target[2].value === '0') {
+      notify.show(
+        'Por favor seleccione una Categoria o un typo',
+        'warning',
+        2000
+      )
     } else {
       if (images.length < 0) {
         notify.show(
@@ -45,12 +49,13 @@ const ProductoNuevo = ({ categorias }) => {
           method: 'POST',
           body: JSON.stringify({
             name: target[0].value,
-            detail: target[6].value,
-            stock: target[2].value,
-            precioCompra: target[3].value,
-            precioVenta: target[4].value,
             category: target[1].value,
-            vence: target[5].value,
+            tipoVenta: target[2].value,
+            detail: target[7].value,
+            stock: target[3].value,
+            precioCompra: target[4].value,
+            precioVenta: target[5].value,
+            vence: target[6].value,
           }),
           headers: {
             Authorization: `Bearer ${token}`,
@@ -199,6 +204,24 @@ const ProductoNuevo = ({ categorias }) => {
                                   {cate.name}
                                 </option>
                               ))}
+                            </select>
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">
+                              Tipo Venta*
+                            </label>
+                            <select
+                              id="venta"
+                              name="venta"
+                              className="form-control"
+                              defaultValue={0}
+                            >
+                              <option value="0">
+                                --Seleccionar Tipo de venta--
+                              </option>
+
+                              <option value={'Kilos'}>Por Kilos</option>
+                              <option value={'Unidad'}>Por Unidad</option>
                             </select>
                           </div>
                           <div className="form-group">
