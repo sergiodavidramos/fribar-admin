@@ -12,7 +12,6 @@ import io from 'socket.io-client'
 const Pedidos = () => {
   const mediaHora = '00:30:00'
   const [pedidos, setPedidos] = useState([])
-  const [estado, setEstado] = useState(false)
   const colourOptions = [
     { value: '0', label: 'Pendiente', color: 'orange' },
     { value: '1', label: 'Proceso', color: 'purple' },
@@ -34,7 +33,10 @@ const Pedidos = () => {
   })
 
   const colourStyles = {
-    control: (styles) => ({ ...styles, backgroundColor: 'white' }),
+    control: (styles) => ({
+      ...styles,
+      backgroundColor: 'white',
+    }),
     option: (styles, { data, isDisabled, isFocused, isSelected }) => {
       const color = chroma(data.color)
       return {
@@ -63,11 +65,19 @@ const Pedidos = () => {
         },
       }
     },
-    input: (styles) => ({ ...styles, ...dot() }),
-    placeholder: (styles) => ({ ...styles, ...dot() }),
-    singleValue: (styles, { data }) => ({ ...styles, ...dot(data.color) }),
+    input: (styles) => ({
+      ...styles,
+      ...dot(),
+    }),
+    placeholder: (styles) => ({
+      ...styles,
+      ...dot(),
+    }),
+    singleValue: (styles, { data }) => ({
+      ...styles,
+      ...dot(data.color),
+    }),
   }
-
   const getPedidosDia = async () => {
     try {
       const pedidosDia = await fetch(
@@ -88,7 +98,6 @@ const Pedidos = () => {
           )
         : setPedidos(response.body)
     } catch (err) {
-      console.error('Errorrrr', err)
       notify.show(
         'Error en el servidor, comuníquese con el administrador',
         'error',
@@ -108,9 +117,9 @@ const Pedidos = () => {
         },
       })
       const newPedido = await newP.json()
-      newPedido.error
-        ? notify.show('Error al cambiar estado', 'error', 500)
-        : notify.show('Estado Cambiado', 'success', 500)
+      if (newPedido.error)
+        notify.show('Error al cambiar estado', 'error', 500)
+      else notify.show('Estado Cambiado', 'success', 500)
     } catch (err) {
       console.error('Error en el Servidor', err)
     }
@@ -178,6 +187,9 @@ const Pedidos = () => {
                             <tr>
                               <th>Item</th>
                               <th style={{ width: '150px' }}>Fecha</th>
+                              <th style={{ width: '150px' }}>
+                                Hora Entrega
+                              </th>
                               <th style={{ width: '300px' }}>Direccion</th>
                               <th style={{ width: '130px' }}>Estado</th>
                               <th style={{ width: '80px' }}>Total</th>
@@ -201,10 +213,9 @@ const Pedidos = () => {
                                               .replace(/\s/g, '-')}`}
                                           >
                                             <a target="_blank">
-                                              {pro.producto.name}
+                                              {pro.producto.name}{' '}
                                             </a>
                                           </Link>
-                                          {'  '}
                                           {pro.cantidad}-
                                           {pro.producto.tipoVenta}
                                           <br />
@@ -218,11 +229,14 @@ const Pedidos = () => {
                                     {moment(pedido.fecha).format('L')}
                                   </span>
                                   <span className="delivery-time">
-                                    {moment(pedido.fecha).format('LT')}-
-                                    {moment(pedido.fecha)
-                                      .add(moment.duration(mediaHora))
-                                      .format('LT')}
+                                    {moment(pedido.fecha).format('LT')}
                                   </span>
+                                </td>
+                                <td>
+                                  {' '}
+                                  {moment(pedido.fecha)
+                                    .add(moment.duration(mediaHora))
+                                    .format('LT')}
                                 </td>
                                 <td>{pedido.direction.direccion}</td>
                                 <td style={{ width: '15%' }}>

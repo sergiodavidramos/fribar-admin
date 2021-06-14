@@ -155,7 +155,7 @@ const Login = () => {
                       </button>
                       <div className="container-face">
                         <FacebookLogin
-                          appId="284295679548568"
+                          appId="333033351546623"
                           autoLoad={false}
                           onClick={componentClicked}
                           callback={responseFacebook}

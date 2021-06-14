@@ -1,10 +1,8 @@
 import TopNavbar from '../../components/Navbar'
 import SideNav from '../../components/Navbar/SideNav'
 import Footer from '../../components/Footer'
-import CardTable from '../../components/Productos/CardTable'
 import Link from 'next/link'
-import Notifications, { notify } from 'react-notify-toast'
-import { useState, useContext } from 'react'
+import { useContext } from 'react'
 import UserContext from '../../components/UserContext'
 const Categorias = () => {
   const { categorias } = useContext(UserContext)

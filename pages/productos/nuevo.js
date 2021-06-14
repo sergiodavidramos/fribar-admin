@@ -94,11 +94,13 @@ const ProductoNuevo = ({ categorias }) => {
                     setButt(false)
                   } else {
                     target[0].value = ''
-                    target[6].value = ''
+                    target[1].value = '0'
                     target[2].value = ''
                     target[3].value = ''
                     target[4].value = ''
-                    target[1].value = '0'
+                    target[5].value = ''
+                    target[6].value = ''
+                    target[7].value = ''
                     setImages([])
                     notify.show(
                       'Producto agregado con Exito! ',
