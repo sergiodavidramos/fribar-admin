@@ -14,7 +14,7 @@ const ViewPedidos = () => {
   const { signOut } = useContext(UserContext)
   const [pedido, setPedido] = useState(null)
   useEffect(() => {
-    const tokenLocal = localStorage.getItem('frifolly-token')
+    const tokenLocal = localStorage.getItem('fribar-token')
     if (!tokenLocal) {
       signOut()
     }

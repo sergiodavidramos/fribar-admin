@@ -9,14 +9,15 @@ const Login = () => {
   var auth2
   //   const [state, dispatch] = useStateValue()
   const { signIn } = useContext(UserContext)
-  const setUser = (userResponse) => {
-    if (userResponse.body.usuario.status !== false) {
+  const setUser = ({ token, userData }) => {
+    if (userData.idPersona.status !== false) {
       if (
-        userResponse.body.usuario.role === 'ADMIN-ROLE' ||
-        userResponse.body.usuario.role === 'USER-ROLE' ||
-        userResponse.body.usuario.role === 'DELIVERY-ROLE'
+        userData.role === 'ADMIN-ROLE' ||
+        userData.role === 'USER-ROLE' ||
+        userData.role === 'DELIVERY-ROLE' ||
+        userData.role === 'GERENTE-ROLE'
       ) {
-        signIn(userResponse.body.usuario, userResponse.body.token)
+        signIn(userData, token)
         Router.push('/')
       } else
         notify.show(
@@ -57,8 +58,9 @@ const Login = () => {
           .then((res) => res.json())
           .then((response) => {
             response.error
-              ? notify.show(response.body.message, 'warning')
-              : setUser(response)
+              ? console.log(response)
+              : //   notify.show(response.body.message, 'warning')
+                setUser(response)
           })
           .catch((err) => {
             console.log(err)
@@ -88,8 +90,8 @@ const Login = () => {
       .then((res) => res.json())
       .then((response) => {
         response.error
-          ? notify.show(response, 'warning')
-          : setUser(response)
+          ? notify.show(response.body, 'warning')
+          : setUser(response.body)
       })
       .catch((err) => {
         notify.show(err.message, 'error')
@@ -133,14 +135,20 @@ const Login = () => {
         <div id="layoutAuthentication">
           <div id="layoutAuthentication_content">
             <main>
-              <h1>Logo</h1>
+              <img
+                src="/img/logoFB.svg"
+                alt="logo"
+                width="100"
+                height="100"
+              />
+
               <div className="container">
                 <div className="row justify-content-center">
                   <div className="col-lg-5">
                     <div className="card shadow-lg border-0 rounded-lg mt-5 card-modi">
                       <div className="card-header card-sign-header">
                         <h3 className="text-center font-weight-light my-4">
-                          Login
+                          Inicio de sesión
                         </h3>
                       </div>
                       <div id="google-btn">
@@ -207,16 +215,12 @@ const Login = () => {
                                 className="custom-control-label"
                                 htmlFor="rememberPasswordCheck"
                               >
-                                Remember password
+                                Recordar contraseña
                               </label>
                             </div>
                           </div>
                           <div className="form-group d-flex align-items-center justify-content-between mt-4 mb-0">
-                            <button
-                              className="btn btn-sign hover-btn"
-                              //   type="submit"
-                              //   onSubmit={handlerSubmit}
-                            >
+                            <button className="btn btn-sign hover-btn">
                               Ingresar
                             </button>
                           </div>

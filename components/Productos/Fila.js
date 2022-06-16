@@ -13,7 +13,7 @@ export default ({ pro }) => {
           defaultValue="10"
         />
       </td>
-      <td>{pro._id}</td>
+      <td>{pro.code}</td>
       <td>
         <div className="cate-img-5">
           <img

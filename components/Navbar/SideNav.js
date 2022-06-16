@@ -17,114 +17,174 @@ const SideNav = (props) => (
               <div className="sb-nav-link-icon">
                 <i className="fas fa-tachometer-alt"></i>
               </div>
-              Dashboard
+              Tablero
             </a>
           </Link>
-          <a
-            className="nav-link collapsed"
-            href="#"
-            data-toggle="collapse"
-            data-target="#collapseLayouts"
-            aria-expanded="false"
-            aria-controls="collapseLayouts"
-          >
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-newspaper"></i>
-            </div>
-            Posts
-            <div className="sb-sidenav-collapse-arrow">
-              <i className="fas fa-angle-down"></i>
-            </div>
-          </a>
+
+          <Link href="/ciudades">
+            <a
+              className={`nav-link ${
+                props.router.pathname.split('/')[1] === 'ciudades'
+                  ? 'active'
+                  : 'collapsed'
+              }`}
+              data-toggle="collapse"
+              data-target="#collapseLocations"
+              aria-expanded="false"
+              aria-controls="collapseLocations"
+            >
+              <div className="sb-nav-link-icon">
+                <i className="fas fa-map-marker-alt"></i>
+              </div>
+              Ciudad
+              <div className="sb-sidenav-collapse-arrow">
+                <i className="fas fa-angle-down"></i>
+              </div>
+            </a>
+          </Link>
+
           <div
-            className="collapse"
-            id="collapseLayouts"
-            aria-labelledby="headingOne"
-            data-parent="#sidenavAccordion"
-          >
-            <nav className="sb-sidenav-menu-nested nav">
-              <a className="nav-link sub_nav_link" href="posts.html">
-                All Posts
-              </a>
-              <a className="nav-link sub_nav_link" href="add_post.html">
-                Add New
-              </a>
-              <a
-                className="nav-link sub_nav_link"
-                href="post_categories.html"
-              >
-                Categories
-              </a>
-              <a className="nav-link sub_nav_link" href="post_tags.html">
-                Tags
-              </a>
-            </nav>
-          </div>
-          <a
-            className="nav-link collapsed"
-            href="#"
-            data-toggle="collapse"
-            data-target="#collapseLocations"
-            aria-expanded="false"
-            aria-controls="collapseLocations"
-          >
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-map-marker-alt"></i>
-            </div>
-            Locations
-            <div className="sb-sidenav-collapse-arrow">
-              <i className="fas fa-angle-down"></i>
-            </div>
-          </a>
-          <div
-            className="collapse"
+            className={`collapse ${
+              props.router.pathname.split('/')[1] === 'ciudades'
+                ? 'show'
+                : ''
+            }`}
             id="collapseLocations"
             aria-labelledby="headingTwo"
             data-parent="#sidenavAccordion"
           >
             <nav className="sb-sidenav-menu-nested nav">
-              <a className="nav-link sub_nav_link" href="locations.html">
-                All Locations
-              </a>
-              <a
-                className="nav-link sub_nav_link"
-                href="add_location.html"
-              >
-                Add Location
-              </a>
+              <Link href="/ciudades">
+                <a
+                  className={`nav-link sub_nav_link ${
+                    props.router.pathname === '/ciudades' ? 'active' : ''
+                  }`}
+                >
+                  Todas las ciudades
+                </a>
+              </Link>
+              <Link href="/ciudades/nuevo">
+                <a
+                  className={`nav-link sub_nav_link ${
+                    props.router.pathname === '/ciudades/nuevo'
+                      ? 'active'
+                      : ''
+                  }`}
+                >
+                  Agregar ciudad
+                </a>
+              </Link>
             </nav>
           </div>
-          <a
-            className="nav-link collapsed"
-            href="#"
-            data-toggle="collapse"
-            data-target="#collapseAreas"
-            aria-expanded="false"
-            aria-controls="collapseAreas"
-          >
-            <div className="sb-nav-link-icon">
-              <i className="fas fa-map-marked-alt"></i>
-            </div>
-            Areas
-            <div className="sb-sidenav-collapse-arrow">
-              <i className="fas fa-angle-down"></i>
-            </div>
-          </a>
+          <Link href="/sucursales">
+            <a
+              className={`nav-link ${
+                props.router.pathname.split('/')[1] === 'sucursales'
+                  ? 'active'
+                  : 'collapsed'
+              }`}
+              data-toggle="collapse"
+              data-target="#collapseShops"
+              aria-expanded="false"
+              aria-controls="collapseShops"
+            >
+              <div className="sb-nav-link-icon">
+                <i className="fas fa-store"></i>
+              </div>
+              Sucursales
+              <div className="sb-sidenav-collapse-arrow">
+                <i className="fas fa-angle-down"></i>
+              </div>
+            </a>
+          </Link>
           <div
-            className="collapse"
-            id="collapseAreas"
+            className={`collapse ${
+              props.router.pathname.split('/')[1] === 'sucursales'
+                ? 'show'
+                : ''
+            }`}
+            id="collapseShops"
             aria-labelledby="headingTwo"
             data-parent="#sidenavAccordion"
           >
             <nav className="sb-sidenav-menu-nested nav">
-              <a className="nav-link sub_nav_link" href="areas.html">
-                All Areas
-              </a>
-              <a className="nav-link sub_nav_link" href="add_area.html">
-                Add Area
-              </a>
+              <Link href="/sucursales">
+                <a
+                  className={`nav-link sub_nav_link ${
+                    props.router.pathname === '/sucursales' ? 'active' : ''
+                  }`}
+                >
+                  Todas las sucursales
+                </a>
+              </Link>
+              <Link href="/sucursales/nuevo">
+                <a
+                  className={`nav-link sub_nav_link ${
+                    props.router.pathname === '/sucursales/nuevo'
+                      ? 'active'
+                      : ''
+                  }`}
+                >
+                  Agregar sucursales
+                </a>
+              </Link>
             </nav>
           </div>
+          <Link href="/marcas">
+            <a
+              className={`nav-link ${
+                props.router.pathname.split('/')[1] === 'marcas'
+                  ? 'active'
+                  : 'collapsed'
+              }`}
+              data-toggle="collapse"
+              data-target="#collapseMarcas"
+              aria-expanded="false"
+              aria-controls="collapseMarcas"
+            >
+              <div className="sb-nav-link-icon">
+                <i className="fa fa-building"></i>
+              </div>
+              Marcas
+              <div className="sb-sidenav-collapse-arrow">
+                <i className="fas fa-angle-down"></i>
+              </div>
+            </a>
+          </Link>
+          <div
+            className={`collapse ${
+              props.router.pathname.split('/')[1] === 'marcas'
+                ? 'show'
+                : ''
+            }`}
+            id="collapseMarcas"
+            aria-labelledby="headingTwo"
+            data-parent="#sidenavAccordion"
+          >
+            <nav className="sb-sidenav-menu-nested nav">
+              <Link href="/marcas">
+                <a
+                  className={`nav-link sub_nav_link ${
+                    props.router.pathname === '/marcas' ? 'active' : ''
+                  }`}
+                >
+                  Todas las marcas
+                </a>
+              </Link>
+              <Link href="/marcas/nuevo">
+                <a
+                  className={`nav-link sub_nav_link ${
+                    props.router.pathname === '/marcas/nuevo'
+                      ? 'active'
+                      : ''
+                  }`}
+                >
+                  Agregar marca
+                </a>
+              </Link>
+            </nav>
+          </div>
+
           <Link href="/categorias">
             <a
               className={`nav-link ${
@@ -241,9 +301,22 @@ const SideNav = (props) => (
               }`}
             >
               <div className="sb-nav-link-icon">
-                <i className="fas fa-cart-arrow-down"></i>
+                {/* <i className="fas fa-cart-arrow-down"></i> */}
+                <i className="fas fa-truck"></i>
               </div>
               Pedidos
+            </a>
+          </Link>
+          <Link href="/venta">
+            <a
+              className={`nav-link sub_nav_link ${
+                props.router.pathname === '/venta' ? 'active' : ''
+              }`}
+            >
+              <div className="sb-nav-link-icon">
+                <i className="fas fa-cart-arrow-down"></i>
+              </div>
+              Venta
             </a>
           </Link>
           <Link href="/clientes">

@@ -112,6 +112,10 @@ function ProductView({ pro }) {
                               {moment(pro.vence).format('LL') || ''}
                             </span>
                           </div>
+                          <div className="shopowner-dt-list">
+                            <span className="left-dt">Código</span>
+                            <span className="right-dt">{pro.code}</span>
+                          </div>
                         </div>
                       </div>
                     </div>

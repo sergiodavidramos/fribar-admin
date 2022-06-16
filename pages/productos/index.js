@@ -108,10 +108,6 @@ export default function Productos() {
                 </div>
                 <div className="col-lg-12 col-md-12">
                   <div className="card card-static-2 mt-30 mb-30">
-                    <div className="card-title-2">
-                      <h4>All Areas</h4>
-                    </div>
-
                     <CardTable proFilter={proFiltrado} />
                   </div>
                 </div>

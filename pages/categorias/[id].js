@@ -19,7 +19,7 @@ const CategoriaNuevo = () => {
   const { id } = router.query
   useEffect(() => {
     setCategoriaUpload(categorias.find((date) => date._id === id))
-    const tokenLocal = localStorage.getItem('frifolly-token')
+    const tokenLocal = localStorage.getItem('fribar-token')
     if (!tokenLocal) {
       signOut()
     }

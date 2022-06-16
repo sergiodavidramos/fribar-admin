@@ -9,6 +9,8 @@ import { useEffect, useContext, useState } from 'react'
 import axios from 'axios'
 import io from 'socket.io-client'
 import Notifications, { notify } from 'react-notify-toast'
+import TablaPedidos from '../components/Pedidos/TablaPedidos'
+import Link from 'next/link'
 
 function Home() {
   const [pendiente, setPendiente] = useState('0')
@@ -16,8 +18,7 @@ function Home() {
   const [completado, setCompletado] = useState('0')
   const [cancelado, setCancelado] = useState('0')
   const [totalVenta, setTotalVenta] = useState('0')
-  const { user, token } = useContext(UserContext)
-  console.log('token index  ', user)
+  const { token } = useContext(UserContext)
 
   const socket = io(API_URL)
   async function getPedidosTablero() {
@@ -58,14 +59,14 @@ function Home() {
       } else if (pedidos[i]._id === '3') setCancelado(pedidos[i].count)
     }
   }
+
   useEffect(() => {
     socket.on('tablero-pedidos', (pedidos) => {
       asignarDatos(pedidos.body)
     })
     getPedidosTablero()
     return () => socket.disconnect()
-  }, [])
-
+  }, [token])
   return (
     <>
       <Head>
@@ -154,194 +155,12 @@ function Home() {
                 <div className="col-xl-12 col-md-12">
                   <div className="card card-static-2 mb-30">
                     <div className="card-title-2">
-                      <h4>Recent Orders</h4>
-                      <a href="orders.html" className="view-btn hover-btn">
-                        View All
-                      </a>
+                      <h4>Órdenes Recientes</h4>
+                      <Link href="pedidos">
+                        <a className="view-btn hover-btn">Ver Todo</a>
+                      </Link>
                     </div>
-                    <div className="card-body-table">
-                      <div className="table-responsive">
-                        <table className="table ucp-table table-hover">
-                          <thead>
-                            <tr>
-                              <th style={{ width: '130px' }}>Order ID</th>
-                              <th>Item</th>
-                              <th style={{ width: '200px' }}>Date</th>
-                              <th style={{ width: '300px' }}>Address</th>
-                              <th style={{ width: '130px' }}>Status</th>
-                              <th style={{ width: '130px' }}>Total</th>
-                              <th style={{ width: '100px' }}>Action</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>ORDER12345</td>
-                              <td>
-                                <a href="#" target="_blank">
-                                  Product Title Here
-                                </a>
-                              </td>
-                              <td>
-                                <span className="delivery-time">
-                                  15/06/2020
-                                </span>
-                                <span className="delivery-time">
-                                  4:00PM - 6.00PM
-                                </span>
-                              </td>
-                              <td>
-                                #0000, St No. 8, Shahid Karnail Singh
-                                Nagar, MBD Mall, Frozpur road, Ludhiana,
-                                141001
-                              </td>
-                              <td>
-                                <span className="badge-item badge-status">
-                                  Pending
-                                </span>
-                              </td>
-                              <td>$90</td>
-                              <td className="action-btns">
-                                <a
-                                  href="order_view.html"
-                                  className="views-btn"
-                                >
-                                  <i className="fas fa-eye"></i>
-                                </a>
-                                <a
-                                  href="order_edit.html"
-                                  className="edit-btn"
-                                >
-                                  <i className="fas fa-edit"></i>
-                                </a>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>ORDER12346</td>
-                              <td>
-                                <a href="#" target="_blank">
-                                  Product Title Here
-                                </a>
-                              </td>
-                              <td>
-                                <span className="delivery-time">
-                                  13/06/2020
-                                </span>
-                                <span className="delivery-time">
-                                  2:00PM - 4.00PM
-                                </span>
-                              </td>
-                              <td>
-                                #0000, St No. 8, Shahid Karnail Singh
-                                Nagar, MBD Mall, Frozpur road, Ludhiana,
-                                141001
-                              </td>
-                              <td>
-                                <span className="badge-item badge-status">
-                                  Pending
-                                </span>
-                              </td>
-                              <td>$105</td>
-                              <td className="action-btns">
-                                <a
-                                  href="order_view.html"
-                                  className="views-btn"
-                                >
-                                  <i className="fas fa-eye"></i>
-                                </a>
-                                <a
-                                  href="order_edit.html"
-                                  className="edit-btn"
-                                >
-                                  <i className="fas fa-edit"></i>
-                                </a>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>ORDER12347</td>
-                              <td>
-                                <a href="#" target="_blank">
-                                  Product Title Here
-                                </a>
-                              </td>
-                              <td>
-                                <span className="delivery-time">
-                                  13/6/2020
-                                </span>
-                                <span className="delivery-time">
-                                  5:00PM - 7.00PM
-                                </span>
-                              </td>
-                              <td>
-                                #0000, St No. 8, Shahid Karnail Singh
-                                Nagar, MBD Mall, Frozpur road, Ludhiana,
-                                141001
-                              </td>
-                              <td>
-                                <span className="badge-item badge-status">
-                                  Pending
-                                </span>
-                              </td>
-                              <td>$60</td>
-                              <td className="action-btns">
-                                <a
-                                  href="order_view.html"
-                                  className="views-btn"
-                                >
-                                  <i className="fas fa-eye"></i>
-                                </a>
-                                <a
-                                  href="order_edit.html"
-                                  className="edit-btn"
-                                >
-                                  <i className="fas fa-edit"></i>
-                                </a>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>ORDER12348</td>
-                              <td>
-                                <a href="#" target="_blank">
-                                  Product Title Here
-                                </a>
-                              </td>
-                              <td>
-                                <span className="delivery-time">
-                                  12/06/2020
-                                </span>
-                                <span className="delivery-time">
-                                  01:00PM - 3.00PM
-                                </span>
-                              </td>
-                              <td>
-                                #0000, St No. 8, Shahid Karnail Singh
-                                Nagar, MBD Mall, Frozpur road, Ludhiana,
-                                141001
-                              </td>
-                              <td>
-                                <span className="badge-item badge-status">
-                                  Pending
-                                </span>
-                              </td>
-                              <td>$120</td>
-                              <td className="action-btns">
-                                <a
-                                  href="order_view.html"
-                                  className="views-btn"
-                                >
-                                  <i className="fas fa-eye"></i>
-                                </a>
-                                <a
-                                  href="order_edit.html"
-                                  className="edit-btn"
-                                >
-                                  <i className="fas fa-edit"></i>
-                                </a>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+                    <TablaPedidos />
                   </div>
                 </div>
               </div>

@@ -1,4 +1,7 @@
-export default ({ id, token, notify }) => {
+import mapboxgl from '!mapbox-gl'
+import React, { useRef, useEffect, useState } from 'react'
+
+export default ({ id, token, notify }, resizeMap) => {
   function handlerDelete() {
     console.log(id)
     fetch(`http://localhost:3001/user/${id}`, {
@@ -23,9 +26,34 @@ export default ({ id, token, notify }) => {
       })
       .catch((error) => notify.show('Error en el servidor', 'error', 2000))
   }
+  mapboxgl.accessToken =
+    'pk.eyJ1Ijoic2VyZ2lvZGF2aWRyYW1vcyIsImEiOiJja2NjcnloMzMwN2tjMndtOXM1NTFlMzRkIn0.5LBxHw3qu5t7pLdSjf2_rQ'
+  const mapContainer = useRef(null)
+
+  const [lat, setLat] = useState(-19.580984)
+  const [lng, setLng] = useState(-65.743432)
+  const [zoom, setZoom] = useState(15)
+
+  useEffect(() => {
+    const map = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [lng, lat],
+      zoom: zoom,
+    })
+    // if (map.current) resizeMap(map)
+    else {
+      //   setTimeout(function () {
+      //     console.log('entro al setTIme')
+      //     map.resize()
+      //     console.log('sss', map)
+      //   }, 3000)
+    }
+  })
+
   return (
     <div
-      id="category_model"
+      id="mapa_model"
       className="header-cate-model main-gambo-model modal fade"
       tabIndex="-1"
       role="dialog"
@@ -43,28 +71,11 @@ export default ({ id, token, notify }) => {
               <i className="fas fa-times"></i>
             </button>
           </div>
-          <div className="category-model-content modal-content">
-            <div className="cate-header">
-              <h4>¿Esta seguro de eliminar?</h4>
-            </div>
-            <div className="btn-confirmation">
-              <a
-                data-dismiss="modal"
-                // onClick={handlerDelete}
-                onClick={() => window.print()}
-                className="view-btn hover-btn btn-margin"
-                style={{ cursor: 'pointer' }}
-              >
-                SI
-              </a>
-              <a
-                data-dismiss="modal"
-                className="view-btn hover-btn btn-margin"
-                style={{ cursor: 'pointer' }}
-              >
-                NO
-              </a>
-            </div>
+          <div
+            className="category-model-content modal-content"
+            style={{ width: 'auto' }}
+          >
+            <div ref={mapContainer} className="map-container"></div>
           </div>
         </div>
       </div>
@@ -281,6 +292,9 @@ export default ({ id, token, notify }) => {
 
         .search-by-cat .single-cat:hover .text {
           color: #f55d2c;
+        }
+        .map-container {
+          height: 750px;
         }
       `}</style>
     </div>

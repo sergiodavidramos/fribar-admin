@@ -46,13 +46,14 @@ const ProductoNuevo = ({ categorias, pro }) => {
           method: 'PATCH',
           body: JSON.stringify({
             name: target[0].value,
-            status: target[1].value === '1' ? true : false,
-            category: target[2].value,
-            stock: target[3].value,
-            precioCompra: target[4].value,
-            precioVenta: target[5].value,
-            vence: target[6].value,
-            detail: target[7].value,
+            code: target[1].value,
+            status: target[2].value === '1' ? true : false,
+            category: target[3].value,
+            stock: target[4].value,
+            precioCompra: target[5].value,
+            precioVenta: target[6].value,
+            vence: target[7].value,
+            detail: target[8].value,
           }),
           headers: {
             Authorization: `Bearer ${token}`,
@@ -182,6 +183,16 @@ const ProductoNuevo = ({ categorias, pro }) => {
                             />
                           </div>
                           <div className="form-group">
+                            <label className="form-label">Codigo*</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Código del Producto"
+                              defaultValue={pro.code}
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
                             <label className="form-label">Estado*</label>
                             <select
                               className="form-control"
@@ -204,7 +215,7 @@ const ProductoNuevo = ({ categorias, pro }) => {
                               className="form-control"
                               defaultValue={pro.category[0]._id}
                             >
-                              <option value="0">
+                              <option value={0}>
                                 --Seleccionar Categoria--
                               </option>
                               {categorias.body.map((cate) => (
@@ -325,7 +336,7 @@ const ProductoNuevo = ({ categorias, pro }) => {
                             className="save-btn hover-btn"
                             type="submit"
                           >
-                            Agregar Nuevo Producto
+                            Editar Producto
                           </button>
                         </div>
                       </form>

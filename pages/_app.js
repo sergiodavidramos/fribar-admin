@@ -8,6 +8,8 @@ import Head from 'next/head'
 import UserContext from '../components/UserContext'
 import Router from 'next/router'
 import Notifications from 'react-notify-toast'
+import { API_URL } from '../components/Config'
+import 'mapbox-gl/dist/mapbox-gl.css'
 export default class MyApp extends App {
   constructor(props) {
     super(props)
@@ -16,11 +18,24 @@ export default class MyApp extends App {
       token: null,
       categorias: [],
       sid: false,
+      sucursales: [],
+      admSucursal: 0,
     }
   }
   setSitNav = (sid) => {
     this.setState({
       sid,
+    })
+  }
+  setAdmSucursal = (admSucursal) => {
+    localStorage.setItem('fribar-sucursal', admSucursal)
+    this.setState({
+      admSucursal,
+    })
+  }
+  setSucursales = (sucursales) => {
+    this.setState({
+      sucursales,
     })
   }
   getCategorias = async () => {
@@ -36,23 +51,41 @@ export default class MyApp extends App {
       })
     }
   }
+  getSucursalesServer = async (token) => {
+    try {
+      const sucursales = await fetch(`${API_URL}/sucursal/all`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const det = await sucursales.json()
+      this.setState({ sucursales: det.body })
+    } catch (err) {
+      this.setState({
+        sucursales: [],
+      })
+    }
+  }
   componentDidMount() {
     this.getCategorias()
-    const user = localStorage.getItem('frifolly-user')
-    const token = localStorage.getItem('frifolly-token')
+    const user = localStorage.getItem('fribar-user')
+    const token = localStorage.getItem('fribar-token')
+    const admSucursal = localStorage.getItem('fribar-sucursal')
     if (user && token) {
       this.setState({
         user: JSON.parse(user),
         token,
+        admSucursal,
       })
-    } else {
-      //   Router.push('/login')
     }
+    this.getSucursalesServer(token)
   }
 
   signIn = (user, token) => {
-    localStorage.setItem('frifolly-user', JSON.stringify(user))
-    localStorage.setItem('frifolly-token', token)
+    localStorage.setItem('fribar-user', JSON.stringify(user))
+    localStorage.setItem('fribar-token', token)
     this.setState(
       {
         user,
@@ -65,14 +98,14 @@ export default class MyApp extends App {
   }
 
   setUser = (user) => {
-    localStorage.setItem('frifolly-user', JSON.stringify(user))
+    localStorage.setItem('fribar-user', JSON.stringify(user))
     this.setState({
       user,
     })
   }
   signOut = () => {
-    localStorage.removeItem('frifolly-user')
-    localStorage.removeItem('frifolly-token')
+    localStorage.removeItem('fribar-user')
+    localStorage.removeItem('fribar-token')
     this.setState({
       user: null,
       token: null,
@@ -99,11 +132,15 @@ export default class MyApp extends App {
             user: this.state.user,
             token: this.state.token,
             categorias: this.state.categorias,
+            getSucursales: this.state.sucursales,
+            getAdmSucursal: this.state.admSucursal,
             sid: this.state.sid,
             signIn: this.signIn,
             signOut: this.signOut,
             setUser: this.setUser,
             setSitNav: this.setSitNav,
+            setSucursales: this.setSucursales,
+            setAdmSucursal: this.setAdmSucursal,
           }}
         >
           <Component {...pageProps} />

@@ -14,7 +14,7 @@ const CategoriaNuevo = () => {
   const [image, setImage] = useState(null)
   const [imageUpload, setImageUpload] = useState(null)
   useEffect(() => {
-    const tokenLocal = localStorage.getItem('frifolly-token')
+    const tokenLocal = localStorage.getItem('fribar-token')
     if (!tokenLocal) {
       signOut()
     }

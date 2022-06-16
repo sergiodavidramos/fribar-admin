@@ -3,7 +3,7 @@ export default () => (
     <div className="container-fluid">
       <div className="d-flex align-items-center justify-content-between small">
         <div className="text-muted-1">
-          © 2020 <b>FriFolly</b>. De
+          © 2022 <b>FriBar</b>. De
           {` Potosí-Bolivia con `} <i className="fas fa-heart"></i>
           {` para el mundo`}
         </div>

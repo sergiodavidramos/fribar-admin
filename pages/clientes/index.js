@@ -47,7 +47,7 @@ const Clientes = () => {
       .catch((error) => notify.show('Error en el servidor', 'error', 2000))
   }
   useEffect(() => {
-    const tokenLocal = localStorage.getItem('frifolly-token')
+    const tokenLocal = localStorage.getItem('fribar-token')
     if (!tokenLocal) {
       signOut()
     }

@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useContext, useState } from 'react'
 import UserContext from '../../../components/UserContext'
 import GetImg from '../../../components/GetImg'
+import Notifications, { notify } from 'react-notify-toast'
 const viewClient = () => {
   const { signOut } = useContext(UserContext)
   const [client, setCliente] = useState(null)
@@ -32,13 +33,15 @@ const viewClient = () => {
         })
         .then((data) => {
           if (data.error) {
-            alert('Error el en servidor')
+            notify.show('Error en el servidor', 'error', 2000)
           } else {
             console.log(data.body.users[0])
             setCliente(data.body.users[0])
           }
         })
-        .catch((error) => alert('Error en el servidor'))
+        .catch((error) =>
+          notify.show('Error en el servidor', 'error', 2000)
+        )
     }
   }, [router])
   return (
@@ -48,6 +51,7 @@ const viewClient = () => {
         <SideNav />
         <div id="layoutSidenav_content">
           <main>
+            <Notifications options={{ zIndex: 9999, top: '56px' }} />
             <div className="container-fluid">
               <h2 className="mt-30 page-title">Clientes</h2>
               <ol className="breadcrumb mb-30">
@@ -76,7 +80,7 @@ const viewClient = () => {
                                 client.img,
                                 'http://localhost:3001/upload/user'
                               )}
-                              alt="cliente-frifolly"
+                              alt="cliente-Fribar"
                             />
                           </div>
                           <div className="shopowner-dt-left mt-4">

@@ -3,23 +3,31 @@ import TopNavbar from '../../components/Navbar'
 import SideNav from '../../components/Navbar/SideNav'
 import Footer from '../../components/Footer'
 import Link from 'next/link'
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, useRef } from 'react'
 import moment from 'moment'
 import Notifications, { notify } from 'react-notify-toast'
 import FormData from 'form-data'
 import UserContext from '../../components/UserContext'
-const ProductoNuevo = ({ categorias }) => {
+
+const ProductoNuevo = ({ categorias, marcas }) => {
   const [token, setToken] = useState(false)
-  const { signOut } = useContext(UserContext)
+
+  const { signOut, getSucursales, getAdmSucursal, setAdmSucursal } =
+    useContext(UserContext)
+  const textCode = useRef()
   useEffect(() => {
-    const tokenLocal = localStorage.getItem('frifolly-token')
+    textCode.current.focus()
+    const tokenLocal = localStorage.getItem('fribar-token')
     if (!tokenLocal) {
       signOut()
     }
     setToken(tokenLocal)
-  }, [])
+  }, [getAdmSucursal])
   if (categorias.error === true) {
     categorias.body = []
+  }
+  if (marcas.error === true) {
+    marcas.body = []
   }
   const [butt, setButt] = useState(false)
   const [images, setImages] = useState([])
@@ -30,9 +38,9 @@ const ProductoNuevo = ({ categorias }) => {
     let target = event.target
     event.preventDefault()
     let formData = new FormData()
-    if (target[1].value === '0' || target[2].value === '0') {
+    if (target[1].value === '0' || target[3].value === '0') {
       notify.show(
-        'Por favor seleccione una Categoria o un typo',
+        'Por favor seleccione una Categoria o un tipo',
         'warning',
         2000
       )
@@ -44,84 +52,97 @@ const ProductoNuevo = ({ categorias }) => {
           2000
         )
       } else {
-        setButt(true)
-        fetch('http://localhost:3001/productos', {
-          method: 'POST',
-          body: JSON.stringify({
-            name: target[0].value,
-            category: target[1].value,
-            tipoVenta: target[2].value,
-            detail: target[7].value,
-            stock: target[3].value,
-            precioCompra: target[4].value,
-            precioVenta: target[5].value,
-            vence: target[6].value,
-          }),
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        })
-          .then((res) => {
-            if (res.status === 401) signOut()
-            return res.json()
+        if (target[10].value === '0') {
+          notify.show('Por favor seleccione una sucursal', 'warning', 2000)
+        } else {
+          setButt(true)
+          fetch('http://localhost:3001/productos', {
+            method: 'POST',
+            body: JSON.stringify({
+              code: target[0].value,
+              name: target[1].value,
+              category: target[2].value,
+              marca: target[3].value,
+              tipoVenta: target[4].value,
+              stock: target[5].value,
+              precioCompra: target[6].value,
+              precioVenta: target[7].value,
+              fechaCaducidad: target[8].value,
+              detail: target[9].value,
+              ventaOnline: target[11].value,
+            }),
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
           })
-          .then((response) => {
-            if (response.error) {
-              notify.show(response.body, 'error', 2000)
-              setButt(false)
-            } else {
-              if (im.length < 4) {
-                for (const file of im) formData.append('imagen', file)
-              } else
-                for (let i = 0; i < 4; i++) {
-                  formData.append('imagen', im[i])
-                }
-              fetch(
-                `http://localhost:3001/upload/producto/${response.body._id}`,
-                {
-                  method: 'PUT',
-                  body: formData,
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                }
-              )
-                .then((response) => response.json())
-                .then((response) => {
-                  if (response.error) {
-                    notify.show(response.body, 'error', 2000)
-                    setButt(false)
-                  } else {
-                    target[0].value = ''
-                    target[1].value = '0'
-                    target[2].value = ''
-                    target[3].value = ''
-                    target[4].value = ''
-                    target[5].value = ''
-                    target[6].value = ''
-                    target[7].value = ''
-                    setImages([])
-                    notify.show(
-                      'Producto agregado con Exito! ',
-                      'success',
-                      2000
-                    )
-                    setButt(false)
+            .then((res) => {
+              if (res.status === 401) signOut()
+              return res.json()
+            })
+            .then((response) => {
+              if (response.error) {
+                console.log(response)
+                notify.show(response.body, 'error', 5000)
+                setButt(false)
+              } else {
+                if (im.length < 4) {
+                  for (const file of im) formData.append('imagen', file)
+                } else
+                  for (let i = 0; i < 4; i++) {
+                    formData.append('imagen', im[i])
                   }
-                })
-                .catch((error) => {
-                  console.log(error)
-                  notify.show('No se pudo subir las imagenes', 'error')
-                  setButt(false)
-                })
-            }
-          })
-          .catch((error) => {
-            console.log(error)
-            notify.show('Error en el Servidor', 'error')
-            setButt(false)
-          })
+                fetch(
+                  `http://localhost:3001/upload/producto/${response.body._id}`,
+                  {
+                    method: 'PUT',
+                    body: formData,
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                )
+                  .then((response) => response.json())
+                  .then((response) => {
+                    if (response.error) {
+                      console.log('El Error', response)
+                      notify.show(response.body, 'error', 2000)
+                      setButt(false)
+                    } else {
+                      target[0].value = ''
+                      textCode.current.focus()
+                      target[1].value = ''
+                      target[2].value = '0'
+                      target[3].value = '0'
+                      target[4].value = '0'
+                      target[5].value = ''
+                      target[6].value = ''
+                      target[7].value = ''
+                      target[8].value = ''
+                      target[9].value = ''
+                      target[10].value = '0'
+                      setImages([])
+                      notify.show(
+                        'Producto agregado con Exito! ',
+                        'success',
+                        2000
+                      )
+                      setButt(false)
+                    }
+                  })
+                  .catch((error) => {
+                    console.log('erorrrr', error)
+                    notify.show('No se pudo subir las imagenes', 'error')
+                    setButt(false)
+                  })
+              }
+              editarSucursal(response, target[10].value)
+            })
+            .catch((error) => {
+              notify.show('Error en el Servidor', 'error')
+              setButt(false)
+            })
+        }
       }
     }
   }
@@ -140,6 +161,10 @@ const ProductoNuevo = ({ categorias }) => {
       }
       setImages(fileArray)
     }
+  }
+  const editarSucursal = (product, su = 0) => {
+    console.log('ssss el product', product)
+    console.log('ssss el sucursal', su)
   }
   return (
     <>
@@ -179,6 +204,18 @@ const ProductoNuevo = ({ categorias }) => {
                       <form onSubmit={handlerSubmit}>
                         <div className="news-content-right pd-20">
                           <div className="form-group">
+                            <label className="form-label">
+                              Codigo del producto*
+                            </label>
+                            <input
+                              ref={textCode}
+                              type="text"
+                              className="form-control"
+                              placeholder="Codigo del Producto"
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
                             <label className="form-label">Nombre*</label>
                             <input
                               type="text"
@@ -204,6 +241,24 @@ const ProductoNuevo = ({ categorias }) => {
                               {categorias.body.map((cate) => (
                                 <option value={cate._id} key={cate._id}>
                                   {cate.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">Marca*</label>
+                            <select
+                              id="categtory"
+                              name="categtory"
+                              className="form-control"
+                              defaultValue={0}
+                            >
+                              <option value="0">
+                                --Seleccionar Marca--
+                              </option>
+                              {marcas.body.map((mar) => (
+                                <option value={mar._id} key={mar._id}>
+                                  {mar.nombre}
                                 </option>
                               ))}
                             </select>
@@ -286,6 +341,49 @@ const ProductoNuevo = ({ categorias }) => {
                               </div>
                             </div>
                           </div>
+
+                          {getAdmSucursal === '0' ? (
+                            <div className="form-group">
+                              <label className="form-label">
+                                Sucursal*
+                              </label>
+                              <select
+                                id="categtory"
+                                name="categtory"
+                                className="form-control"
+                                defaultValue="0"
+                              >
+                                <option value="0">
+                                  --Seleccionar Sucursal--
+                                </option>
+                                {getSucursales.map((su) => (
+                                  <option value={su._id} key={su._id}>
+                                    {su.nombre} - {su.direccion}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          ) : (
+                            ''
+                          )}
+                          <div className="form-group">
+                            <label className="form-label">
+                              Venta online*
+                            </label>
+                            <select
+                              id="categtory"
+                              name="categtory"
+                              className="form-control"
+                              defaultValue={0}
+                            >
+                              <option value={false}>
+                                --Seleccionar Venta online--
+                              </option>
+
+                              <option value={true}>Si</option>
+                              <option value={false}>No</option>
+                            </select>
+                          </div>
                           <div className="form-group">
                             <label className="form-label">Images*</label>
                             <div className="input-group">
@@ -351,17 +449,22 @@ export async function getStaticProps() {
   try {
     const res = await fetch('http://localhost:3001/categoria')
     const categorias = await res.json()
+    const mar = await fetch('http://localhost:3001/marca')
+    const marcas = await mar.json()
     return {
       props: {
         categorias,
+        marcas,
       },
       revalidate: 1,
     }
   } catch (err) {
     const categorias = { error: true }
+    const marcas = { error: true }
     return {
       props: {
         categorias,
+        marcas,
       },
       revalidate: 1,
     }

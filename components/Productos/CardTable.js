@@ -2,7 +2,7 @@ import Fila from './Fila'
 import ReactPaginate from 'react-paginate'
 import Notifications, { notify } from 'react-notify-toast'
 import { useState, useEffect } from 'react'
-import {API_URL} from '../Config'
+import { API_URL } from '../Config'
 // import { useContext } from 'react'
 // import UserContext from '../UserContext'
 const CardTable = ({ proFilter }) => {
@@ -14,14 +14,9 @@ const CardTable = ({ proFilter }) => {
   }
   useEffect(() => {
     if (!proFilter) {
-      fetch(
-        `${API_URL}/productos?desde=${
-          pageState * 10
-        }&limite=${10}`,
-        {
-          method: 'GET',
-        }
-      )
+      fetch(`${API_URL}/productos?desde=${pageState * 10}&limite=${10}`, {
+        method: 'GET',
+      })
         .then((res) => res.json())
         .then((data) => {
           if (data.error) {
@@ -48,7 +43,7 @@ const CardTable = ({ proFilter }) => {
               <th style={{ width: '60px' }}>
                 <input type="checkbox" className="check-all" />
               </th>
-              <th style={{ width: '60px' }}>ID</th>
+              <th style={{ width: '60px' }}>Código</th>
               <th style={{ width: '100px' }}>Imagen</th>
               <th>Nombre</th>
               <th>Categoria</th>
