@@ -9,15 +9,15 @@ const Login = () => {
   var auth2
   //   const [state, dispatch] = useStateValue()
   const { signIn } = useContext(UserContext)
-  const setUser = ({ token, userData }) => {
-    if (userData.idPersona.status !== false) {
+  const setUser = ({ token, usuario }) => {
+    if (usuario.idPersona.status !== false) {
       if (
-        userData.role === 'ADMIN-ROLE' ||
-        userData.role === 'USER-ROLE' ||
-        userData.role === 'DELIVERY-ROLE' ||
-        userData.role === 'GERENTE-ROLE'
+        usuario.role === 'ADMIN-ROLE' ||
+        usuario.role === 'USER-ROLE' ||
+        usuario.role === 'DELIVERY-ROLE' ||
+        usuario.role === 'GERENTE-ROLE'
       ) {
-        signIn(userData, token)
+        signIn(usuario, token)
         Router.push('/')
       } else
         notify.show(
@@ -60,7 +60,7 @@ const Login = () => {
             response.error
               ? console.log(response)
               : //   notify.show(response.body.message, 'warning')
-                setUser(response)
+                setUser(response.body)
           })
           .catch((err) => {
             console.log(err)
@@ -112,7 +112,7 @@ const Login = () => {
       .then((response) => {
         response.error
           ? notify.show(response.body.message, 'warning')
-          : setUser(response)
+          : setUser(response.body)
       })
       .catch((err) => {
         console.log('el errr', err)

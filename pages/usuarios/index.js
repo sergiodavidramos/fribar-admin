@@ -14,7 +14,7 @@ const Users = () => {
   const [clientes, setClientes] = useState(false)
   const [id, setId] = useState(null)
   function getUserAPi(tokenLocal) {
-    fetch(`http://localhost:3001/user/role`, {
+    fetch(`http://localhost:3001/user/role?role=GERENTE-ROLE`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${tokenLocal}`,
@@ -28,9 +28,8 @@ const Users = () => {
         return res.json()
       })
       .then((data) => {
-        if (data.error) {
-          notify.show('Error el en servidor', 'error')
-        } else {
+        if (data.error) notify.show('Error el en servidor', 'error')
+        else {
           setClientes(data.body)
         }
       })
@@ -40,7 +39,7 @@ const Users = () => {
       })
   }
   useEffect(() => {
-    const tokenLocal = localStorage.getItem('frifolly-token')
+    const tokenLocal = localStorage.getItem('fribar-token')
     if (!tokenLocal) {
       signOut()
     }
@@ -128,12 +127,6 @@ const Users = () => {
                         <table className="table ucp-table table-hover">
                           <thead>
                             <tr>
-                              <th style={{ width: '60px' }}>
-                                <input
-                                  type="checkbox"
-                                  className="check-all"
-                                />
-                              </th>
                               <th style={{ width: '60px' }}>ID</th>
                               <th style={{ width: '100px' }}>Imagen</th>
                               <th>Nombre</th>
@@ -152,14 +145,6 @@ const Users = () => {
                             ) : (
                               clientes.map((cli) => (
                                 <tr key={cli._id}>
-                                  <td>
-                                    <input
-                                      type="checkbox"
-                                      className="check-item"
-                                      name="ids[]"
-                                      defaultValue="10"
-                                    />
-                                  </td>
                                   <td>{cli._id}</td>
                                   <td>
                                     <div className="cate-img-6">
@@ -172,12 +157,12 @@ const Users = () => {
                                       />
                                     </div>
                                   </td>
-                                  <td>{cli.nombre_comp}</td>
+                                  <td>{cli.idPersona.nombre_comp}</td>
                                   <td>{cli.email}</td>
                                   <td>{cli.phone}</td>
                                   <td>{cli.role}</td>
                                   <td>
-                                    {cli.status ? (
+                                    {cli.idPersona.status ? (
                                       <span className="badge-item badge-status">
                                         Activo
                                       </span>
