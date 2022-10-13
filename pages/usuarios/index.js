@@ -153,7 +153,7 @@ const Users = () => {
                                           cli.img,
                                           'http://localhost:3001/upload/user'
                                         )}
-                                        alt="cliente-frifolly"
+                                        alt="cliente-fribar"
                                       />
                                     </div>
                                   </td>

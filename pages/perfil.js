@@ -136,14 +136,14 @@ export default function Perfil() {
                             />
                           </div>
                           <div className="shopowner-dt-left">
-                            <h4>Frifolly</h4>
+                            <h4>FriBar</h4>
                             <span>{user.role}</span>
                           </div>
                           <div className="shopowner-dts">
                             <div className="shopowner-dt-list">
                               <span className="left-dt">Nombre</span>
                               <span className="right-dt">
-                                {user.nombre_comp}
+                                {user.idPersona.nombre_comp}
                               </span>
                             </div>
                             <div className="shopowner-dt-list">
@@ -151,7 +151,7 @@ export default function Perfil() {
                                 Numero de celular
                               </span>
                               <span className="right-dt">
-                                {user.phone || ''}
+                                {user.idPersona.phone || ''}
                               </span>
                             </div>
                             <div className="shopowner-dt-list">
@@ -162,9 +162,11 @@ export default function Perfil() {
                             </div>
                             <div className="shopowner-dt-list">
                               <span className="left-dt">Direccion</span>
-                              <span className="right-dt">
-                                {user.direccion || ''}
-                              </span>
+                              {user.direccion.map((direccion, index) => (
+                                <span className="right-dt" key={index}>
+                                  {direccion || ''}
+                                </span>
+                              ))}
                             </div>
                           </div>
                         </div>
@@ -188,7 +190,9 @@ export default function Perfil() {
                                   <input
                                     type="text"
                                     className="form-control"
-                                    defaultValue={user.nombre_comp}
+                                    defaultValue={
+                                      user.idPersona.nombre_comp
+                                    }
                                     required
                                     placeholder="Ingrese su nombre Completo"
                                   />
@@ -218,7 +222,9 @@ export default function Perfil() {
                                   <input
                                     type="text"
                                     className="form-control"
-                                    defaultValue={user.phone || ''}
+                                    defaultValue={
+                                      user.idPersona.phone || ''
+                                    }
                                     placeholder="Ingrese su numero telefonico"
                                   />
                                 </div>
@@ -233,7 +239,9 @@ export default function Perfil() {
                                     defaultValue={0}
                                   >
                                     <option value="0">
-                                      {user.status ? 'Activo' : 'Inactivo'}
+                                      {user.idPersona.status
+                                        ? 'Activo'
+                                        : 'Inactivo'}
                                     </option>
                                   </select>
                                 </div>
@@ -281,7 +289,7 @@ export default function Perfil() {
                                     disabled={true}
                                     className="text-control"
                                     placeholder="Direcciones (este campo no es editable.)"
-                                    defaultValue={user.direccion || ''}
+                                    defaultValue={user.direccion[1] || ''}
                                   ></textarea>
                                 </div>
                               </div>
