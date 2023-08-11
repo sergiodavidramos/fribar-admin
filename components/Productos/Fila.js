@@ -5,14 +5,6 @@ export default ({ pro }) => {
   moment.locale('es')
   return (
     <tr>
-      <td>
-        <input
-          type="checkbox"
-          className="check-item"
-          name="ids[]"
-          defaultValue="10"
-        />
-      </td>
       <td>{pro.code}</td>
       <td>
         <div className="cate-img-5">
@@ -23,8 +15,8 @@ export default ({ pro }) => {
         </div>
       </td>
       <td>{pro.name}</td>
-      <td>{pro.category[0].name}</td>
-      <td>{moment(pro.vence).format('LL') || ''}</td>
+      <td>{pro.category.name}</td>
+      <td>{moment(pro.fechaCaducidad).format('LL') || ''}</td>
       <td>
         {pro.status ? (
           <span className="badge-item badge-status">Activo</span>

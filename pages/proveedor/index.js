@@ -1,31 +1,40 @@
 import TopNavbar from '../../components/Navbar'
 import SideNav from '../../components/Navbar/SideNav'
 import Link from 'next/link'
-import { useEffect, useContext, useState } from 'react'
+import { useEffect, useContext, useState, useRef } from 'react'
 import UserContext from '../../components/UserContext'
 import Notifications, { notify } from 'react-notify-toast'
 import Footer from '../../components/Footer'
+import { API_URL } from '../../components/Config'
+import axios from 'axios'
 
-const Ciudad = () => {
-  const [signOut] = useContext(UserContext)
+const Proveedor = () => {
+  const { token, signOut } = useContext(UserContext)
   const [marcas, setMarcas] = useState(false)
+
+  const selectStatus = useRef(null)
+
   useEffect(() => {
     const tokenLocal = localStorage.getItem('fribar-token')
     if (!tokenLocal) {
       signOut()
     }
-    fetch(`http://localhost:3001/marca`, {
-      method: 'GET',
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          signOut()
+    getProveedorWithStatus(tokenLocal)
+  }, [])
+
+  function getProveedorWithStatus(token) {
+    axios
+      .get(
+        `${API_URL}/proveedor/all?status=${selectStatus.current.value}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'content-type': 'application/json',
+          },
         }
-        return res.json()
-      })
-      .then((data) => {
+      )
+      .then(({ data }) => {
         if (data.error) {
-          console.log(data)
           notify.show('Error en el servidor (marca)', 'error', 2000)
         } else {
           setMarcas(data.body)
@@ -34,7 +43,10 @@ const Ciudad = () => {
       .catch((error) => {
         notify.show(error.message, 'error', 2000)
       })
-  }, [])
+  }
+  function handlerSubmitStatus() {
+    getProveedorWithStatus(token)
+  }
   return (
     <>
       <TopNavbar />
@@ -44,19 +56,19 @@ const Ciudad = () => {
           <main>
             <Notifications options={{ zIndex: 9999, top: '56px' }} />
             <div className="container-fluid">
-              <h2 className="mt-30 page-title">Marcas</h2>
+              <h2 className="mt-30 page-title">Proveedores</h2>
               <ol className="breadcrumb mb-30">
                 <li className="breadcrumb-item">
                   <Link href="/">
                     <a>Tablero</a>
                   </Link>
                 </li>
-                <li className="breadcrumb-item active">Ciudades</li>
+                <li className="breadcrumb-item active">Proveedores</li>
               </ol>
               <div className="row justify-content-between">
                 <div className="col-lg-12">
-                  <Link href="/marcas/nuevo">
-                    <a className="add-btn hover-btn">Agregar marca</a>
+                  <Link href="/proveedor/nuevo">
+                    <a className="add-btn hover-btn">Agregar proveedor</a>
                   </Link>
                 </div>
                 <div className="col-lg-4 col-md-4">
@@ -67,8 +79,9 @@ const Ciudad = () => {
                         name="action"
                         defaultValue="0"
                         className="form-control"
+                        ref={selectStatus}
                       >
-                        <option value="0">Seleccione acción</option>
+                        <option value={0}>Seleccione acción</option>
                         <option value={true}>Activos</option>
                         <option value={false}>Inactivos</option>
                       </select>
@@ -76,6 +89,7 @@ const Ciudad = () => {
                         <button
                           className="status-btn hover-btn"
                           type="submit"
+                          onClick={handlerSubmitStatus}
                         >
                           Aplicar
                         </button>
@@ -96,6 +110,8 @@ const Ciudad = () => {
                             <tr>
                               <th style={{ width: '60px' }}>ID</th>
                               <th>Nombre</th>
+                              <th>Celular</th>
+                              <th>Referencia</th>
                               <th>Estado</th>
                               <th>Accion</th>
                             </tr>
@@ -109,7 +125,9 @@ const Ciudad = () => {
                               marcas.map((ciu) => (
                                 <tr key={ciu._id}>
                                   <td>{ciu._id}</td>
-                                  <td>{ciu.nombre}</td>
+                                  <td>{ciu.nombreComercial}</td>
+                                  <td>{ciu.phone}</td>
+                                  <td>{ciu.referencia}</td>
                                   <td>
                                     <span
                                       className={`badge-item ${
@@ -123,8 +141,8 @@ const Ciudad = () => {
                                   </td>
                                   <td className="action-btns">
                                     <Link
-                                      href="/marcas/[id]"
-                                      as={`/marcas/${ciu._id}`}
+                                      href="/proveedor/[id]"
+                                      as={`/proveedor/${ciu._id}`}
                                     >
                                       <a className="edit-btn">
                                         <i className="fas fa-edit"></i>
@@ -150,4 +168,4 @@ const Ciudad = () => {
     </>
   )
 }
-export default Ciudad
+export default Proveedor

@@ -8,6 +8,8 @@ import Footer from '../../../components/Footer'
 import GetImg from '../../../components/GetImg'
 import mapboxgl from '!mapbox-gl'
 import { useRouter } from 'next/router'
+import axios from 'axios'
+import { mapboxglAccessToken } from '../../../components/Config'
 const viewSucursal = () => {
   const { signOut } = useContext(UserContext)
   const [sucursal, setSucursales] = useState(false)
@@ -15,13 +17,12 @@ const viewSucursal = () => {
   const router = useRouter()
 
   //   const map = useRef(null)
-  mapboxgl.accessToken =
-    'pk.eyJ1Ijoic2VyZ2lvZGF2aWRyYW1vcyIsImEiOiJja2NjcnloMzMwN2tjMndtOXM1NTFlMzRkIn0.5LBxHw3qu5t7pLdSjf2_rQ'
+  mapboxgl.accessToken = mapboxglAccessToken
 
   const mapContainer = useRef(null)
   let map = useRef(null)
   const [lat, setLat] = useState(null)
-  const [lng, setLng] = useState(null)
+  const [lon, setLng] = useState(null)
   const [zoom, setZoom] = useState(15)
   useEffect(() => {
     const tokenLocal = localStorage.getItem('fribar-token')
@@ -31,26 +32,23 @@ const viewSucursal = () => {
       if (router && router.query && router.query.id) {
         const { id } = router.query
         setToken(tokenLocal)
-        fetch(`http://localhost:3001/sucursal/${id}`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${tokenLocal}`,
-            'Content-Type': 'application/json',
-          },
-        })
-          .then((res) => {
-            if (res.status === 401) {
+        axios
+          .get(`http://localhost:3001/sucursal/${id}`, {
+            headers: {
+              Authorization: `Bearer ${tokenLocal}`,
+              'Content-Type': 'application/json',
+            },
+          })
+          .then(({ data }) => {
+            if (data.status === 401) {
               signOut()
             }
-            return res.json()
-          })
-          .then((data) => {
             if (data.error) {
               notify.show('Error en el servidor (ciudad)', 'error', 2000)
             } else {
               setSucursales(data.body)
-              setLat(data.body.lat)
-              setLng(data.body.lon)
+              setLat(data.body.direccion.lat)
+              setLng(data.body.direccion.lon)
             }
           })
           .catch((error) => {
@@ -65,7 +63,7 @@ const viewSucursal = () => {
     map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [lng, lat],
+      center: [lon, lat],
       zoom: zoom,
     })
   })
@@ -77,7 +75,7 @@ const viewSucursal = () => {
     const marker = new mapboxgl.Marker({
       draggable: false,
     })
-      .setLngLat([lng, lat])
+      .setLngLat([lon, lat])
       .addTo(map)
   }
   return (
@@ -112,7 +110,7 @@ const viewSucursal = () => {
                           <div className="shop_img">
                             <img
                               src={GetImg(
-                                sucursal.image,
+                                sucursal.img,
                                 'http://localhost:3001/upload/sucursal'
                               )}
                               alt="Sucursal Fribar"
@@ -129,32 +127,35 @@ const viewSucursal = () => {
                       <div className="card-body-table">
                         <div className="shopowner-content-left pd-20">
                           <div className="shopowner-dt-left">
-                            <h4>{(sucursal.adm = 'sin adm')}</h4>
+                            <h4>
+                              {
+                                sucursal.administrador.idPersona
+                                  .nombre_comp
+                              }
+                            </h4>
                             <span>Administrador de la tienda</span>
                           </div>
                           <div className="shopowner-dts">
                             <div className="shopowner-dt-list">
-                              <span className="left-dt">Username</span>
+                              <span className="left-dt">Celular</span>
                               <span className="right-dt">
-                                Joginder1991
+                                {sucursal.administrador.phone}
                               </span>
                             </div>
                             <div className="shopowner-dt-list">
-                              <span className="left-dt">Phone</span>
+                              <span className="left-dt">Correo</span>
                               <span className="right-dt">
-                                +918437176189
+                                {sucursal.administrador.email}
                               </span>
                             </div>
                             <div className="shopowner-dt-list">
-                              <span className="left-dt">Email</span>
+                              <span className="left-dt">Direccion</span>
                               <span className="right-dt">
-                                gambol943@gmail.com
-                              </span>
-                            </div>
-                            <div className="shopowner-dt-list">
-                              <span className="left-dt">Address</span>
-                              <span className="right-dt">
-                                Ludhiana, Punjab
+                                {sucursal.administrador.direccion.length >
+                                0
+                                  ? sucursal.administrador.direccion[0]
+                                      .direccion
+                                  : 'Direccion no agregada'}
                               </span>
                             </div>
                           </div>
@@ -188,15 +189,11 @@ const viewSucursal = () => {
                             </div>
                             <div className="shopowner-dt-list">
                               <span className="left-dt">Latitud</span>
-                              <span className="right-dt">
-                                {`${sucursal.lat}`}
-                              </span>
+                              <span className="right-dt">{`${lat}`}</span>
                             </div>
                             <div className="shopowner-dt-list">
                               <span className="left-dt">Longitud</span>
-                              <span className="right-dt">
-                                {`${sucursal.lon}`}
-                              </span>
+                              <span className="right-dt">{`${lon}`}</span>
                             </div>
                             <div className="shopowner-dt-list">
                               <div className="col-lg-12">
@@ -207,7 +204,7 @@ const viewSucursal = () => {
                                   data-target="#mapa_model"
                                   onClick={() => resizeMap(map)}
                                 >
-                                  Agregar sucursal
+                                  Ver la direccion en el mapa
                                 </a>
                               </div>
                             </div>
@@ -244,7 +241,7 @@ const viewSucursal = () => {
                             <div className="shopowner-dt-list">
                               <span className="left-dt">Direccion</span>
                               <span className="right-dt">
-                                {sucursal.direccion}
+                                {sucursal.direccion.direccion}
                               </span>
                             </div>
                             <div className="shopowner-dt-list">

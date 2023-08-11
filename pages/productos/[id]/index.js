@@ -8,13 +8,13 @@ import moment from 'moment'
 import Notifications, { notify } from 'react-notify-toast'
 import FormData from 'form-data'
 import UserContext from '../../../components/UserContext'
-const ProductoNuevo = ({ categorias, pro }) => {
+const ProductoNuevo = ({ categorias, pro, marcas }) => {
   const [token, setToken] = useState(false)
   const { signOut } = useContext(UserContext)
   const [images, setImages] = useState([])
   useEffect(() => {
     setImages(pro.img)
-    const tokenLocal = localStorage.getItem('frifolly-token')
+    const tokenLocal = localStorage.getItem('fribar-token')
     if (!tokenLocal) {
       signOut()
     }
@@ -49,11 +49,12 @@ const ProductoNuevo = ({ categorias, pro }) => {
             code: target[1].value,
             status: target[2].value === '1' ? true : false,
             category: target[3].value,
-            stock: target[4].value,
-            precioCompra: target[5].value,
-            precioVenta: target[6].value,
-            vence: target[7].value,
-            detail: target[8].value,
+            proveedor: target[4].value,
+            stock: target[5].value,
+            precioCompra: target[6].value,
+            precioVenta: target[7].value,
+            fechaCaducidad: target[8].value,
+            detail: target[9].value,
           }),
           headers: {
             Authorization: `Bearer ${token}`,
@@ -213,7 +214,7 @@ const ProductoNuevo = ({ categorias, pro }) => {
                               id="categtory"
                               name="categtory"
                               className="form-control"
-                              defaultValue={pro.category[0]._id}
+                              defaultValue={pro.category._id}
                             >
                               <option value={0}>
                                 --Seleccionar Categoria--
@@ -225,6 +226,26 @@ const ProductoNuevo = ({ categorias, pro }) => {
                               ))}
                             </select>
                           </div>
+
+                          <div className="form-group">
+                            <label className="form-label">Marca*</label>
+                            <select
+                              id="categtory"
+                              name="categtory"
+                              className="form-control"
+                              defaultValue={pro.proveedor}
+                            >
+                              <option value="0">
+                                --Seleccionar Marca--
+                              </option>
+                              {marcas.body.map((mar) => (
+                                <option value={mar._id} key={mar._id}>
+                                  {mar.nombreComercial}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
                           <div className="form-group">
                             <label className="form-label">Stock*</label>
                             <input
@@ -267,9 +288,9 @@ const ProductoNuevo = ({ categorias, pro }) => {
                               type="date"
                               className="form-control"
                               placeholder="Bs 0"
-                              defaultValue={moment(pro.vence).format(
-                                'YYYY-MM-DD'
-                              )}
+                              defaultValue={moment(
+                                pro.fechaCaducidad
+                              ).format('YYYY-MM-DD')}
                               required
                             />
                           </div>
@@ -372,7 +393,11 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   try {
-    const res = await fetch('http://localhost:3001/categoria')
+    const mar = await fetch(
+      'http://localhost:3001/proveedor/all?status=true'
+    )
+    const marcas = await mar.json()
+    const res = await fetch('http://localhost:3001/categoria?status=true')
     const categorias = await res.json()
     const pro = await fetch(
       `http://localhost:3001/productos?id=${params.id}`,
@@ -384,6 +409,7 @@ export async function getStaticProps({ params }) {
     const data = await pro.json()
     return {
       props: {
+        marcas,
         categorias,
         pro: data.body[0][0],
       },

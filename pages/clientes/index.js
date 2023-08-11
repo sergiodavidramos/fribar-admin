@@ -11,7 +11,7 @@ import GetImg from '../../components/GetImg'
 const Clientes = () => {
   const [token, setToken] = useState(false)
   const { signOut } = useContext(UserContext)
-  const [clientes, setClientes] = useState(false)
+  const [clientes, setClientes] = useState([])
   const [clientFilter, setClientFilter] = useState(null)
   const [pageState, setPageState] = useState(0)
   const [count, setCount] = useState(0)
@@ -40,8 +40,8 @@ const Clientes = () => {
         if (data.error) {
           notify.show('Error el en servidor', 'error')
         } else {
-          setClientes(data.body.users)
-          setCount(data.body.count)
+          setClientes(data.body[0])
+          setCount(data.body[1])
         }
       })
       .catch((error) => notify.show('Error en el servidor', 'error', 2000))
@@ -58,14 +58,16 @@ const Clientes = () => {
       setClientes(clientFilter)
       setCount(0)
     }
-  }, [pageState, clientFilter])
+  }, [clientFilter, pageState])
   function handlerDelete(id) {
     setId(id)
   }
   function handleChangeClientes() {
     if (event.target.value !== '0') {
       fetch(
-        `http://localhost:3001/user/state?state=${event.target.value}`,
+        `http://localhost:3001/user?desde=${
+          pageState * 10
+        }&limite=${10}&state=${event.target.value}`,
         {
           method: 'GET',
           headers: {
@@ -84,8 +86,8 @@ const Clientes = () => {
           if (data.error) {
             notify.show('Error el en servidor', 'error')
           } else {
-            setClientes(data.body)
-            setCount(0)
+            setClientes(data.body[0])
+            setCount(data.body[1])
           }
         })
         .catch((error) =>
@@ -198,12 +200,6 @@ const Clientes = () => {
                         <table className="table ucp-table table-hover">
                           <thead>
                             <tr>
-                              <th style={{ width: '60px' }}>
-                                <input
-                                  type="checkbox"
-                                  className="check-all"
-                                />
-                              </th>
                               <th style={{ width: '60px' }}>ID</th>
                               <th style={{ width: '100px' }}>Imagen</th>
                               <th>Nombre</th>
@@ -214,21 +210,13 @@ const Clientes = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {!clientes ? (
+                            {clientes.length <= 0 ? (
                               <tr>
                                 <td>...</td>
                               </tr>
                             ) : (
                               clientes.map((cli) => (
                                 <tr key={cli._id}>
-                                  <td>
-                                    <input
-                                      type="checkbox"
-                                      className="check-item"
-                                      name="ids[]"
-                                      defaultValue="10"
-                                    />
-                                  </td>
                                   <td>{cli._id}</td>
                                   <td>
                                     <div className="cate-img-6">
@@ -241,7 +229,7 @@ const Clientes = () => {
                                       />
                                     </div>
                                   </td>
-                                  <td>{cli.nombre_comp}</td>
+                                  <td>{cli.idPersona.nombre_comp}</td>
                                   <td>{cli.email}</td>
                                   <td>{cli.phone}</td>
                                   <td>

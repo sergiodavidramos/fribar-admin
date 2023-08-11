@@ -9,13 +9,22 @@ import Footer from '../../components/Footer'
 const Ciudad = () => {
   const [signOut] = useContext(UserContext)
   const [ciudades, setCiudades] = useState(false)
+  const [estadoCiudad, setEstadoCiudad] = useState(true)
+
   useEffect(() => {
     const tokenLocal = localStorage.getItem('fribar-token')
     if (!tokenLocal) {
       signOut()
     }
-    fetch(`http://localhost:3001/ciudad`, {
+    obtenerCuidades(estadoCiudad)
+  }, [])
+
+  function obtenerCuidades(estado) {
+    fetch(`http://localhost:3001/ciudad?status=${estado}`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     })
       .then((res) => {
         if (res.status === 401) {
@@ -33,7 +42,14 @@ const Ciudad = () => {
       .catch((error) => {
         notify.show(error.message, 'error', 2000)
       })
-  }, [])
+  }
+  function handleChangeStateCiudad() {
+    setEstadoCiudad(event.target.value)
+  }
+  function handlerAplicar() {
+    event.preventDefault()
+    obtenerCuidades(estadoCiudad)
+  }
   return (
     <>
       <TopNavbar />
@@ -64,8 +80,9 @@ const Ciudad = () => {
                       <select
                         id="action"
                         name="action"
-                        defaultValue="0"
+                        defaultValue={estadoCiudad}
                         className="form-control"
+                        onChange={handleChangeStateCiudad}
                       >
                         <option value="0">Seleccione acción</option>
                         <option value={true}>Activos</option>
@@ -75,6 +92,7 @@ const Ciudad = () => {
                         <button
                           className="status-btn hover-btn"
                           type="submit"
+                          onClick={handlerAplicar}
                         >
                           Aplicar
                         </button>

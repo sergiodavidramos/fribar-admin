@@ -59,9 +59,9 @@ const Sucursal = () => {
               </ol>
               <div className="row justify-content-between">
                 <div className="col-lg-12">
-                  <a href="add_shop.html" className="add-btn hover-btn">
-                    Agregar sucursal
-                  </a>
+                  <Link href="/sucursales/nuevo">
+                    <a className="add-btn hover-btn">Agregar sucursal</a>
+                  </Link>
                 </div>
 
                 <div className="col-lg-12 col-md-12">
@@ -78,6 +78,7 @@ const Sucursal = () => {
                               <th>Nombre</th>
                               <th>Administrador</th>
                               <th style={{ width: '200px' }}>Ciudad</th>
+                              <th style={{ width: '200px' }}>Direccion</th>
                               <th style={{ width: '120px' }}>Estado</th>
                               <th style={{ width: '150px' }}>Acción</th>
                             </tr>
@@ -88,8 +89,14 @@ const Sucursal = () => {
                                 <tr key={sucursal._id}>
                                   <td>{sucursal._id}</td>
                                   <td>{sucursal.nombre}</td>
-                                  <td>{(sucursal.adm = 'sin adm')}</td>
+                                  <td>
+                                    {
+                                      sucursal.administrador.idPersona
+                                        .nombre_comp
+                                    }
+                                  </td>
                                   <td>{sucursal.ciudad.nombre}</td>
+                                  <td>{sucursal.direccion.direccion}</td>
                                   <td>
                                     <span
                                       className={`badge-item ${
@@ -112,15 +119,22 @@ const Sucursal = () => {
                                         <i className="fas fa-eye"></i>
                                       </a>
                                     </Link>
-                                    <a
-                                      href="shop_products.html"
-                                      className="list-btn"
+                                    <Link
+                                      href="/sucursales/tienda-productos/[id]"
+                                      as={`/sucursales/tienda-productos/${sucursal._id}`}
                                     >
-                                      <i className="fas fa-list-alt"></i>
-                                    </a>
-                                    <a href="#" className="edit-btn">
-                                      <i className="fas fa-edit"></i>
-                                    </a>
+                                      <a className="list-btn">
+                                        <i className="fas fa-list-alt"></i>
+                                      </a>
+                                    </Link>
+                                    <Link
+                                      href="/sucursales/editar/[id]"
+                                      as={`/sucursales/editar/${sucursal._id}`}
+                                    >
+                                      <a className="edit-btn">
+                                        <i className="fas fa-edit"></i>
+                                      </a>
+                                    </Link>
                                   </td>
                                 </tr>
                               ))}

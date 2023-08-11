@@ -36,7 +36,8 @@ const CategoriaNuevo = () => {
         method: 'PATCH',
         body: JSON.stringify({
           name: target[0].value,
-          description: target[1].value,
+          status: target[1].value,
+          description: target[2].value,
         }),
         headers: {
           Authorization: `Bearer ${token}`,
@@ -49,7 +50,6 @@ const CategoriaNuevo = () => {
         })
         .then((response) => {
           if (response.error) {
-            console.log(response)
             notify.show('Error al editar la categoria', 'error', 1000)
             setButt(false)
           } else
@@ -89,7 +89,8 @@ const CategoriaNuevo = () => {
                 method: 'PATCH',
                 body: JSON.stringify({
                   name: target[0].value,
-                  description: target[1].value,
+                  status: target[1].value,
+                  description: target[2].value,
                 }),
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -181,6 +182,18 @@ const CategoriaNuevo = () => {
                                 defaultValue={categoriaUpload.name}
                                 required
                               />
+                            </div>
+                            <div className="form-group">
+                              <label className="form-label">Estado*</label>
+                              <select
+                                id="status"
+                                name="status"
+                                className="form-control"
+                                defaultValue={categoriaUpload.status}
+                              >
+                                <option value={true}>Activo</option>
+                                <option value={false}>Inactivo</option>
+                              </select>
                             </div>
                             <div className="form-group">
                               <label className="form-label">

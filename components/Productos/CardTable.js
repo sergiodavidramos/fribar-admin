@@ -40,9 +40,6 @@ const CardTable = ({ proFilter }) => {
         <table className="table ucp-table table-hover">
           <thead>
             <tr>
-              <th style={{ width: '60px' }}>
-                <input type="checkbox" className="check-all" />
-              </th>
               <th style={{ width: '60px' }}>Código</th>
               <th style={{ width: '100px' }}>Imagen</th>
               <th>Nombre</th>

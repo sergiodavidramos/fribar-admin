@@ -51,23 +51,7 @@ export default class MyApp extends App {
       })
     }
   }
-  getSucursalesServer = async (token) => {
-    try {
-      const sucursales = await fetch(`${API_URL}/sucursal/all`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-      const det = await sucursales.json()
-      this.setState({ sucursales: det.body })
-    } catch (err) {
-      this.setState({
-        sucursales: [],
-      })
-    }
-  }
+
   componentDidMount() {
     this.getCategorias()
     const user = localStorage.getItem('fribar-user')
@@ -80,7 +64,6 @@ export default class MyApp extends App {
         admSucursal,
       })
     }
-    this.getSucursalesServer(token)
   }
 
   signIn = (user, token) => {

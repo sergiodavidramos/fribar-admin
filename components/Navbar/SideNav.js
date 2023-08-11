@@ -20,28 +20,26 @@ const SideNav = (props) => (
               Tablero
             </a>
           </Link>
-
-          <Link href="/ciudades">
-            <a
-              className={`nav-link ${
-                props.router.pathname.split('/')[1] === 'ciudades'
-                  ? 'active'
-                  : 'collapsed'
-              }`}
-              data-toggle="collapse"
-              data-target="#collapseLocations"
-              aria-expanded="false"
-              aria-controls="collapseLocations"
-            >
-              <div className="sb-nav-link-icon">
-                <i className="fas fa-map-marker-alt"></i>
-              </div>
-              Ciudad
-              <div className="sb-sidenav-collapse-arrow">
-                <i className="fas fa-angle-down"></i>
-              </div>
-            </a>
-          </Link>
+          <a
+            style={{ cursor: 'pointer' }}
+            className={`nav-link ${
+              props.router.pathname.split('/')[1] === 'ciudades'
+                ? 'active'
+                : 'collapsed'
+            }`}
+            data-toggle="collapse"
+            data-target="#collapseLocations"
+            aria-expanded="false"
+            aria-controls="collapseLocations"
+          >
+            <div className="sb-nav-link-icon">
+              <i className="fas fa-map-marker-alt"></i>
+            </div>
+            Ciudad
+            <div className="sb-sidenav-collapse-arrow">
+              <i className="fas fa-angle-down"></i>
+            </div>
+          </a>
 
           <div
             className={`collapse ${
@@ -76,27 +74,28 @@ const SideNav = (props) => (
               </Link>
             </nav>
           </div>
-          <Link href="/sucursales">
-            <a
-              className={`nav-link ${
-                props.router.pathname.split('/')[1] === 'sucursales'
-                  ? 'active'
-                  : 'collapsed'
-              }`}
-              data-toggle="collapse"
-              data-target="#collapseShops"
-              aria-expanded="false"
-              aria-controls="collapseShops"
-            >
-              <div className="sb-nav-link-icon">
-                <i className="fas fa-store"></i>
-              </div>
-              Sucursales
-              <div className="sb-sidenav-collapse-arrow">
-                <i className="fas fa-angle-down"></i>
-              </div>
-            </a>
-          </Link>
+
+          <a
+            style={{ cursor: 'pointer' }}
+            className={`nav-link ${
+              props.router.pathname.split('/')[1] === 'sucursales'
+                ? 'active'
+                : 'collapsed'
+            }`}
+            data-toggle="collapse"
+            data-target="#collapseShops"
+            aria-expanded="false"
+            aria-controls="collapseShops"
+          >
+            <div className="sb-nav-link-icon">
+              <i className="fas fa-store"></i>
+            </div>
+            Sucursales
+            <div className="sb-sidenav-collapse-arrow">
+              <i className="fas fa-angle-down"></i>
+            </div>
+          </a>
+
           <div
             className={`collapse ${
               props.router.pathname.split('/')[1] === 'sucursales'
@@ -130,30 +129,31 @@ const SideNav = (props) => (
               </Link>
             </nav>
           </div>
-          <Link href="/marcas">
-            <a
-              className={`nav-link ${
-                props.router.pathname.split('/')[1] === 'marcas'
-                  ? 'active'
-                  : 'collapsed'
-              }`}
-              data-toggle="collapse"
-              data-target="#collapseMarcas"
-              aria-expanded="false"
-              aria-controls="collapseMarcas"
-            >
-              <div className="sb-nav-link-icon">
-                <i className="fa fa-building"></i>
-              </div>
-              Marcas
-              <div className="sb-sidenav-collapse-arrow">
-                <i className="fas fa-angle-down"></i>
-              </div>
-            </a>
-          </Link>
+
+          <a
+            style={{ cursor: 'pointer' }}
+            className={`nav-link ${
+              props.router.pathname.split('/')[1] === 'proveedor'
+                ? 'active'
+                : 'collapsed'
+            }`}
+            data-toggle="collapse"
+            data-target="#collapseMarcas"
+            aria-expanded="false"
+            aria-controls="collapseMarcas"
+          >
+            <div className="sb-nav-link-icon">
+              <i className="fa fa-building"></i>
+            </div>
+            Proveedores
+            <div className="sb-sidenav-collapse-arrow">
+              <i className="fas fa-angle-down"></i>
+            </div>
+          </a>
+
           <div
             className={`collapse ${
-              props.router.pathname.split('/')[1] === 'marcas'
+              props.router.pathname.split('/')[1] === 'proveedor'
                 ? 'show'
                 : ''
             }`}
@@ -162,50 +162,50 @@ const SideNav = (props) => (
             data-parent="#sidenavAccordion"
           >
             <nav className="sb-sidenav-menu-nested nav">
-              <Link href="/marcas">
+              <Link href="/proveedor">
                 <a
                   className={`nav-link sub_nav_link ${
-                    props.router.pathname === '/marcas' ? 'active' : ''
+                    props.router.pathname === '/proveedor' ? 'active' : ''
                   }`}
                 >
-                  Todas las marcas
+                  Todos los proveedores
                 </a>
               </Link>
-              <Link href="/marcas/nuevo">
+              <Link href="/proveedor/nuevo">
                 <a
                   className={`nav-link sub_nav_link ${
-                    props.router.pathname === '/marcas/nuevo'
+                    props.router.pathname === '/proveedor/nuevo'
                       ? 'active'
                       : ''
                   }`}
                 >
-                  Agregar marca
+                  Agregar proveedor
                 </a>
               </Link>
             </nav>
           </div>
 
-          <Link href="/categorias">
-            <a
-              className={`nav-link ${
-                props.router.pathname.split('/')[1] === 'categorias'
-                  ? 'active'
-                  : 'collapsed'
-              }`}
-              data-toggle="collapse"
-              data-target="#collapseCategories"
-              aria-expanded="false"
-              aria-controls="collapseCategories"
-            >
-              <div className="sb-nav-link-icon">
-                <i className="fas fa-list"></i>
-              </div>
-              Categorias
-              <div className="sb-sidenav-collapse-arrow">
-                <i className="fas fa-angle-down"></i>
-              </div>
-            </a>
-          </Link>
+          <a
+            style={{ cursor: 'pointer' }}
+            className={`nav-link ${
+              props.router.pathname.split('/')[1] === 'categorias'
+                ? 'active'
+                : 'collapsed'
+            }`}
+            data-toggle="collapse"
+            data-target="#collapseCategories"
+            aria-expanded="false"
+            aria-controls="collapseCategories"
+          >
+            <div className="sb-nav-link-icon">
+              <i className="fas fa-list"></i>
+            </div>
+            Categorias
+            <div className="sb-sidenav-collapse-arrow">
+              <i className="fas fa-angle-down"></i>
+            </div>
+          </a>
+
           <div
             className={`collapse ${
               props.router.pathname.split('/')[1] === 'categorias'
@@ -239,27 +239,27 @@ const SideNav = (props) => (
               </Link>
             </nav>
           </div>
-          <Link href="/productos">
-            <a
-              className={`nav-link ${
-                props.router.pathname.split('/')[1] === 'productos'
-                  ? 'active'
-                  : 'collapsed'
-              }`}
-              data-toggle="collapse"
-              data-target="#collapseProducts"
-              aria-expanded="false"
-              aria-controls="collapseProducts"
-            >
-              <div className="sb-nav-link-icon">
-                <i className="fas fa-box"></i>
-              </div>
-              Productos
-              <div className="sb-sidenav-collapse-arrow">
-                <i className="fas fa-angle-down"></i>
-              </div>
-            </a>
-          </Link>
+
+          <a
+            style={{ cursor: 'pointer' }}
+            className={`nav-link ${
+              props.router.pathname.split('/')[1] === 'productos'
+                ? 'active'
+                : 'collapsed'
+            }`}
+            data-toggle="collapse"
+            data-target="#collapseProducts"
+            aria-expanded="false"
+            aria-controls="collapseProducts"
+          >
+            <div className="sb-nav-link-icon">
+              <i className="fas fa-box"></i>
+            </div>
+            Productos
+            <div className="sb-sidenav-collapse-arrow">
+              <i className="fas fa-angle-down"></i>
+            </div>
+          </a>
 
           <div
             className={`collapse ${

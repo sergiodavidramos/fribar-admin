@@ -57,7 +57,7 @@ function ProductView({ pro }) {
                             <div className="product-status">
                               Ventas/Pedidos
                               <span className="badge-item-2 badge-status">
-                                10
+                                {pro.cantidadVendidos}
                               </span>
                             </div>
                           </li>
@@ -91,7 +91,7 @@ function ProductView({ pro }) {
                             <span className="left-dt">Categoria</span>
                             <span className="right-dt">
                               {' '}
-                              {pro.category[0].name}
+                              {pro.category.name}
                             </span>
                           </div>
                           <div className="shopowner-dt-list">

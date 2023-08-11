@@ -100,7 +100,7 @@ const ciudadNueva = () => {
                     <a>Ciudades</a>
                   </Link>
                 </li>
-                <li className="breadcrumb-item active">Agregar ciudad</li>
+                <li className="breadcrumb-item active">Editar ciudad</li>
               </ol>
               {ciudad ? (
                 <div className="row">

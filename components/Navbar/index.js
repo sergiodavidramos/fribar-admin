@@ -1,25 +1,54 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import UserContext from '../UserContext'
+import axios from 'axios'
 import Link from 'next/link'
+import { API_URL } from '../Config'
 export default () => {
   const {
     signOut,
     setSitNav,
     sid,
-    getSucursales,
     setAdmSucursal,
+    getSucursales,
     user,
     getAdmSucursal,
+    setSucursales,
+    token,
   } = useContext(UserContext)
 
   function handlerSid() {
     sid ? setSitNav(false) : setSitNav(true)
   }
-  function handlerSucursal() {
+  function handlerSetSucursal() {
     if (event.target.value) {
       setAdmSucursal(event.target.value)
     }
   }
+  async function getSurcursalesServer(token) {
+    try {
+      const sucursalesServer = await fetch(`${API_URL}/sucursal/all`, {
+        method: 'GET',
+        headers: {
+          Authorization: 'Bearer ' + token,
+          'Content-Type': 'application/json',
+        },
+      })
+      const det = await sucursalesServer.json()
+      if (det.error) alert('Error al obtener las sucursales')
+      else {
+        setSucursales(det.body)
+      }
+    } catch (error) {
+      alert(error.message)
+    }
+  }
+
+  useEffect(() => {
+    if (token && user.role === 'GERENTE-ROLE') getSurcursalesServer(token)
+    else {
+      if (user) setAdmSucursal(user.idSucursal)
+    }
+  }, [token])
 
   return (
     <nav className="sb-topnav navbar navbar-expand navbar-light bg-clr">
@@ -31,18 +60,27 @@ export default () => {
                 id="sucursal"
                 name="sucursal"
                 className="form-control"
-                onChange={handlerSucursal}
+                onChange={handlerSetSucursal}
                 defaultValue={getAdmSucursal}
               >
                 <option value={0}>Todas las sucursales</option>
                 {getSucursales.map((suc) => (
                   <option value={suc._id} key={suc._id}>
-                    {suc.nombre} - {suc.direccion} - {suc.ciudad.nombre}
+                    {suc.nombre} - {suc.direccion.direccion} -{' '}
+                    {suc.ciudad.nombre}
                   </option>
                 ))}
               </select>
             ) : (
-              ''
+              <select
+                id="sucursal"
+                name="sucursal"
+                className="form-control"
+                onChange={handlerSetSucursal}
+                defaultValue={getAdmSucursal}
+              >
+                <option value={0}>Todas las sucursales</option>
+              </select>
             )}
           </div>
         ) : (

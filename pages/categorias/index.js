@@ -78,9 +78,15 @@ const Categorias = () => {
                                 <td>{cate.name}</td>
                                 <td>{cate.description}</td>
                                 <td>
-                                  <span className="badge-item badge-status">
-                                    Activo
-                                  </span>
+                                  {cate.status ? (
+                                    <span className="badge-item badge-status">
+                                      Activo
+                                    </span>
+                                  ) : (
+                                    <span className="badge-item badge-status-false">
+                                      Inactivo
+                                    </span>
+                                  )}
                                 </td>
                                 <td className="action-btns">
                                   <Link

@@ -57,13 +57,12 @@ const Login = () => {
         })
           .then((res) => res.json())
           .then((response) => {
-            response.error
-              ? console.log(response)
-              : //   notify.show(response.body.message, 'warning')
-                setUser(response.body)
+            if (response.error) notify.show(response.body, 'warning')
+            else {
+              setUser(response.body)
+            }
           })
           .catch((err) => {
-            console.log(err)
             notify.show('Error en el Servidor', 'error')
           })
       },

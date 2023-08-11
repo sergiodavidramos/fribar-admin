@@ -3,7 +3,7 @@ import TopNavbar from '../components/Navbar'
 import SideNav from '../components/Navbar/SideNav'
 import Footer from '../components/Footer'
 import UserContext from '../components/UserContext'
-import { useContext, useState } from 'react'
+import { useContext, useState, useEffect } from 'react'
 import Link from 'next/link'
 import Notifications, { notify } from 'react-notify-toast'
 import FormData from 'form-data'
@@ -13,6 +13,7 @@ export default function Perfil() {
   const { user, token, signOut, setUser } = useContext(UserContext)
   const [image, setImage] = useState(null)
   const [imageUpload, setImageUpload] = useState(null)
+
   const uploadFile = (e) => {
     setImage(URL.createObjectURL(e.target.files[0]))
     setImageUpload(e.target.files[0])
@@ -102,6 +103,8 @@ export default function Perfil() {
         )
     }
   }
+  useEffect(() => {}, [user])
+
   return (
     <>
       <Head>
@@ -124,16 +127,24 @@ export default function Perfil() {
                   </li>
                   <li className="breadcrumb-item active">Editar Perfil</li>
                 </ol>
+
                 <div className="row">
                   <div className="col-lg-4 col-md-5">
                     <div className="card card-static-2 mb-30">
                       <div className="card-body-table">
                         <div className="shopowner-content-left text-center pd-20">
                           <div className="shop_img mb-3">
-                            <img
-                              src={GetImg(user.img, urlGetImg)}
-                              alt="Usuario Frifolly"
-                            />
+                            {user.google || user.facebook ? (
+                              <img
+                                src={user.img}
+                                alt="Usuario Frifolly Fb G"
+                              />
+                            ) : (
+                              <img
+                                src={GetImg(user.img, urlGetImg)}
+                                alt="Usuario Frifolly"
+                              />
+                            )}
                           </div>
                           <div className="shopowner-dt-left">
                             <h4>FriBar</h4>
@@ -151,7 +162,7 @@ export default function Perfil() {
                                 Numero de celular
                               </span>
                               <span className="right-dt">
-                                {user.idPersona.phone || ''}
+                                {user.phone || ''}
                               </span>
                             </div>
                             <div className="shopowner-dt-list">
@@ -222,9 +233,7 @@ export default function Perfil() {
                                   <input
                                     type="text"
                                     className="form-control"
-                                    defaultValue={
-                                      user.idPersona.phone || ''
-                                    }
+                                    defaultValue={user.phone || ''}
                                     placeholder="Ingrese su numero telefonico"
                                   />
                                 </div>
@@ -234,15 +243,12 @@ export default function Perfil() {
                                   <label className="form-label">
                                     Estado*
                                   </label>
-                                  <select
-                                    className="form-control"
-                                    defaultValue={0}
-                                  >
-                                    <option value="0">
-                                      {user.idPersona.status
-                                        ? 'Activo'
-                                        : 'Inactivo'}
-                                    </option>
+                                  <select className="form-control">
+                                    {user.status ? (
+                                      <option>Activo</option>
+                                    ) : (
+                                      <option>Inactivo</option>
+                                    )}
                                   </select>
                                 </div>
                               </div>
@@ -269,14 +275,21 @@ export default function Perfil() {
                                     </div>
                                   </div>
                                   <div className="add-cate-img-1">
-                                    <img
-                                      src={
-                                        !image
-                                          ? GetImg(user.img, urlGetImg)
-                                          : image
-                                      }
-                                      alt="Usuario Frifolly"
-                                    />
+                                    {user.google || user.facebook ? (
+                                      <img
+                                        src={user.img}
+                                        alt="Usuario Frifolly"
+                                      />
+                                    ) : (
+                                      <img
+                                        src={
+                                          !image
+                                            ? GetImg(user.img, urlGetImg)
+                                            : image
+                                        }
+                                        alt="Usuario Frifolly"
+                                      />
+                                    )}
                                   </div>
                                 </div>
                               </div>

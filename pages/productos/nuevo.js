@@ -11,7 +11,6 @@ import UserContext from '../../components/UserContext'
 
 const ProductoNuevo = ({ categorias, marcas }) => {
   const [token, setToken] = useState(false)
-
   const { signOut, getSucursales, getAdmSucursal, setAdmSucursal } =
     useContext(UserContext)
   const textCode = useRef()
@@ -62,14 +61,14 @@ const ProductoNuevo = ({ categorias, marcas }) => {
               code: target[0].value,
               name: target[1].value,
               category: target[2].value,
-              marca: target[3].value,
+              proveedor: target[3].value,
               tipoVenta: target[4].value,
               stock: target[5].value,
               precioCompra: target[6].value,
               precioVenta: target[7].value,
               fechaCaducidad: target[8].value,
               detail: target[9].value,
-              ventaOnline: target[11].value,
+              ventaOnline: target[10].value,
             }),
             headers: {
               Authorization: `Bearer ${token}`,
@@ -82,7 +81,7 @@ const ProductoNuevo = ({ categorias, marcas }) => {
             })
             .then((response) => {
               if (response.error) {
-                console.log(response)
+                console.log('RRRRR', response)
                 notify.show(response.body, 'error', 5000)
                 setButt(false)
               } else {
@@ -258,7 +257,7 @@ const ProductoNuevo = ({ categorias, marcas }) => {
                               </option>
                               {marcas.body.map((mar) => (
                                 <option value={mar._id} key={mar._id}>
-                                  {mar.nombre}
+                                  {mar.nombreComercial}
                                 </option>
                               ))}
                             </select>
@@ -342,30 +341,6 @@ const ProductoNuevo = ({ categorias, marcas }) => {
                             </div>
                           </div>
 
-                          {getAdmSucursal === '0' ? (
-                            <div className="form-group">
-                              <label className="form-label">
-                                Sucursal*
-                              </label>
-                              <select
-                                id="categtory"
-                                name="categtory"
-                                className="form-control"
-                                defaultValue="0"
-                              >
-                                <option value="0">
-                                  --Seleccionar Sucursal--
-                                </option>
-                                {getSucursales.map((su) => (
-                                  <option value={su._id} key={su._id}>
-                                    {su.nombre} - {su.direccion}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                          ) : (
-                            ''
-                          )}
                           <div className="form-group">
                             <label className="form-label">
                               Venta online*
@@ -447,10 +422,13 @@ const ProductoNuevo = ({ categorias, marcas }) => {
 
 export async function getStaticProps() {
   try {
-    const res = await fetch('http://localhost:3001/categoria')
+    const res = await fetch('http://localhost:3001/categoria?status=true')
     const categorias = await res.json()
-    const mar = await fetch('http://localhost:3001/marca')
+    const mar = await fetch(
+      'http://localhost:3001/proveedor/all?status=true'
+    )
     const marcas = await mar.json()
+
     return {
       props: {
         categorias,
@@ -461,6 +439,7 @@ export async function getStaticProps() {
   } catch (err) {
     const categorias = { error: true }
     const marcas = { error: true }
+
     return {
       props: {
         categorias,
