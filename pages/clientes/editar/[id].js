@@ -9,14 +9,15 @@ import GetImg from '../../../components/GetImg'
 import FormData from 'form-data'
 import Notifications, { notify } from 'react-notify-toast'
 const editClient = () => {
-  const { signOut } = useContext(UserContext)
+  const { signOut, getSucursales } = useContext(UserContext)
   const [client, setCliente] = useState(null)
   const [token, setToken] = useState(false)
   const router = useRouter()
   const [image, setImage] = useState(null)
   const [imageUpload, setImageUpload] = useState(null)
+  const [isPersonal, setisPersonal] = useState(false)
   useEffect(() => {
-    const tokenLocal = localStorage.getItem('frifolly-token')
+    const tokenLocal = localStorage.getItem('fribar-token')
     if (!tokenLocal) {
       signOut()
     }
@@ -40,7 +41,8 @@ const editClient = () => {
           if (data.error) {
             alert('Error el en servidor')
           } else {
-            setCliente(data.body.users[0])
+            setCliente(data.body[0][0])
+            setisPersonal(data.body[0][0].personal)
           }
         })
         .catch((error) => alert('Error en el servidor'))
@@ -75,10 +77,17 @@ const editClient = () => {
               method: 'PATCH',
               body: JSON.stringify({
                 nombre_comp: target[0].value,
-                password: target[1].value,
-                email: target[2].value,
-                phone: target[3].value,
-                role: target[4].value,
+                ci: target[1].value,
+                password: target[2].value,
+                email: target[3].value,
+                phone: target[4].value,
+                role: target[5].value,
+                status: target[6].value === '0' ? true : false,
+                puntos: target[7].value,
+                cuenta: target[8].value,
+                personal: target[9].value,
+                idSucursal: isPersonal ? target[9].value : '',
+                idPersona: client.idPersona._id,
               }),
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -114,11 +123,17 @@ const editClient = () => {
         method: 'PATCH',
         body: JSON.stringify({
           nombre_comp: target[0].value,
-          password: target[1].value,
-          email: target[2].value,
-          phone: target[3].value,
-          role: target[4].value,
-          status: target[5].value === '0' ? true : false,
+          ci: target[1].value ? target[1].value : false,
+          password: target[2].value,
+          email: target[3].value,
+          phone: target[4].value,
+          role: target[5].value,
+          status: target[6].value === '0' ? true : false,
+          puntos: target[7].value,
+          cuenta: target[8].value,
+          personal: target[9].value,
+          idSucursal: isPersonal ? target[10].value : null,
+          idPersona: client.idPersona._id,
         }),
         headers: {
           Authorization: `Bearer ${token}`,
@@ -180,9 +195,22 @@ const editClient = () => {
                               <input
                                 type="text"
                                 className="form-control"
-                                defaultValue={client.nombre_comp}
+                                defaultValue={client.idPersona.nombre_comp}
                                 placeholder="Ingrese su nombre comleto"
                                 required
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label className="form-label">C.I.*</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                defaultValue={
+                                  client.idPersona.ci
+                                    ? client.idPersona.ci
+                                    : ''
+                                }
+                                placeholder="Ingrese el C.I."
                               />
                             </div>
                             <div className="form-group">
@@ -216,7 +244,6 @@ const editClient = () => {
                                 className="form-control"
                                 defaultValue={client.phone}
                                 placeholder="Ingrese su numero Teléfonico"
-                                required
                               />
                             </div>
                             <div className="form-group">
@@ -240,8 +267,80 @@ const editClient = () => {
                               </select>
                             </div>
                             <div className="form-group">
+                              <label className="form-label">Puntos*</label>
+                              <input
+                                type="number"
+                                className="form-control"
+                                defaultValue={client.idPersona.puntos}
+                                placeholder="Puntos del cliente"
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label className="form-label">Cuenta*</label>
+                              <input
+                                type="number"
+                                className="form-control"
+                                defaultValue={client.cuenta}
+                                placeholder="Cuenta del cliente"
+                              />
+                            </div>
+                            <div className="form-group">
                               <label className="form-label">
-                                Customer Image*
+                                Personal*
+                              </label>
+                              <select
+                                className="form-control"
+                                defaultValue={
+                                  client.personal ? true : false
+                                }
+                                onChange={(e) =>
+                                  setisPersonal(e.target.value)
+                                }
+                              >
+                                <option value={true}>Si</option>
+                                <option value={false}>No</option>
+                              </select>
+                            </div>
+                            {isPersonal ? (
+                              <div className="form-group">
+                                <label className="form-label">
+                                  Sucursal*
+                                </label>
+                                <select
+                                  className="form-control"
+                                  defaultValue={
+                                    client.idSucursal
+                                      ? client.idSucursal
+                                      : false
+                                  }
+                                >
+                                  <option value={false}>
+                                    Asigne a una sucursal
+                                  </option>
+                                  {getSucursales.length > 0 ? (
+                                    getSucursales.map(
+                                      (sucursal, index) => (
+                                        <option
+                                          value={sucursal._id}
+                                          key={index}
+                                        >
+                                          {sucursal.nombre}
+                                        </option>
+                                      )
+                                    )
+                                  ) : (
+                                    <option value={false}>
+                                      No hay sucursales
+                                    </option>
+                                  )}
+                                </select>
+                              </div>
+                            ) : (
+                              ''
+                            )}
+                            <div className="form-group">
+                              <label className="form-label">
+                                Image del cliente*
                               </label>
                               <div className="input-group">
                                 <div className="custom-file">
@@ -256,7 +355,7 @@ const editClient = () => {
                                     className="custom-file-label"
                                     htmlFor="inputGroupFile04"
                                   >
-                                    Choose Image
+                                    Elegir Imagen
                                   </label>
                                 </div>
                               </div>
@@ -282,7 +381,11 @@ const editClient = () => {
                                 <div className="content-editor">
                                   <textarea
                                     className="text-control"
-                                    defaultValue={client.direccion}
+                                    defaultValue={
+                                      client.direccion.length > 0
+                                        ? client.direccion[0].direccion
+                                        : 'No hay direcciones'
+                                    }
                                     placeholder="Direcciones (este campo no es editable.)"
                                     disabled={true}
                                   ></textarea>
@@ -293,7 +396,7 @@ const editClient = () => {
                               className="save-btn hover-btn"
                               type="submit"
                             >
-                              Save Changes
+                              Guardar Cambios
                             </button>
                           </div>
                         </form>

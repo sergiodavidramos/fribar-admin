@@ -12,7 +12,7 @@ const viewClient = () => {
   const [client, setCliente] = useState(null)
   const router = useRouter()
   useEffect(() => {
-    const tokenLocal = localStorage.getItem('frifolly-token')
+    const tokenLocal = localStorage.getItem('fribar-token')
     if (!tokenLocal) {
       signOut()
     }
@@ -35,13 +35,14 @@ const viewClient = () => {
           if (data.error) {
             notify.show('Error en el servidor', 'error', 2000)
           } else {
-            console.log(data.body.users[0])
-            setCliente(data.body.users[0])
+            console.log(data.body[0][0])
+            setCliente(data.body[0][0])
           }
         })
-        .catch((error) =>
+        .catch((error) => {
+          console.log('SSSSS', error)
           notify.show('Error en el servidor', 'error', 2000)
-        )
+        })
     }
   }, [router])
   return (
@@ -92,7 +93,7 @@ const viewClient = () => {
                               <div className="product-status">
                                 Compras
                                 <span className="badge-item-2 badge-status">
-                                  {client.compras}
+                                  {client.idPersona.compras}
                                 </span>
                               </div>
                             </li>
@@ -100,7 +101,7 @@ const viewClient = () => {
                               <div className="product-status">
                                 Puntos
                                 <span className="badge-item-2 badge-status">
-                                  {client.puntos}
+                                  {client.idPersona.puntos}
                                 </span>
                               </div>
                             </li>
@@ -109,26 +110,46 @@ const viewClient = () => {
                             <div className="shopowner-dt-list">
                               <span className="left-dt">Nombre</span>
                               <span className="right-dt">
-                                {client.nombre_comp}
+                                {client.idPersona.nombre_comp}
                               </span>
                             </div>
-
+                            <div className="shopowner-dt-list">
+                              <span className="left-dt">C.I.</span>
+                              <span className="right-dt">
+                                {client.idPersona.ci
+                                  ? client.idPersona.ci
+                                  : '---------'}
+                              </span>
+                            </div>
                             <div className="shopowner-dt-list">
                               <span className="left-dt">Email</span>
                               <span className="right-dt">
                                 {client.email}
                               </span>
                             </div>
+
                             <div className="shopowner-dt-list">
                               <span className="left-dt">Teléfono</span>
                               <span className="right-dt">
-                                {client.phone}
+                                {client.phone ? client.phone : '--------'}
                               </span>
                             </div>
                             <div className="shopowner-dt-list">
                               <span className="left-dt">Direccion</span>
                               <span className="right-dt">
-                                {client.direccion}
+                                {client.direccion[0]}
+                              </span>
+                            </div>
+                            <div className="shopowner-dt-list">
+                              <span className="left-dt">Rol</span>
+                              <span className="right-dt">
+                                {client.role}
+                              </span>
+                            </div>
+                            <div className="shopowner-dt-list">
+                              <span className="left-dt">Personal</span>
+                              <span className="right-dt">
+                                {client.personal ? 'Si' : 'No'}
                               </span>
                             </div>
                           </div>

@@ -15,7 +15,7 @@ const Clientes = () => {
   const [clientFilter, setClientFilter] = useState(null)
   const [pageState, setPageState] = useState(0)
   const [count, setCount] = useState(0)
-  const [id, setId] = useState(null)
+  const [idEliminarCliente, setidEliminarCliente] = useState(null)
   async function paginationHandler(page) {
     setPageState(page.selected)
   }
@@ -60,7 +60,7 @@ const Clientes = () => {
     }
   }, [clientFilter, pageState])
   function handlerDelete(id) {
-    setId(id)
+    setidEliminarCliente(id)
   }
   function handleChangeClientes() {
     if (event.target.value !== '0') {
@@ -116,7 +116,6 @@ const Clientes = () => {
         })
         .then((data) => {
           if (data.error) {
-            console.log(data)
             notify.show('Error el en servidor', 'error')
           } else {
             setClientes(data.body)
@@ -132,7 +131,7 @@ const Clientes = () => {
   }
   return (
     <>
-      <Model id={id} token={token} notify={notify} />
+      <Model id={idEliminarCliente} token={token} notify={notify} />
       <TopNavbar />
       <div id="layoutSidenav">
         <SideNav />

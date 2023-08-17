@@ -11,10 +11,10 @@ import GetImg from '../../components/GetImg'
 const Users = () => {
   const [token, setToken] = useState(false)
   const { signOut } = useContext(UserContext)
-  const [clientes, setClientes] = useState(false)
+  const [usuarios, setUsuarios] = useState(false)
   const [id, setId] = useState(null)
   function getUserAPi(tokenLocal) {
-    fetch(`http://localhost:3001/user/role?role=GERENTE-ROLE`, {
+    fetch(`http://localhost:3001/user/role`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${tokenLocal}`,
@@ -30,11 +30,10 @@ const Users = () => {
       .then((data) => {
         if (data.error) notify.show('Error el en servidor', 'error')
         else {
-          setClientes(data.body)
+          setUsuarios(data.body)
         }
       })
       .catch((error) => {
-        console.log(error)
         notify.show('Error en el servidor', 'error', 2000)
       })
   }
@@ -66,10 +65,9 @@ const Users = () => {
         })
         .then((data) => {
           if (data.error) {
-            console.log(data)
             notify.show('Error el en servidor', 'error')
           } else {
-            setClientes(data.body)
+            setUsuarios(data.body)
           }
         })
         .catch((error) => {
@@ -79,6 +77,7 @@ const Users = () => {
       getUserAPi(token)
     }
   }
+
   return (
     <>
       <Model id={id} token={token} notify={notify} />
@@ -98,6 +97,13 @@ const Users = () => {
                 </li>
                 <li className="breadcrumb-item active">Usuarios</li>
               </ol>
+              <div className="col-lg-12">
+                <Link href="/usuarios/nuevo">
+                  <a className="add-btn hover-btn">
+                    Agregar nuevo usuario
+                  </a>
+                </Link>
+              </div>
               <div className="col-lg-4 col-md-4">
                 <div className="bulk-section mt-30">
                   <div className="input-group">
@@ -109,6 +115,7 @@ const Users = () => {
                       onChange={handleChangeClientes}
                     >
                       <option value="0">Todos los Usuarios</option>
+                      <option value={'GERENTE-ROLE'}>GERENTES</option>
                       <option value={'ADMIN-ROLE'}>Administradores</option>
                       <option value={'USER-ROLE'}>Vendedores</option>
                       <option value={'DELIVERY-ROLE'}>Repartidores</option>
@@ -127,7 +134,7 @@ const Users = () => {
                         <table className="table ucp-table table-hover">
                           <thead>
                             <tr>
-                              <th style={{ width: '60px' }}>ID</th>
+                              <th style={{ width: '100px' }}>Sucursal</th>
                               <th style={{ width: '100px' }}>Imagen</th>
                               <th>Nombre</th>
                               <th>Email</th>
@@ -138,14 +145,14 @@ const Users = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {!clientes ? (
+                            {!usuarios ? (
                               <tr>
                                 <td>...</td>
                               </tr>
                             ) : (
-                              clientes.map((cli) => (
+                              usuarios.map((cli) => (
                                 <tr key={cli._id}>
-                                  <td>{cli._id}</td>
+                                  <td>{cli.idSucursal.nombre}</td>
                                   <td>
                                     <div className="cate-img-6">
                                       <img
@@ -162,7 +169,7 @@ const Users = () => {
                                   <td>{cli.phone}</td>
                                   <td>{cli.role}</td>
                                   <td>
-                                    {cli.idPersona.status ? (
+                                    {cli.status ? (
                                       <span className="badge-item badge-status">
                                         Activo
                                       </span>

@@ -1,6 +1,5 @@
 export default ({ id, token, notify }) => {
   function handlerDelete() {
-    console.log(id)
     fetch(`http://localhost:3001/user/${id}`, {
       method: 'DELETE',
       headers: {
@@ -50,8 +49,7 @@ export default ({ id, token, notify }) => {
             <div className="btn-confirmation">
               <a
                 data-dismiss="modal"
-                // onClick={handlerDelete}
-                onClick={() => window.print()}
+                onClick={handlerDelete}
                 className="view-btn hover-btn btn-margin"
                 style={{ cursor: 'pointer' }}
               >

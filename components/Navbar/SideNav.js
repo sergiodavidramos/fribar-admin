@@ -331,7 +331,7 @@ const SideNav = (props) => (
               Clientes
             </a>
           </Link>
-          <Link href="/usuarios">
+          {/* <Link href="/usuarios">
             <a
               className={`nav-link ${
                 props.router.pathname === '/usuarios' ? 'active' : ''
@@ -342,7 +342,61 @@ const SideNav = (props) => (
               </div>
               Usuarios
             </a>
-          </Link>
+          </Link> */}
+          <a
+            style={{ cursor: 'pointer' }}
+            className={`nav-link ${
+              props.router.pathname.split('/')[1] === 'usuarios'
+                ? 'active'
+                : 'collapsed'
+            }`}
+            href="#"
+            data-toggle="collapse"
+            data-target="#collapseAreas"
+            aria-expanded="false"
+            aria-controls="collapseAreas"
+          >
+            <div className="sb-nav-link-icon">
+              <i className="fas fa-user-tie"></i>
+            </div>
+            Usuarios
+            <div className="sb-sidenav-collapse-arrow">
+              <i className="fas fa-angle-down"></i>
+            </div>
+          </a>
+          <div
+            className={`collapse ${
+              props.router.pathname.split('/')[1] === 'usuarios'
+                ? 'show'
+                : ''
+            }`}
+            id="collapseAreas"
+            aria-labelledby="headingTwo"
+            data-parent="#sidenavAccordion"
+          >
+            <nav className="sb-sidenav-menu-nested nav">
+              <Link href="/usuarios">
+                <a
+                  className={`nav-link sub_nav_link ${
+                    props.router.pathname === '/usuarios' ? 'active' : ''
+                  }`}
+                >
+                  Todos los usuarios
+                </a>
+              </Link>
+              <Link href="/usuarios/nuevo">
+                <a
+                  className={`nav-link sub_nav_link ${
+                    props.router.pathname === '/usuarios/nuevo'
+                      ? 'active'
+                      : ''
+                  }`}
+                >
+                  Agregar usuario
+                </a>
+              </Link>
+            </nav>
+          </div>
           <Link href="/ofertas">
             <a
               className={`nav-link ${
