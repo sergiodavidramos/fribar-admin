@@ -7,6 +7,7 @@ import UserContext from '../../components/UserContext'
 import GetImg from '../../components/GetImg'
 import FormData from 'form-data'
 import Notifications, { notify } from 'react-notify-toast'
+// Prueba commit directo
 const nuevoUsuario = () => {
   const { signOut, getSucursales } = useContext(UserContext)
   const [token, setToken] = useState(false)
