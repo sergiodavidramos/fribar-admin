@@ -5,6 +5,7 @@ import FacebookLogin from 'react-facebook-login'
 import { encode } from 'base-64'
 import Router from 'next/router'
 import UserContext from '../components/UserContext'
+import { API_URL } from '../components/Config'
 const Login = () => {
   var auth2
   //   const [state, dispatch] = useStateValue()
@@ -46,7 +47,7 @@ const Login = () => {
       {},
       function (googleUser) {
         const id_token = googleUser.getAuthResponse().id_token
-        fetch('http://localhost:3001/login/google', {
+        fetch(`${API_URL}/login/google`, {
           method: 'POST',
           body: JSON.stringify({
             idtoken: id_token,
@@ -82,7 +83,7 @@ const Login = () => {
       'Basic ' +
         encode(event.target[0].value + ':' + event.target[1].value)
     )
-    fetch('http://localhost:3001/login', {
+    fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: headers,
     })
@@ -97,7 +98,7 @@ const Login = () => {
       })
   }
   const responseFacebook = (response) => {
-    fetch('http://localhost:3001/login/facebook', {
+    fetch(`${API_URL}/login/facebook`, {
       method: 'POST',
       body: JSON.stringify({
         accessToken: response.accessToken,

@@ -6,17 +6,15 @@ import UserContext from '../../../components/UserContext'
 import Notifications, { notify } from 'react-notify-toast'
 import Footer from '../../../components/Footer'
 import GetImg from '../../../components/GetImg'
-import mapboxgl from '!mapbox-gl'
+import mapboxgl from 'mapbox-gl'
 import { useRouter } from 'next/router'
 import axios from 'axios'
 import { mapboxglAccessToken } from '../../../components/Config'
 const viewSucursal = () => {
   const { signOut } = useContext(UserContext)
   const [sucursal, setSucursales] = useState(false)
-  const [token, setToken] = useState(null)
   const router = useRouter()
 
-  //   const map = useRef(null)
   mapboxgl.accessToken = mapboxglAccessToken
 
   const mapContainer = useRef(null)
@@ -31,7 +29,6 @@ const viewSucursal = () => {
     } else {
       if (router && router.query && router.query.id) {
         const { id } = router.query
-        setToken(tokenLocal)
         axios
           .get(`http://localhost:3001/sucursal/${id}`, {
             headers: {
@@ -69,7 +66,6 @@ const viewSucursal = () => {
   })
   function resizeMap(map) {
     setTimeout(function () {
-      console.log('sss')
       map.resize()
     }, 300)
     const marker = new mapboxgl.Marker({
