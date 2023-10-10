@@ -1,53 +1,31 @@
 import mapboxgl from '!mapbox-gl'
 import React, { useRef, useEffect, useState } from 'react'
+import { mapboxglAccessToken } from './Config'
 
-export default ({ id, token, notify }, resizeMap) => {
-  function handlerDelete() {
-    console.log(id)
-    fetch(`http://localhost:3001/user/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          signOut()
-        }
-        return res.json()
-      })
-      .then((data) => {
-        if (data.error) {
-          notify.show('Error el en servidor', 'error')
-        } else {
-          notify.show('El Cliente a sido eliminado', 'success')
-        }
-      })
-      .catch((error) => notify.show('Error en el servidor', 'error', 2000))
-  }
-  mapboxgl.accessToken =
-    'pk.eyJ1Ijoic2VyZ2lvZGF2aWRyYW1vcyIsImEiOiJja2NjcnloMzMwN2tjMndtOXM1NTFlMzRkIn0.5LBxHw3qu5t7pLdSjf2_rQ'
+export default (
+  //   lat = -19.580825208155886,
+  //   lng = -65.74344442741115,
+  resizeMap
+) => {
+  mapboxgl.accessToken = mapboxglAccessToken
+
   const mapContainer = useRef(null)
-
-  const [lat, setLat] = useState(-19.580984)
-  const [lng, setLng] = useState(-65.743432)
-  const [zoom, setZoom] = useState(15)
 
   useEffect(() => {
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [lng, lat],
-      zoom: zoom,
+      projection: 'globe',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [-65.74344442741115, -19.580825208155886],
+      zoom: 15,
     })
-    // if (map.current) resizeMap(map)
+    if (map.current) resizeMap(map)
     else {
-      //   setTimeout(function () {
-      //     console.log('entro al setTIme')
-      //     map.resize()
-      //     console.log('sss', map)
-      //   }, 3000)
+      setTimeout(function () {
+        console.log('entro al setTIme')
+        map.resize()
+        console.log('sss', map)
+      }, 3000)
     }
   })
 
@@ -294,7 +272,7 @@ export default ({ id, token, notify }, resizeMap) => {
           color: #f55d2c;
         }
         .map-container {
-          height: 750px;
+          height: 700px;
         }
       `}</style>
     </div>

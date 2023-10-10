@@ -42,8 +42,8 @@ const Users = () => {
     if (!tokenLocal) {
       signOut()
     }
-    setToken(tokenLocal)
     getUserAPi(tokenLocal)
+    setToken(tokenLocal)
   }, [])
   function handlerDelete(id) {
     setId(id)
@@ -77,7 +77,6 @@ const Users = () => {
       getUserAPi(token)
     }
   }
-
   return (
     <>
       <Model id={id} token={token} notify={notify} />
@@ -145,11 +144,7 @@ const Users = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {!usuarios ? (
-                              <tr>
-                                <td>...</td>
-                              </tr>
-                            ) : (
+                            {usuarios.length > 0 ? (
                               usuarios.map((cli) => (
                                 <tr key={cli._id}>
                                   <td>{cli.idSucursal.nombre}</td>
@@ -181,8 +176,8 @@ const Users = () => {
                                   </td>
                                   <td className="action-btns">
                                     <Link
-                                      href="/clientes/[id]"
-                                      as={`/clientes/${cli._id}`}
+                                      href="/usuarios/[id]"
+                                      as={`/usuarios/${cli._id}`}
                                     >
                                       <a
                                         className="view-shop-btn"
@@ -192,8 +187,8 @@ const Users = () => {
                                       </a>
                                     </Link>
                                     <Link
-                                      href="/clientes/editar/[id]"
-                                      as={`/clientes/editar/${cli._id}`}
+                                      href="/usuarios/editar/[id]"
+                                      as={`/usuarios/editar/${cli._id}`}
                                     >
                                       <a className="edit-btn" title="Edit">
                                         <i className="fas fa-edit"></i>
@@ -213,6 +208,10 @@ const Users = () => {
                                   </td>
                                 </tr>
                               ))
+                            ) : (
+                              <tr>
+                                <td>...</td>
+                              </tr>
                             )}
                           </tbody>
                         </table>

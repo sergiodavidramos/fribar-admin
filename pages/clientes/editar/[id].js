@@ -147,6 +147,7 @@ const editClient = () => {
         .then((response) => {
           if (response.error) {
             notify.show(response.body.message, 'error', 2000)
+            console.log('DSDSD', response)
           } else {
             setCliente(response.body)
             notify.show('Cambios guardados con Exito! ', 'success', 2000)
@@ -310,8 +311,8 @@ const editClient = () => {
                                   className="form-control"
                                   defaultValue={
                                     client.idSucursal
-                                      ? client.idSucursal
-                                      : false
+                                      ? client.idSucursal._id
+                                      : 'false'
                                   }
                                 >
                                   <option value={false}>

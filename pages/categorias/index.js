@@ -6,6 +6,7 @@ import { useContext } from 'react'
 import UserContext from '../../components/UserContext'
 const Categorias = () => {
   const { categorias } = useContext(UserContext)
+  console.log(categorias)
   return (
     <>
       <TopNavbar />
@@ -41,12 +42,6 @@ const Categorias = () => {
                         <table className="table ucp-table table-hover">
                           <thead>
                             <tr>
-                              <th style={{ width: '60px' }}>
-                                <input
-                                  type="checkbox"
-                                  className="check-all"
-                                />
-                              </th>
                               <th style={{ width: '60px' }}>ID</th>
                               <th style={{ width: '130px' }}>Imagen</th>
                               <th>Nombre</th>
@@ -56,51 +51,45 @@ const Categorias = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {categorias.map((cate, index) => (
-                              <tr key={index}>
-                                <td>
-                                  <input
-                                    type="checkbox"
-                                    className="check-item"
-                                    name="ids[]"
-                                    value="11"
-                                  />
-                                </td>
-                                <td>{cate._id}</td>
-                                <td>
-                                  <div className="cate-img">
-                                    <img
-                                      src={`http://localhost:3001/upload/categoria/${cate.img}`}
-                                      alt=""
-                                    />
-                                  </div>
-                                </td>
-                                <td>{cate.name}</td>
-                                <td>{cate.description}</td>
-                                <td>
-                                  {cate.status ? (
-                                    <span className="badge-item badge-status">
-                                      Activo
-                                    </span>
-                                  ) : (
-                                    <span className="badge-item badge-status-false">
-                                      Inactivo
-                                    </span>
-                                  )}
-                                </td>
-                                <td className="action-btns">
-                                  <Link
-                                    href="/categorias/[id]"
-                                    as={`/categorias/${cate._id}`}
-                                  >
-                                    <a className="edit-btn">
-                                      <i className="fas fa-edit"></i>
-                                      Editar
-                                    </a>
-                                  </Link>
-                                </td>
-                              </tr>
-                            ))}
+                            {categorias.length > 0
+                              ? categorias.map((cate, index) => (
+                                  <tr key={index}>
+                                    <td>{cate._id}</td>
+                                    <td>
+                                      <div className="cate-img">
+                                        <img
+                                          src={`http://localhost:3001/upload/categoria/${cate.img}`}
+                                          alt=""
+                                        />
+                                      </div>
+                                    </td>
+                                    <td>{cate.name}</td>
+                                    <td>{cate.description}</td>
+                                    <td>
+                                      {cate.status ? (
+                                        <span className="badge-item badge-status">
+                                          Activo
+                                        </span>
+                                      ) : (
+                                        <span className="badge-item badge-status-false">
+                                          Inactivo
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td className="action-btns">
+                                      <Link
+                                        href="/categorias/[id]"
+                                        as={`/categorias/${cate._id}`}
+                                      >
+                                        <a className="edit-btn">
+                                          <i className="fas fa-edit"></i>
+                                          Editar
+                                        </a>
+                                      </Link>
+                                    </td>
+                                  </tr>
+                                ))
+                              : ''}
                           </tbody>
                         </table>
                       </div>

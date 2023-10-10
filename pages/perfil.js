@@ -44,6 +44,7 @@ export default function Perfil() {
               body: JSON.stringify({
                 nombre_comp: target[0].value,
                 phone: target[2].value,
+                idPersona: user.idPersona._id,
               }),
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -80,6 +81,7 @@ export default function Perfil() {
         body: JSON.stringify({
           nombre_comp: target[0].value,
           phone: target[2].value,
+          idPersona: user.idPersona._id,
         }),
         headers: {
           Authorization: `Bearer ${token}`,

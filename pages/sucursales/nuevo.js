@@ -21,14 +21,15 @@ const sucursalNuevo = () => {
   const [imgParaMostrar, setImgParaMostrar] = useState('')
   const [imgParaSubir, setImgParaSubir] = useState(false)
   const [estadoBoton, setEstadoBoton] = useState(false)
-  const [lat, setLat] = useState(null)
-  const [lon, setLng] = useState(null)
-  const [zoom, setZoom] = useState(15.8)
+
+  const [banderaLng, setBanderaLng] = useState(null)
+  const [banderaLat, setbanderaLat] = useState(null)
 
   mapboxgl.accessToken = mapboxglAccessToken
 
   const mapContainer = useRef(null)
-  //   let map = useRef(null)
+  const longitudRegistro = useRef('12321')
+  const latitudRegistro = useRef('12312')
 
   function getCiudadesDB() {
     axios
@@ -49,9 +50,9 @@ const sucursalNuevo = () => {
   }
   useEffect(() => {
     getCiudadesDB()
-    // crearMapa()
-  }, [])
-  useEffect(() => {})
+    longitudRegistro.current.value = banderaLng
+    latitudRegistro.current.value = banderaLat
+  }, [banderaLng, banderaLat])
   function handlerCiudad() {
     setidCiudad(event.target.value)
   }
@@ -163,20 +164,7 @@ const sucursalNuevo = () => {
     setImgParaMostrar(URL.createObjectURL(e.target.files[0]))
     setImgParaSubir(e.target.files[0])
   }
-  function crearMapa() {
-    if (map.current) return
-    var map = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [lon, lat],
-      zoom: zoom,
-    })
-  }
   function resizeMap() {
-    // setTimeout(function () {
-    //   map.resize()
-    // }, 300)
-
     if (!'geolocation' in navigator) {
       return notify.show(
         'Tu navegador no soporta el acceso a la ubicación. Intenta con otro',
@@ -185,14 +173,12 @@ const sucursalNuevo = () => {
       )
     }
     const onUbicacionConcedida = (ubicacion) => {
-      setLat(ubicacion.coords.latitude)
-      setLng(ubicacion.coords.longitude)
       var map = new mapboxgl.Map({
         container: mapContainer.current,
         projection: 'globe',
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [ubicacion.coords.longitude, ubicacion.coords.latitude],
-        zoom: zoom,
+        zoom: 15.8,
         marker: [ubicacion.coords.longitude, ubicacion.coords.latitude],
       })
       setTimeout(function () {
@@ -204,20 +190,7 @@ const sucursalNuevo = () => {
         .setLngLat([ubicacion.coords.longitude, ubicacion.coords.latitude])
         .addTo(map)
 
-      // Initialize the GeolocateControl.
-      const geolocate = new mapboxgl.GeolocateControl({
-        positionOptions: {
-          enableHighAccuracy: true,
-        },
-        trackUserLocation: true,
-      })
-      // Add the control to the map.
-      map.addControl(geolocate)
-      // Set an event listener that fires
-      // when a geolocate event occurs.
-      geolocate.on('geolocate', () => {
-        console.log('SSS A geolocate event has occurred.')
-      })
+      obtenerUbicacionArrastrar(marker)
     }
     const onErrorDeUbicacion = (err) => {
       console.log('Error obteniendo ubicación: ', err)
@@ -234,6 +207,14 @@ const sucursalNuevo = () => {
       opcionesDeSolicitud
     )
   }
+  const obtenerUbicacionArrastrar = (marker) => {
+    marker.on('drag', () => {
+      const lnglat = marker.getLngLat()
+      setBanderaLng(lnglat.lng)
+      setbanderaLat(lnglat.lat)
+    })
+  }
+
   return (
     <>
       <TopNavbar />
@@ -328,6 +309,7 @@ const sucursalNuevo = () => {
                                     Latitud*
                                   </label>
                                   <input
+                                    ref={latitudRegistro}
                                     className="form-control"
                                     placeholder="0"
                                     required
@@ -338,6 +320,7 @@ const sucursalNuevo = () => {
                                     Longitud*
                                   </label>
                                   <input
+                                    ref={longitudRegistro}
                                     className="form-control"
                                     placeholder="0"
                                     required
@@ -500,7 +483,13 @@ const sucursalNuevo = () => {
       >
         <div className="modal-dialog category-area" role="document">
           <div className="category-area-inner">
-            <div className="modal-header">
+            <div className="modal-header" style={{ alignItems: 'end' }}>
+              <center>
+                <b className="h7">
+                  Arrastre el marcador en su ubicacion exacta y cierre la
+                  ventana
+                </b>
+              </center>
               <button
                 type="button"
                 className="btn btn-close close"
@@ -519,6 +508,11 @@ const sucursalNuevo = () => {
           </div>
         </div>
         <style jsx>{`
+          .h7 {
+            color: #ffffff;
+            font-size: 16px;
+            margin: 0;
+          }
           .btn-confirmation {
             text-align: center;
             padding: 10px;

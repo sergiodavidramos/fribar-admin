@@ -255,8 +255,8 @@ const Clientes = () => {
                                       </a>
                                     </Link>
                                     <Link
-                                      href="/clientes/editar/[id]"
-                                      as={`/clientes/editar/${cli._id}`}
+                                      href="/usuarios/editar/[id]"
+                                      as={`/usuarios/editar/${cli._id}`}
                                     >
                                       <a className="edit-btn" title="Edit">
                                         <i className="fas fa-edit"></i>

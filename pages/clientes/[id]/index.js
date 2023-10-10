@@ -35,7 +35,6 @@ const viewClient = () => {
           if (data.error) {
             notify.show('Error en el servidor', 'error', 2000)
           } else {
-            console.log(data.body[0][0])
             setCliente(data.body[0][0])
           }
         })

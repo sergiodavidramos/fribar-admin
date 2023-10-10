@@ -5,12 +5,15 @@ import Link from 'next/link'
 import Notifications, { notify } from 'react-notify-toast'
 import axios from 'axios'
 import UserContext from '../../../components/UserContext'
-import { useEffect, useContext, useState } from 'react'
+import { useEffect, useContext, useState, useRef } from 'react'
 import { API_URL } from '../../../components/Config'
 import FormData from 'form-data'
 import { useRouter } from 'next/router'
 import GetImg from '../../../components/GetImg'
 import Search from '../../../components/Search'
+
+import mapboxgl from 'mapbox-gl'
+import { mapboxglAccessToken } from '../../../components/Config'
 const sucursalNuevo = () => {
   const { token, signOut } = useContext(UserContext)
   const [ciudades, setCiudades] = useState([])
@@ -22,6 +25,15 @@ const sucursalNuevo = () => {
   const [idSucursal, setIdSucursal] = useState(false)
   const [idAdmin, setIdAdmin] = useState(false)
   const router = useRouter()
+
+  const [hayDireccion, setHayDireccion] = useState(false)
+
+  mapboxgl.accessToken = mapboxglAccessToken
+
+  const mapContainer = useRef(null)
+  const longitudRegistro = useRef('123123')
+  const latitudRegistro = useRef('12312312')
+
   function getCiudadesDB() {
     axios
       .get(`${API_URL}/ciudad`, {
@@ -59,6 +71,7 @@ const sucursalNuevo = () => {
             setSucursal(data.body)
             setidCiudad(data.body.ciudad._id)
             setIdAdmin(data.body.administrador._id)
+            setHayDireccion(data.body.direccion)
           }
         })
         .catch((error) => {
@@ -88,6 +101,8 @@ const sucursalNuevo = () => {
       notify.show('Por favor seleccione una Ciudad', 'warning', 2000)
     } else {
       if (imgParaSubir) {
+        if (hayDireccion) actualizarDireccion(target)
+        else crearDireccion(target)
         formData.append('imagen', imgParaSubir)
         axios
           .put(`${API_URL}/upload/sucursal/${idSucursal}`, formData, {
@@ -157,6 +172,8 @@ const sucursalNuevo = () => {
             setEstadoBoton(false)
           })
       } else {
+        if (hayDireccion) actualizarDireccion(target)
+        else crearDireccion(target)
         axios
           .patch(
             `${API_URL}/sucursal/${idSucursal}`,
@@ -206,6 +223,92 @@ const sucursalNuevo = () => {
   function uploadFile(e) {
     setImgParaMostrar(URL.createObjectURL(e.target.files[0]))
     setImgParaSubir(e.target.files[0])
+  }
+
+  //   codigo para mostrar el mapa y marcar longitud y latitud
+  function resizeMap() {
+    if (!'geolocation' in navigator) {
+      return notify.show(
+        'Tu navegador no soporta el acceso a la ubicación. Intenta con otro',
+        'warning',
+        5000
+      )
+    }
+    const onUbicacionConcedida = (ubicacion) => {
+      var map = new mapboxgl.Map({
+        container: mapContainer.current,
+        projection: 'globe',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [
+          hayDireccion ? hayDireccion.lon : ubicacion.coords.longitude,
+          hayDireccion ? hayDireccion.lat : ubicacion.coords.latitude,
+        ],
+        zoom: 15.8,
+      })
+      setTimeout(function () {
+        map.resize()
+      }, 1000)
+      const marker = new mapboxgl.Marker({
+        draggable: true,
+      })
+        .setLngLat([
+          hayDireccion ? hayDireccion.lon : ubicacion.coords.longitude,
+          hayDireccion ? hayDireccion.lat : ubicacion.coords.latitude,
+        ])
+        .addTo(map)
+
+      obtenerUbicacionArrastrar(marker)
+    }
+    const onErrorDeUbicacion = (err) => {
+      console.log('Error obteniendo ubicación: ', err)
+      return notify.show('Error al obtener la ubicacion', 'error', 5000)
+    }
+    const opcionesDeSolicitud = {
+      enableHighAccuracy: true, // Alta precisión
+      maximumAge: 0, // No queremos caché
+      timeout: 5000, // Esperar solo 5 segundos
+    }
+    navigator.geolocation.getCurrentPosition(
+      onUbicacionConcedida,
+      onErrorDeUbicacion,
+      opcionesDeSolicitud
+    )
+  }
+  const obtenerUbicacionArrastrar = (marker) => {
+    marker.on('drag', () => {
+      const lnglat = marker.getLngLat()
+      longitudRegistro.current.value = lnglat.lng
+      latitudRegistro.current.value = lnglat.lat
+    })
+  }
+  function actualizarDireccion(target) {
+    fetch(`${API_URL}/direction/${hayDireccion._id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        direccion: target[2].value,
+        lat: target[3].value,
+        lon: target[4].value,
+        referencia: target[5].value,
+      }),
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((res) => {
+        if (res.status === 401) signOut()
+        return res.json()
+      })
+      .then((response) => {
+        if (response.error) {
+          notify.show(response.body.message, 'error', 2000)
+        } else {
+          console.log('Se actualizo el mapa con exito')
+        }
+      })
+      .catch((e) => {
+        notify.show('No se pudo guardar los cambios', 'error')
+      })
   }
   return (
     <>
@@ -306,6 +409,7 @@ const sucursalNuevo = () => {
                                       Latitud*
                                     </label>
                                     <input
+                                      ref={latitudRegistro}
                                       className="form-control"
                                       placeholder="0"
                                       required
@@ -317,11 +421,25 @@ const sucursalNuevo = () => {
                                       Longitud*
                                     </label>
                                     <input
+                                      ref={longitudRegistro}
                                       className="form-control"
                                       placeholder="0"
                                       required
                                       defaultValue={sucursal.direccion.lon}
                                     />
+                                  </div>
+                                  <div className="shopowner-dt-list">
+                                    <div className="col-lg-12">
+                                      <a
+                                        href="add_shop.html"
+                                        className="add-btn hover-btn"
+                                        data-toggle="modal"
+                                        data-target="#mapa_model"
+                                        onClick={resizeMap}
+                                      >
+                                        Marcar direccion en el mapa
+                                      </a>
+                                    </div>
                                   </div>
                                   <div className="form-group">
                                     <label className="form-label">
@@ -476,6 +594,266 @@ const sucursalNuevo = () => {
           <Footer />
         </div>
       </div>
+      {/* Modal del papa con su CSS */}
+      <div
+        id="mapa_model"
+        className="header-cate-model main-gambo-model modal fade"
+        tabIndex="-1"
+        role="dialog"
+        aria-modal="false"
+      >
+        <div className="modal-dialog category-area" role="document">
+          <div className="category-area-inner">
+            <div className="modal-header" style={{ alignItems: 'end' }}>
+              <center>
+                <b className="h7">
+                  Arrastre el marcador en su ubicacion exacta y cierre la
+                  ventana
+                </b>
+              </center>
+              <button
+                type="button"
+                className="btn btn-close close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div
+              className="category-model-content modal-content"
+              style={{ width: 'auto' }}
+            >
+              <div ref={mapContainer} className="map-container"></div>
+            </div>
+          </div>
+        </div>
+        <style jsx>{`
+          .h7 {
+            color: #ffffff;
+            font-size: 16px;
+            margin: 0;
+          }
+          .btn-confirmation {
+            text-align: center;
+            padding: 10px;
+          }
+          .btn-margin {
+            margin: 10px;
+            padding: 10px 40px;
+          }
+          .main-gambo-model {
+            background-image: -webkit-linear-gradient(
+              left,
+              rgba(230, 92, 91, 0.9),
+              rgba(245, 93, 44, 0.9)
+            );
+            background-image: linear-gradient(
+              to right,
+              rgba(230, 92, 91, 0.9),
+              rgba(245, 93, 44, 0.9)
+            );
+          }
+
+          .category-area-inner .modal-header {
+            border-bottom: 0;
+          }
+
+          .category-area-inner .btn-close {
+            color: #fff !important;
+            opacity: 1 !important;
+            padding: 30px 0 15px !important;
+            font-size: 30px !important;
+            cursor: pointer !important;
+          }
+
+          .category-model-content {
+            background: #fff;
+            border: 0 !important;
+            border-radius: 0 !important;
+          }
+
+          .catey__icon {
+            display: none;
+          }
+
+          .search__icon {
+            display: none;
+          }
+
+          .sub-header-icons-list {
+            display: inline-block;
+            font-size: 20px;
+          }
+
+          .cate__btn {
+            font-size: 20px;
+            color: #8f91ac !important;
+            padding: 20px 20px 19px;
+          }
+
+          .cate__btn:hover {
+            color: #f55d2c !important;
+          }
+
+          .search__btn {
+            font-size: 20px;
+            color: #fff !important;
+            padding: 20px 20px 21px;
+            background: #2b2f4c;
+          }
+
+          /* --- Category Mode --- */
+
+          .cate-header {
+            background: #2b2f4c;
+            color: #fff;
+            padding: 15px 20px;
+          }
+
+          .cate-header h4 {
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 24px;
+          }
+
+          .category-by-cat {
+            width: 100%;
+            display: inline-table;
+          }
+
+          .category-by-cat li {
+            width: 33.333%;
+            vertical-align: middle;
+            display: inline-block;
+            list-style: none;
+            float: left;
+          }
+
+          .single-cat-item {
+            text-align: center;
+            padding: 20px 10px;
+            display: block;
+          }
+
+          .single-cat-item:hover {
+            background: #f9f9f9;
+          }
+
+          .single-cat-item .text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2b2f4c;
+          }
+
+          .single-cat-item .icon {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 15px;
+          }
+
+          .single-cat-item .icon img {
+            width: 50px;
+          }
+
+          .morecate-btn {
+            display: block;
+            text-align: center;
+            border-top: 1px solid #efefef;
+            padding: 20px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #2b2f4c;
+          }
+
+          .morecate-btn i {
+            margin-right: 5px;
+          }
+
+          .morecate-btn:hover {
+            color: #f55d2c !important;
+          }
+
+          .search-ground-area {
+            max-width: 400px !important;
+          }
+
+          .search-header {
+            position: relative;
+            width: 100%;
+            border-bottom: 1px solid #efefef;
+          }
+
+          .search-header input {
+            width: 100%;
+            border: 0;
+            padding: 20px;
+            position: relative;
+          }
+
+          .search-header button {
+            position: absolute;
+            right: 0px;
+            background: transparent;
+            border: 0;
+            padding: 17px;
+            font-size: 20px;
+          }
+
+          .search-by-cat {
+            width: 100%;
+            height: 321px;
+            overflow: hidden scroll;
+          }
+
+          .search-by-cat .single-cat {
+            -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=85)';
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+            margin-bottom: 0;
+            -webkit-transition: all 0.25s;
+            transition: all 0.25s;
+            padding: 15px 20px;
+          }
+
+          .search-by-cat .single-cat .icon {
+            background-color: #f9f9f9;
+            border-radius: 5%;
+            color: #fff;
+            font-size: 22px;
+            height: 50px;
+            line-height: 47px;
+            text-align: center;
+            width: 50px;
+          }
+
+          .search-by-cat .single-cat .icon img {
+            width: 30px;
+          }
+
+          .search-by-cat .single-cat .text {
+            color: #2b2f4c;
+            font-weight: 400;
+            padding-left: 20px;
+            font-size: 16px;
+          }
+
+          .search-by-cat .single-cat:hover .text {
+            color: #f55d2c;
+          }
+          .map-container {
+            height: 700px;
+          }
+        `}</style>
+      </div>
+
+      {/* ----------Modal del papa con su CSS---------- */}
     </>
   )
 }
