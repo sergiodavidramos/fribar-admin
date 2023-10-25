@@ -11,8 +11,7 @@ import UserContext from '../../components/UserContext'
 
 const ProductoNuevo = ({ categorias, marcas }) => {
   const [token, setToken] = useState(false)
-  const { signOut, getSucursales, getAdmSucursal, setAdmSucursal } =
-    useContext(UserContext)
+  const { signOut } = useContext(UserContext)
   const textCode = useRef()
   useEffect(() => {
     textCode.current.focus()
@@ -21,7 +20,7 @@ const ProductoNuevo = ({ categorias, marcas }) => {
       signOut()
     }
     setToken(tokenLocal)
-  }, [getAdmSucursal])
+  }, [])
   if (categorias.error === true) {
     categorias.body = []
   }
@@ -135,7 +134,6 @@ const ProductoNuevo = ({ categorias, marcas }) => {
                     setButt(false)
                   })
               }
-              editarSucursal(response, target[10].value)
             })
             .catch((error) => {
               notify.show('Error en el Servidor', 'error')
@@ -160,10 +158,6 @@ const ProductoNuevo = ({ categorias, marcas }) => {
       }
       setImages(fileArray)
     }
-  }
-  const editarSucursal = (product, su = 0) => {
-    console.log('ssss el product', product)
-    console.log('ssss el sucursal', su)
   }
   return (
     <>
@@ -360,7 +354,9 @@ const ProductoNuevo = ({ categorias, marcas }) => {
                             </select>
                           </div>
                           <div className="form-group">
-                            <label className="form-label">Images*</label>
+                            <label className="form-label">
+                              Puede seleccionar hasta 3 Images*
+                            </label>
                             <div className="input-group">
                               <div className="custom-file">
                                 <input

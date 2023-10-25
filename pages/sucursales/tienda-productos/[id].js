@@ -8,12 +8,15 @@ import UserContext from '../../../components/UserContext'
 import { useEffect, useContext, useState, useRef } from 'react'
 import { API_URL } from '../../../components/Config'
 import { useRouter } from 'next/router'
+import CardTableInventario from '../../../components/Productos/CardTableInventario'
 const sucursalNuevo = () => {
   const { token, signOut } = useContext(UserContext)
   const [productos, setProductos] = useState([])
   const [sucursal, setSucursal] = useState(false)
   const [idSucursal, setIdSucursal] = useState(false)
   const [idProducto, setIdProducto] = useState(false)
+  const [proFiltrado, setProFiltrado] = useState(null)
+
   const router = useRouter()
 
   const inputPrecio = useRef(0)
@@ -77,7 +80,7 @@ const sucursalNuevo = () => {
     buttonDisable = true
     if (
       !inputCantidad.current.value ||
-      inputCantidad.current.value <= 0 ||
+      inputCantidad.current.value === 0 ||
       selectProducto.current.value === '0' ||
       !selectProducto.current.value
     )
@@ -87,18 +90,75 @@ const sucursalNuevo = () => {
         2000
       )
     else {
-      datos = await axios.get(
-        `${API_URL}/inventario/buscar/producto-sucursal?idProducto=${idProducto}?idSucursal=${idSucursal}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+      try {
+        const datos = await axios.get(
+          `${API_URL}/inventario/buscar/producto-sucursal?idProducto=${idProducto}&idSucursal=${idSucursal}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+        if (datos.status === 401) signOut()
+        if (datos.status === 200) {
+          if (datos.data.body.length <= 0) {
+            const nuevoProductoInventario = await axios.post(
+              `${API_URL}/inventario/nuevo/producto`,
+              {
+                producto: idProducto,
+                stock: inputCantidad.current.value,
+                idSucursal: idSucursal,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+            if (nuevoProductoInventario.status === 401) signOut()
+            nuevoProductoInventario.data.error
+              ? notify.show(
+                  'Error al registrar el producto en la sucursal',
+                  'error'
+                )
+              : notify.show(
+                  'Se agrego el producto con exito!',
+                  'success',
+                  2000
+                )
+          } else {
+            const aumentarStockInventario = await axios.patch(
+              `${API_URL}/inventario/actualiza-stock`,
+              {
+                idProducto: idProducto,
+                stock: inputCantidad.current.value,
+                idSucursal: idSucursal,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+            if (aumentarStockInventario.status === 401) signOut()
+            aumentarStockInventario.data.error
+              ? notify.show(
+                  'Error al actualizar el producto en la sucursal',
+                  'error'
+                )
+              : notify.show(
+                  'Stock actualizado con exito!',
+                  'success',
+                  2000
+                )
+          }
         }
-      )
-      console.log(datos)
-
-      console.log('SSSS', inputCantidad.current.value)
+      } catch (err) {
+        console.log('EL ERROR', err)
+      }
       buttonDisable = false
     }
     buttonDisable = false
@@ -113,6 +173,75 @@ const sucursalNuevo = () => {
       inputPrecio.current.value = 0
     }
   }
+
+  const handleChangeBuscarNombre = () => {
+    if (event.target.value) {
+      axios
+        .get(
+          `http://localhost:3001/inventario/buscar/termino?termino=${event.target.value}&idSucursal=${idSucursal}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+        .then((data) => {
+          if (data.data.error) {
+            notify.show('Error el en servidor', 'error')
+          } else {
+            let pro = []
+            for (let d of data.data.body) {
+              const producto = d.producto[0]
+              const stock = d.allProducts.stock
+              pro.push({ producto: producto, stock })
+            }
+            setProFiltrado(pro)
+          }
+        })
+        .catch((error) => console.log('errorrr', error))
+    } else {
+      setProFiltrado(null)
+    }
+  }
+  const handleChangeBuscarCodigo = () => {
+    if (event.target.value) {
+      axios
+        .get(
+          `http://localhost:3001/inventario/buscar/codigoproducto?code=${event.target.value}&idSucursal=${idSucursal}`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+        .then((data) => {
+          if (data.data.error) {
+            notify.show(
+              data.body || 'Error en el servidor buscar por codigo',
+              'error'
+            )
+          } else {
+            if (data.data.body === null) setProFiltrado([])
+            else {
+              let pro = []
+              for (let d of data.data.body) {
+                const producto = d.producto[0]
+                const stock = d.allProducts.stock
+                pro.push({ producto: producto, stock })
+              }
+              setProFiltrado(pro)
+            }
+          }
+        })
+        .catch((error) => console.log('errorrr', error))
+    } else {
+      setProFiltrado(null)
+    }
+  }
+
   return (
     <>
       <TopNavbar />
@@ -210,86 +339,47 @@ const sucursalNuevo = () => {
                   <div className="col-lg-8 col-md-7">
                     <div className="all-cate-tags">
                       <div className="row justify-content-between">
-                        <div className="col-lg-4 col-md-5">
-                          <div className="bulk-section mb-30">
-                            <div className="input-group">
-                              <select
-                                id="action"
-                                name="action"
-                                className="form-control"
-                                defaultValue="0"
-                              >
-                                <option value="0">Acciones masivas</option>
-                                <option value="1">Activos</option>
-                                <option value="2">Inactivos</option>
-                              </select>
-                              <div className="input-group-append">
-                                <button
-                                  className="status-btn hover-btn"
-                                  type="submit"
-                                >
-                                  Aplicar
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-lg-5 col-md-7">
-                          <div className="bulk-section text-left mb-30">
-                            <div className="search-by-name-input mr-0">
+                        <div className="col-lg-6 col-md-5">
+                          <div className="bulk-section mt-30">
+                            <div className="search-by-name-input">
                               <input
                                 type="text"
                                 className="form-control"
-                                placeholder="Buscar"
+                                placeholder="Buscar Producto (nombre)"
+                                onChange={handleChangeBuscarNombre}
                               />
                             </div>
-                            <button
-                              className="status-btn hover-btn"
-                              type="submit"
-                            >
-                              Buscar Producto
-                            </button>
                           </div>
                         </div>
+                        <div className="col-lg-6 col-md-7">
+                          <div className="bulk-section mt-30">
+                            <div className="search-by-name-input">
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Buscar Producto (codigo)"
+                                onChange={handleChangeBuscarCodigo}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
                         <div className="col-lg-12 col-md-12">
                           <div className="card card-static-2 mb-30">
                             <div className="card-title-2">
-                              <h4>Todos los productos de la tienda</h4>
+                              <h4>
+                                Todos los productos de la Sucursal ({' '}
+                                {sucursal
+                                  ? sucursal.nombre
+                                  : '...SELECCIONE UNA SUCURSAL'}
+                                )
+                              </h4>
                             </div>
-                            <div className="card-body-table">
-                              <div className="table-responsive">
-                                <table className="table ucp-table table-hover">
-                                  <thead>
-                                    <tr>
-                                      <th>Nombre</th>
-                                      <th>Cantidad</th>
-                                      <th>Estado</th>
-                                      <th>Accion</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr>
-                                      <td>Product Name Here</td>
-                                      <td>250</td>
-                                      <td>
-                                        <span className="badge-item badge-status">
-                                          Active
-                                        </span>
-                                      </td>
-                                      <td className="action-btns">
-                                        <a
-                                          href="#"
-                                          className="edit-btn"
-                                          tabIndex={'editar'}
-                                        >
-                                          <i className="fas fa-edit"></i>
-                                        </a>
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div>
+                            <CardTableInventario
+                              proFilter={proFiltrado}
+                              idSucursal={sucursal._id}
+                              token={token}
+                            />
                           </div>
                         </div>
                       </div>

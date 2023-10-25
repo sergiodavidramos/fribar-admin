@@ -261,6 +261,7 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
                               Precio Compra*
                             </label>
                             <input
+                              step="any"
                               type="number"
                               className="form-control"
                               placeholder="Bs 0"
@@ -273,6 +274,7 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
                               Precio Venta*
                             </label>
                             <input
+                              step="any"
                               type="number"
                               className="form-control"
                               placeholder="Bs 0"

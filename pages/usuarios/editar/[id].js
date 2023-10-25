@@ -164,7 +164,6 @@ const editClient = () => {
         })
         .then((response) => {
           if (response.error) {
-            console.log(response)
             notify.show(response.body.message, 'error', 2000)
           } else {
             setCliente(response.body)
@@ -271,53 +270,60 @@ const editClient = () => {
       })
   }
   function crearDireccion(target) {
-    fetch(`${API_URL}/direction`, {
-      method: 'POST',
-      body: JSON.stringify({
-        direccion: target[14].value,
-        lat: target[12].value,
-        lon: target[13].value,
-        referencia: target[15].value,
-      }),
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((res) => {
-        if (res.status === 401) signOut()
-        return res.json()
+    if (
+      target[14].value ||
+      target[12].value ||
+      target[13].value ||
+      target[15].value
+    ) {
+      fetch(`${API_URL}/direction`, {
+        method: 'POST',
+        body: JSON.stringify({
+          direccion: target[14].value,
+          lat: target[12].value,
+          lon: target[13].value,
+          referencia: target[15].value,
+        }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       })
-      .then((response) => {
-        if (response.error) {
-          notify.show(response.body.message, 'error', 2000)
-        } else {
-          fetch(`${API_URL}/user/agregar/direccion/${client._id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({
-              direccionId: response.body._id,
-            }),
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          })
-            .then((res) => {
-              if (res.status === 401) signOut()
-              return res.json()
+        .then((res) => {
+          if (res.status === 401) signOut()
+          return res.json()
+        })
+        .then((response) => {
+          if (response.error) {
+            notify.show(response.body.message, 'error', 2000)
+          } else {
+            fetch(`${API_URL}/user/agregar/direccion/${client._id}`, {
+              method: 'PATCH',
+              body: JSON.stringify({
+                direccionId: response.body._id,
+              }),
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
             })
-            .then((response) => {
-              if (response.error)
-                notify.show(response.body.message, 'error', 2000)
-            })
-            .catch((e) => {
-              notify.show('No se pudo guardar los cambios', 'error')
-            })
-        }
-      })
-      .catch((e) => {
-        notify.show('No se pudo guardar los cambios', 'error')
-      })
+              .then((res) => {
+                if (res.status === 401) signOut()
+                return res.json()
+              })
+              .then((response) => {
+                if (response.error)
+                  notify.show(response.body.message, 'error', 2000)
+              })
+              .catch((e) => {
+                notify.show('No se pudo guardar los cambios', 'error')
+              })
+          }
+        })
+        .catch((e) => {
+          notify.show('No se pudo guardar los cambios', 'error')
+        })
+    }
   }
   return (
     <>
@@ -585,7 +591,6 @@ const editClient = () => {
                                 type="text"
                                 className="form-control"
                                 placeholder="No hay direccion"
-                                required
                                 defaultValue={
                                   client.direccion.length > 0
                                     ? client.direccion[0].direccion
@@ -602,7 +607,6 @@ const editClient = () => {
                                   <textarea
                                     className="text-control"
                                     placeholder="No hay referencia"
-                                    required
                                     defaultValue={
                                       client.direccion.length > 0
                                         ? client.direccion[0].referencia

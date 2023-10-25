@@ -3,31 +3,56 @@ import SideNav from '../../components/Navbar/SideNav'
 import Footer from '../../components/Footer'
 import Notifications, { notify } from 'react-notify-toast'
 import Link from 'next/link'
-import { useState, useRef, useEffect } from 'react'
-import Model from '../../components/Model'
+import { useState, useRef, useEffect, useContext } from 'react'
 import FilaVenta from '../../components/Venta/FilaVenta'
+import UserContext from '../../components/UserContext'
+import { API_URL } from '../../components/Config'
+import ConfirmacionModel from '../../components/Venta/modelConfirmarVenta'
+import Comprobante from '../../components/Venta/modelComprobante'
+
+import { PDFViewer } from '@react-pdf/renderer'
+
 const Venta = () => {
   const [productFilter, setProductFilter] = useState([])
   const [buscarText, setBuscarText] = useState('')
   const textBusqueda = useRef()
   const [total, setTotal] = useState(0)
+
+  const { getAdmSucursal, token, signOut, setVenta } =
+    useContext(UserContext)
+
   let auxTotal = 0
 
   const [desactivarInput, setdesactivarInput] = useState(true)
-  const [nombre, setNombre] = useState('')
-  const [telefono, setTelefono] = useState('')
-  const [direccion, setDireccion] = useState('')
+
+  const nombreCliente = useRef(false)
+  const ciCliente = useRef(false)
+
+  const [idCliente, setIdCliente] = useState(false)
+  const [sucursal, setSucursal] = useState(false)
+  const [gerente, setGerente] = useState(false)
+  const [focus, setfocus] = useState(false)
+
+  const [butt, setButt] = useState(false)
 
   useEffect(() => {
-    textBusqueda.current.focus()
-  }, [])
+    if (focus) textBusqueda.current.focus()
+    setfocus(false)
+    getSucursalId(token, getAdmSucursal)
+    const user = JSON.parse(localStorage.getItem('fribar-user'))
+    user.role === 'GERENTE-ROLE' ? setGerente(true) : setGerente(false)
+  }, [token, getAdmSucursal, focus])
   const handlerChange = (event) => {
     setBuscarText(event.target.value)
     if (event.target.value) {
       fetch(
-        `http://localhost:3001/productos/codigoproducto?code=${event.target.value}`,
+        `http://localhost:3001/inventario/buscar/codigoProducto?code=${event.target.value}&idSucursal=${getAdmSucursal}`,
         {
           method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + token,
+            'Content-Type': 'application/json',
+          },
         }
       )
         .then((res) => res.json())
@@ -37,15 +62,30 @@ const Venta = () => {
             if (data.body !== null) {
               setBuscarText('')
               if (productFilter.length > 0) {
-                arrayHandlerProduct(data.body)
+                let pro = {}
+                for (let d of data.body) {
+                  const producto = d.producto[0]
+                  const categoria = d.category[0]
+                  producto.category = categoria
+                  producto.stock = d.allProducts.stock
+                  pro = { producto }
+                }
+                arrayHandlerProduct(pro)
               } else {
-                data.body.cantidad = 1
-                setProductFilter([data.body])
+                let pro = {}
+                for (let d of data.body) {
+                  const producto = d.producto[0]
+                  const categoria = d.category[0]
+                  producto.category = categoria
+                  producto.stock = d.allProducts.stock
+                  //   pro.push({ producto })
+                  pro = { producto }
+                }
+                pro.producto.cantidad = 1
+                setProductFilter([pro.producto])
                 notify.show(`Producto Agregado`, 'success', 1000)
-                setTotal(data.body.cantidad * data.body.precioVenta)
-                // handlerTotal()
+                setTotal(pro.producto.cantidad * pro.producto.precioVenta)
               }
-              //   console.log(productFilter)
             } else setBuscarText('')
           }
         })
@@ -59,9 +99,8 @@ const Venta = () => {
     let a = false
     let aux
     for (let i = 0; i < productFilter.length; i++) {
-      if (productFilter[i].code === pro.code) {
+      if (productFilter[i].code === pro.producto.code) {
         productFilter[i].cantidad = productFilter[i].cantidad + 1
-        // setBandera(true)
         aux = productFilter
         setProductFilter([])
         a = true
@@ -75,10 +114,12 @@ const Venta = () => {
       }
     }
     if (!a) {
-      pro.cantidad = 1
-      setProductFilter(productFilter.concat([pro]))
+      pro.producto.cantidad = 1
+      setProductFilter(productFilter.concat([pro.producto]))
       notify.show(`Producto Agregado`, 'success', 1000)
-      setTotal((total + 1 * pro.precioVenta).toFixedo(2))
+      setTotal(
+        (parseFloat(total) + pro.producto.precioVenta * 1).toFixed(2)
+      )
     }
   }
 
@@ -98,7 +139,7 @@ const Venta = () => {
       auxTotal =
         auxTotal + productFilter[j].cantidad * productFilter[j].precioVenta
     }
-    setTotal(auxTotal)
+    setTotal(auxTotal.toFixed(2))
   }
 
   const deleteProduct = (index) => {
@@ -109,43 +150,209 @@ const Venta = () => {
     handlerTotal()
   }
   const handlerBuscarCi = (event) => {
-    const tokenLocal = localStorage.getItem('frifolly-token')
-    console.log(event.target.value)
-    fetch(`http://localhost:3001/user?ci=${event.target.value}`, {
+    const tokenLocal = localStorage.getItem('fribar-token')
+    fetch(`http://localhost:3001/person?ci=${event.target.value}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${tokenLocal}`,
         'Content-Type': 'application/json',
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) signOut()
+        return res.json()
+      })
       .then((data) => {
-        console.log('dddd', data)
         if (data.error) notify.show(data.body.message, 'error')
         else {
-          if (data.body.users.length > 0) {
-            console.log(data.body)
+          if (data.body.persons.length > 0) {
             setdesactivarInput(true)
-            setNombre(data.body.users[0].nombre_comp)
-            setTelefono(
-              data.body.users[0].phone ? data.body.users[0].phone : ''
-            )
-            setDireccion(
-              data.body.users[0].direccion.length > 0 ? 'sip' : ''
-            )
+            nombreCliente.current.value = data.body.persons[0].nombre_comp
+            setIdCliente(data.body.persons[0]._id)
           } else {
-            setNombre('')
-            setTelefono('')
-            setDireccion('')
+            setIdCliente(false)
+            nombreCliente.current.value = null
             setdesactivarInput(false)
           }
         }
       })
       .catch((error) => console.log('errorrr', error))
   }
+
+  function getSucursalId(tokenLocal, idSucursal) {
+    if (tokenLocal && idSucursal) {
+      fetch(`${API_URL}/sucursal/${idSucursal}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${tokenLocal}`,
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((res) => {
+          if (res.status === 401) {
+            signOut()
+          }
+          return res.json()
+        })
+        .then((data) => {
+          if (data.error) {
+            notify.show('Por favor Seleccione una Sucursal', 'error', 2000)
+          } else {
+            setSucursal(data.body)
+          }
+        })
+        .catch((error) => {
+          notify.show(error.message, 'error', 2000)
+        })
+    }
+  }
+  function confirmarVenta() {
+    let detalle = []
+    for (let producto of productFilter) {
+      const auxDetalle = {
+        producto: producto._id,
+        cantidad: producto.cantidad,
+        subTotal: (producto.precioVenta * producto.cantidad).toFixed(2),
+      }
+      detalle.push(auxDetalle)
+    }
+    var venta = { detalleVenta: detalle }
+    if (idCliente) venta.client = idCliente
+    if (!idCliente) {
+      setButt(true)
+      if (!nombreCliente.current.value || !ciCliente.current.value) {
+        notify.show(
+          'Por favor ingrese el nombre y c.i. del cliente',
+          'warning',
+          5000
+        )
+        setButt(false)
+      } else
+        fetch(`${API_URL}/person`, {
+          method: 'POST',
+          body: JSON.stringify({
+            nombre_comp: nombreCliente.current.value,
+            ci: ciCliente.current.value,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+          .then((res) => res.json())
+          .then((response) => {
+            if (response.error) {
+              notify.show(response.body, 'error', 5000)
+            } else {
+              setIdCliente(response.body._id)
+              venta.client = response.body._id
+
+              fetch(`${API_URL}/venta`, {
+                method: 'POST',
+                body: JSON.stringify(venta),
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              })
+                .then((res) => {
+                  if (res.status === 401) signOut()
+                  return res.json()
+                })
+                .then((response) => {
+                  if (response.error) {
+                    console.log('RRRRR', response)
+                    notify.show(
+                      `Error al registrar la venta ${response.body.message}`,
+                      'error',
+                      5000
+                    )
+                    setButt(false)
+                  } else {
+                    console.log(response.body)
+                    notify.show(
+                      'Venta realizada con exito!',
+                      'success',
+                      2000
+                    )
+                    setButt(false)
+                    setVenta(venta)
+                  }
+                })
+                .catch((err) => {
+                  console.log('Sergio Error', err)
+                  notify.show(
+                    'No se pudo registrar la venta error (servidor)',
+                    'error'
+                  )
+                  setButt(false)
+                })
+            }
+          })
+          .catch((err) => console.log('Sergio Error', err))
+    } else {
+      setButt(true)
+      fetch(`${API_URL}/venta`, {
+        method: 'POST',
+        body: JSON.stringify(venta),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((res) => {
+          if (res.status === 401) signOut()
+          return res.json()
+        })
+        .then((response) => {
+          if (response.error) {
+            console.log('RRRRR', response)
+            notify.show(
+              `Error al registrar la venta ${response.body.message}`,
+              'error',
+              5000
+            )
+            setButt(false)
+          } else {
+            console.log('Entro a qui', venta)
+            setVenta(venta)
+            localStorage.setItem('venta', JSON.stringify(venta))
+            console.log(response.body)
+            notify.show('Venta realizada con exito!', 'success', 2000)
+            // const windowFeatures = 'left=100,top=100,width=320,height=900'
+            // var win = window.open(
+            //   `http://127.0.0.1:3000/recibo`,
+            //   'mozillaTab',
+            //   windowFeatures
+            // )
+            setButt(false)
+          }
+        })
+        .catch((err) => {
+          console.log('Sergio Error', err)
+          notify.show(
+            'No se pudo registrar la venta error (servidor)',
+            'error'
+          )
+          setButt(false)
+        })
+    }
+
+    // console.log('PEUBA', productFilter)
+    // const windowFeatures = 'left=100,top=100,width=320,height=900'
+    // var win = window.open(
+    //   'http://127.0.0.1:5500/static/factura.html',
+    //   'mozillaTab',
+    //   windowFeatures
+    // )
+    // if (win) {
+    //   //   win.focus()
+    // }
+  }
   return (
     <>
-      <Model id={'sadasd'} token={'6546545'} notify={notify} />
+      <ConfirmacionModel />
+
+      <Comprobante />
       <TopNavbar />
       <div id="layoutSidenav">
         <SideNav />
@@ -160,75 +367,82 @@ const Venta = () => {
                     <a>Tablero</a>
                   </Link>
                 </li>
-                <li className="breadcrumb-item active">Ventas</li>
+                <li className="breadcrumb-item active">
+                  Ventas de la sucursal ""
+                  {sucursal.nombre ? sucursal.nombre.toUpperCase() : ''}""
+                </li>
               </ol>
-              <div className="row justify-content-between">
-                <div className="col-lg-12 col-md-12">
-                  <div className="card card-static-2 mb-30">
-                    <div className="row justify-content-center">
-                      <div className="search-by-name-input">
-                        <input
-                          ref={textBusqueda}
-                          value={buscarText}
-                          type="text"
-                          className="form-control"
-                          placeholder="Buscar Producto"
-                          onChange={handlerChange}
-                        />
+              {gerente === true && sucursal === false ? (
+                'PORFAVOR SELECCIONE UNA SUCURSAL'
+              ) : (
+                <div className="row justify-content-between">
+                  <div className="col-lg-12 col-md-12">
+                    <div className="card card-static-2 mb-30">
+                      <div className="row justify-content-center">
+                        <div className="search-by-name-input">
+                          <input
+                            ref={textBusqueda}
+                            value={buscarText}
+                            type="text"
+                            className="form-control"
+                            placeholder="Buscar Producto"
+                            onChange={handlerChange}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {/* <TablaVenta product={productFilter} /> */}
-                  {/*  */}
 
-                  <div className="card-body-table">
-                    <div className="table-responsive">
-                      <table className="table ucp-table table-hover">
-                        <thead>
-                          <tr>
-                            <th>Cantidad</th>
-                            <th>Código</th>
-                            <th>Nombre</th>
-                            <th>Categoria</th>
-                            <th>Precio Un/Kg</th>
-                            <th>Sub total</th>
-                            <th>Eliminar</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {!productFilter ? (
+                    <div className="card-body-table">
+                      <div className="table-responsive">
+                        <table className="table ucp-table table-hover">
+                          <thead>
                             <tr>
-                              <td>...</td>
+                              <th>Cantidad</th>
+                              <th>Código</th>
+                              <th>Nombre</th>
+                              <th>Categoria</th>
+                              <th>Precio Un/Kg</th>
+                              <th>Sub total</th>
+                              <th>Eliminar</th>
                             </tr>
-                          ) : (
-                            productFilter.map((pro, index) => (
-                              <FilaVenta
-                                key={index}
-                                pro={pro}
-                                setCantidad={setCantidad}
-                                index={index}
-                                deleteProduct={deleteProduct}
-                              />
-                            ))
-                          )}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody>
+                            {!productFilter ? (
+                              <tr>
+                                <td>...</td>
+                              </tr>
+                            ) : (
+                              productFilter.map((pro, index) => (
+                                <FilaVenta
+                                  key={index}
+                                  pro={pro}
+                                  setCantidad={setCantidad}
+                                  index={index}
+                                  deleteProduct={deleteProduct}
+                                  setfocus={setfocus}
+                                />
+                              ))
+                            )}
+                          </tbody>
+                        </table>
 
-                      <div className="col-lg-2">
-                        <div className="order-total-dt">
-                          <div className="order-total-left-text fsz-18">
-                            Total
-                          </div>
-                          <div className="order-total-right-text fsz-18">
-                            {total} Bs
+                        <div className="col-lg-2">
+                          <div className="order-total-dt">
+                            <div className="order-total-left-text fsz-18">
+                              Total
+                            </div>
+                            <div className="order-total-right-text fsz-18">
+                              {total} Bs
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
+
             <div className="col-lg-12 col-md-12">
               <div className="card card-static-2 mb-30">
                 <div className="card-title-2">
@@ -243,6 +457,7 @@ const Venta = () => {
                             Buscar por C.I. o NIT
                           </label>
                           <input
+                            ref={ciCliente}
                             type="text"
                             className="form-control"
                             placeholder="Ingrese El C.I. o NIT"
@@ -257,14 +472,14 @@ const Venta = () => {
                           <input
                             type="email"
                             className="form-control"
-                            defaultValue={nombre}
+                            ref={nombreCliente}
                             required
                             disabled={desactivarInput}
                             placeholder="Ingrese su nombre completo"
                           />
                         </div>
                       </div>
-                      <div className="col-lg-6">
+                      {/* <div className="col-lg-6">
                         <div className="form-group mb-3">
                           <label className="form-label">
                             Numero Telefonico*
@@ -272,34 +487,35 @@ const Venta = () => {
                           <input
                             type="text"
                             className="form-control"
-                            defaultValue={telefono}
+                            ref={telefonoCliente}
                             placeholder="Ingrese su numero telefonico"
                             disabled={desactivarInput}
                           />
                         </div>
-                      </div>
-
+                      </div> */}
+                      {/* 
                       <div className="col-lg-6">
                         <div className="form-group mb-3">
                           <label className="form-label">Direccion*</label>
                           <textarea
                             disabled={desactivarInput}
-                            defaultValue={direccion}
+                            ref={direccionCliente}
                             className="form-control"
                             placeholder="Direcciones (este campo no es editable.)"
                             //   defaultValue={user.direccion || ''}
                           ></textarea>
                         </div>
-                      </div>
+                      </div> */}
                       <div className="col-lg-6">
                         <button
+                          data-toggle="modal"
+                          data-target="#confirmacion_model"
                           className="save-btn hover-btn"
                           type="submit"
-                          // onClick={() => window.print()}
-                          data-toggle="modal"
-                          data-target="#category_model"
+                          //   onClick={confirmarVenta}
+                          disabled={butt}
                         >
-                          Guardar Cambios
+                          Confirmar la venta
                         </button>
                       </div>
                     </div>

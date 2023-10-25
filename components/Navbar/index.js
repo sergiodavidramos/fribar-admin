@@ -1,6 +1,5 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState, useRef } from 'react'
 import UserContext from '../UserContext'
-import axios from 'axios'
 import Link from 'next/link'
 import { API_URL } from '../Config'
 export default () => {
@@ -9,10 +8,10 @@ export default () => {
     setSitNav,
     sid,
     setAdmSucursal,
-    getSucursales,
-    user,
     getAdmSucursal,
+    user,
     setSucursales,
+    getSucursales,
     token,
   } = useContext(UserContext)
 
@@ -44,18 +43,18 @@ export default () => {
   }
 
   useEffect(() => {
-    if (token && user.role === 'GERENTE-ROLE') getSurcursalesServer(token)
-    else {
+    if (token && user.role === 'GERENTE-ROLE') {
+      getSurcursalesServer(token)
+    } else {
       if (user) setAdmSucursal(user.idSucursal)
     }
   }, [token])
-
   return (
     <nav className="sb-topnav navbar navbar-expand navbar-light bg-clr">
       {user ? (
         user.role === 'GERENTE-ROLE' ? (
           <div className="col-lg-3">
-            {getSucursales.length > 0 ? (
+            {getSucursales || getSucursales.length > 0 ? (
               <select
                 id="sucursal"
                 name="sucursal"

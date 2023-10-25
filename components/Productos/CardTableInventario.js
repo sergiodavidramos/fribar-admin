@@ -1,11 +1,9 @@
-import Fila from './Fila'
+import FilaInventario from './FilaInventario'
 import ReactPaginate from 'react-paginate'
 import Notifications, { notify } from 'react-notify-toast'
 import { useState, useEffect } from 'react'
 import { API_URL } from '../Config'
-// import { useContext } from 'react'
-// import UserContext from '../UserContext'
-const CardTable = ({ proFilter }) => {
+const CardTable = ({ proFilter, idSucursal, token }) => {
   const [product, setProduct] = useState(false)
   const [pageState, setPageState] = useState(0)
   const [count, setCount] = useState(0)
@@ -14,16 +12,23 @@ const CardTable = ({ proFilter }) => {
   }
   useEffect(() => {
     if (!proFilter) {
-      fetch(`${API_URL}/productos?desde=${pageState * 10}&limite=${10}`, {
-        method: 'GET',
-      })
+      fetch(
+        `${API_URL}/inventario/productos/${idSucursal}?pagina=${pageState}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
         .then((res) => res.json())
         .then((data) => {
           if (data.error) {
             notify.show('Error el en servidor', 'error')
           } else {
-            setProduct(data.body[0])
-            setCount(data.body[1])
+            setProduct(data.body[0][0].allProducts)
+            setCount(data.body[1][0].totalProductos)
           }
         })
         .catch((error) => console.log('errorrr', error))
@@ -43,7 +48,6 @@ const CardTable = ({ proFilter }) => {
               <th style={{ width: '60px' }}>Código</th>
               <th style={{ width: '100px' }}>Imagen</th>
               <th>Nombre</th>
-              <th>Categoria</th>
               <th>Fecha de vencimiento</th>
               <th>Estado</th>
               <th>Stock</th>
@@ -56,7 +60,9 @@ const CardTable = ({ proFilter }) => {
                 <td>...</td>
               </tr>
             ) : (
-              product.map((pro, index) => <Fila key={index} pro={pro} />)
+              product.map((pro, index) => (
+                <FilaInventario key={index} pro={pro} />
+              ))
             )}
           </tbody>
         </table>

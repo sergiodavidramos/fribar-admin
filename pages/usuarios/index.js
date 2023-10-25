@@ -1,7 +1,6 @@
 import TopNavbar from '../../components/Navbar'
 import SideNav from '../../components/Navbar/SideNav'
 import Footer from '../../components/Footer'
-import ReactPaginate from 'react-paginate'
 import Link from 'next/link'
 import Notifications, { notify } from 'react-notify-toast'
 import { useState, useEffect, useContext } from 'react'

@@ -20,6 +20,7 @@ export default class MyApp extends App {
       sid: false,
       sucursales: [],
       admSucursal: 0,
+      venta: {},
     }
   }
   setSitNav = (sid) => {
@@ -50,6 +51,10 @@ export default class MyApp extends App {
         categorias: [],
       })
     }
+  }
+  setVenta = (venta) => {
+    console.log('Actualizare la venta', venta)
+    this.setState({ venta })
   }
 
   componentDidMount() {
@@ -118,12 +123,14 @@ export default class MyApp extends App {
             getSucursales: this.state.sucursales,
             getAdmSucursal: this.state.admSucursal,
             sid: this.state.sid,
+            venta: this.state.venta,
             signIn: this.signIn,
             signOut: this.signOut,
             setUser: this.setUser,
             setSitNav: this.setSitNav,
             setSucursales: this.setSucursales,
             setAdmSucursal: this.setAdmSucursal,
+            setVenta: this.setVenta,
           }}
         >
           <Component {...pageProps} />

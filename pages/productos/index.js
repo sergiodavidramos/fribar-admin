@@ -9,8 +9,8 @@ import { useState, useContext } from 'react'
 import UserContext from '../../components/UserContext'
 export default function Productos() {
   const [proFiltrado, setProFiltrado] = useState(null)
-  const { categorias } = useContext(UserContext)
-  const handleChange = () => {
+  const { categorias, token } = useContext(UserContext)
+  const handleChangeBuscarNombre = () => {
     if (event.target.value) {
       fetch(
         `http://localhost:3001/productos/buscar/${event.target.value}`,
@@ -51,6 +51,36 @@ export default function Productos() {
       setProFiltrado(null)
     }
   }
+  const handleChangeBuscarCodigo = () => {
+    if (event.target.value) {
+      fetch(
+        `http://localhost:3001/productos/codigoproducto?code=${event.target.value}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            notify.show(
+              data.body || 'Error en el servidor buscar por codigo',
+              'error'
+            )
+          } else {
+            data.body === null
+              ? setProFiltrado([])
+              : setProFiltrado([data.body])
+          }
+        })
+        .catch((error) => console.log('errorrr', error))
+    } else {
+      setProFiltrado(null)
+    }
+  }
   return (
     <>
       <Head></Head>
@@ -61,7 +91,9 @@ export default function Productos() {
           <main>
             <Notifications options={{ zIndex: 9999, top: '56px' }} />
             <div className="container-fluid">
-              <h2 className="mt-30 page-title">Products</h2>
+              <h2 className="mt-30 page-title">
+                Todos los productos en general
+              </h2>
               <ol className="breadcrumb mb-30">
                 <li className="breadcrumb-item">
                   <Link href="/">
@@ -78,16 +110,9 @@ export default function Productos() {
                     </a>
                   </Link>
                 </div>
-                <div className="col-lg-8 col-md-6">
+
+                <div className="col-lg-3 col-md-4">
                   <div className="bulk-section mt-30">
-                    <div className="search-by-name-input">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Buscar Producto"
-                        onChange={handleChange}
-                      />
-                    </div>
                     <div className="input-group">
                       <select
                         id="categeory"
@@ -103,9 +128,32 @@ export default function Productos() {
                           </option>
                         ))}
                       </select>
+                      <div className="input-group-append"></div>
                     </div>
                   </div>
                 </div>
+
+                <div className="col-lg-7 col-md-6">
+                  <div className="bulk-section mt-30">
+                    <div className="search-by-name-input">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Buscar Producto (codigo)"
+                        onChange={handleChangeBuscarCodigo}
+                      />
+                    </div>
+                    <div className="search-by-name-input">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Buscar Producto (nombre)"
+                        onChange={handleChangeBuscarNombre}
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div className="col-lg-12 col-md-12">
                   <div className="card card-static-2 mt-30 mb-30">
                     <CardTable proFilter={proFiltrado} />

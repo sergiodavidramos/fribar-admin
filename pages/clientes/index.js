@@ -224,7 +224,7 @@ const Clientes = () => {
                                           cli.img,
                                           'http://localhost:3001/upload/user'
                                         )}
-                                        alt="cliente-frifolly"
+                                        alt="cliente-fribar"
                                       />
                                     </div>
                                   </td>
@@ -281,8 +281,8 @@ const Clientes = () => {
                         </table>
                         <div className="pages">
                           <ReactPaginate
-                            previousLabel={'previous'}
-                            nextLabel={'next'}
+                            previousLabel={'Anterior'}
+                            nextLabel={'Siguiente'}
                             breakLabel={'...'}
                             breakClassName={'break-me'}
                             activeClassName={'active-page'}

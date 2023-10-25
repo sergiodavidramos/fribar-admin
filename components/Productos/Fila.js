@@ -24,6 +24,7 @@ export default ({ pro }) => {
           <span className="badge-item badge-status-false">Inactivo</span>
         )}
       </td>
+      <td>{pro.stock}</td>
       <td className="action-btns">
         <Link
           href="/productos/[id]/[title]"

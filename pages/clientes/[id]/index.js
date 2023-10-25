@@ -3,14 +3,24 @@ import SideNav from '../../../components/Navbar/SideNav'
 import Footer from '../../../components/Footer'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useContext, useState } from 'react'
+import { useEffect, useContext, useState, useRef } from 'react'
 import UserContext from '../../../components/UserContext'
 import GetImg from '../../../components/GetImg'
 import Notifications, { notify } from 'react-notify-toast'
+import { mapboxglAccessToken } from '../../../components/Config'
+import mapboxgl from 'mapbox-gl'
 const viewClient = () => {
   const { signOut } = useContext(UserContext)
   const [client, setCliente] = useState(null)
   const router = useRouter()
+
+  mapboxgl.accessToken = mapboxglAccessToken
+
+  const mapContainer = useRef(null)
+  let map = useRef(null)
+  const [lat, setLat] = useState(null)
+  const [lon, setLng] = useState(null)
+
   useEffect(() => {
     const tokenLocal = localStorage.getItem('fribar-token')
     if (!tokenLocal) {
@@ -36,6 +46,8 @@ const viewClient = () => {
             notify.show('Error en el servidor', 'error', 2000)
           } else {
             setCliente(data.body[0][0])
+            setLat(data.body[0][0].direccion[0].lat)
+            setLng(data.body[0][0].direccion[0].lon)
           }
         })
         .catch((error) => {
@@ -44,6 +56,26 @@ const viewClient = () => {
         })
     }
   }, [router])
+  useEffect(() => {
+    if (map.current) return
+    map = new mapboxgl.Map({
+      container: mapContainer.current,
+      projection: 'globe',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [lon, lat],
+      zoom: 15.8,
+    })
+  })
+  function resizeMap(map) {
+    setTimeout(function () {
+      map.resize()
+    }, 300)
+    const marker = new mapboxgl.Marker({
+      draggable: false,
+    })
+      .setLngLat([lon, lat])
+      .addTo(map)
+  }
   return (
     <>
       <TopNavbar />
@@ -53,7 +85,7 @@ const viewClient = () => {
           <main>
             <Notifications options={{ zIndex: 9999, top: '56px' }} />
             <div className="container-fluid">
-              <h2 className="mt-30 page-title">Clientes</h2>
+              <h2 className="mt-30 page-title">Informacion del cliente</h2>
               <ol className="breadcrumb mb-30">
                 <li className="breadcrumb-item">
                   <Link href="/">
@@ -62,10 +94,10 @@ const viewClient = () => {
                 </li>
                 <li className="breadcrumb-item active">
                   <Link href="/clientes">
-                    <a>Clientes</a>
+                    <a>clientes</a>
                   </Link>
                 </li>
-                <li className="breadcrumb-item active">Ver Cliente</li>
+                <li className="breadcrumb-item active">Ver cliente</li>
               </ol>
 
               {client ? (
@@ -134,12 +166,6 @@ const viewClient = () => {
                               </span>
                             </div>
                             <div className="shopowner-dt-list">
-                              <span className="left-dt">Direccion</span>
-                              <span className="right-dt">
-                                {client.direccion[0]}
-                              </span>
-                            </div>
-                            <div className="shopowner-dt-list">
                               <span className="left-dt">Rol</span>
                               <span className="right-dt">
                                 {client.role}
@@ -150,6 +176,63 @@ const viewClient = () => {
                               <span className="right-dt">
                                 {client.personal ? 'Si' : 'No'}
                               </span>
+                            </div>
+                            <div className="shopowner-dt-list">
+                              <span className="left-dt">Direccion</span>
+                              <span className="right-dt">
+                                {client.direccion.length > 0
+                                  ? client.direccion[0].direccion
+                                  : 'Direccion no asignado'}
+                              </span>
+                            </div>
+                            <div className="shopowner-dt-list">
+                              <span className="left-dt">Latitud</span>
+                              <span className="right-dt">
+                                {client.direccion.length > 0
+                                  ? client.direccion[0].lat
+                                  : 'Direccion no asignado'}
+                              </span>
+                            </div>
+                            <div className="shopowner-dt-list">
+                              <span className="left-dt">Longitud</span>
+                              <span className="right-dt">
+                                {client.direccion.length > 0
+                                  ? client.direccion[0].lon
+                                  : 'Direccion no asignado'}
+                              </span>
+                            </div>
+                            <div className="shopowner-dt-list">
+                              <span className="left-dt">
+                                Referencia de la direccion
+                              </span>
+                              <span className="right-dt">
+                                {client.direccion.length > 0
+                                  ? client.direccion[0].referencia
+                                  : 'Direccion no asignado'}
+                              </span>
+                            </div>
+                            <div className="shopowner-dt-list">
+                              <div className="col-lg-12">
+                                <a
+                                  className="add-btn hover-btn"
+                                  data-toggle={
+                                    client.direccion.length > 0
+                                      ? 'modal'
+                                      : ''
+                                  }
+                                  data-target="#mapa_model"
+                                  onClick={() => resizeMap(map)}
+                                  disabled={
+                                    client.direccion.length > 0
+                                      ? false
+                                      : true
+                                  }
+                                >
+                                  {client.direccion.length > 0
+                                    ? 'Ver la direccion en el mapa'
+                                    : 'No hay direccion que mostrar'}
+                                </a>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -164,6 +247,252 @@ const viewClient = () => {
           </main>
           <Footer />
         </div>
+      </div>
+      <div
+        id="mapa_model"
+        className="header-cate-model main-gambo-model modal fade"
+        tabIndex="-1"
+        role="dialog"
+        aria-modal="false"
+      >
+        <div className="modal-dialog category-area" role="document">
+          <div className="category-area-inner">
+            <div className="modal-header">
+              <button
+                type="button"
+                className="btn btn-close close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div
+              className="category-model-content modal-content"
+              style={{ width: 'auto' }}
+            >
+              <div ref={mapContainer} className="map-container"></div>
+            </div>
+          </div>
+        </div>
+        <style jsx>{`
+          .btn-confirmation {
+            text-align: center;
+            padding: 10px;
+          }
+          .btn-margin {
+            margin: 10px;
+            padding: 10px 40px;
+          }
+          .main-gambo-model {
+            background-image: -webkit-linear-gradient(
+              left,
+              rgba(230, 92, 91, 0.9),
+              rgba(245, 93, 44, 0.9)
+            );
+            background-image: linear-gradient(
+              to right,
+              rgba(230, 92, 91, 0.9),
+              rgba(245, 93, 44, 0.9)
+            );
+          }
+
+          .category-area-inner .modal-header {
+            border-bottom: 0;
+          }
+
+          .category-area-inner .btn-close {
+            color: #fff !important;
+            opacity: 1 !important;
+            padding: 30px 0 15px !important;
+            font-size: 30px !important;
+            cursor: pointer !important;
+          }
+
+          .category-model-content {
+            background: #fff;
+            border: 0 !important;
+            border-radius: 0 !important;
+          }
+
+          .catey__icon {
+            display: none;
+          }
+
+          .search__icon {
+            display: none;
+          }
+
+          .sub-header-icons-list {
+            display: inline-block;
+            font-size: 20px;
+          }
+
+          .cate__btn {
+            font-size: 20px;
+            color: #8f91ac !important;
+            padding: 20px 20px 19px;
+          }
+
+          .cate__btn:hover {
+            color: #f55d2c !important;
+          }
+
+          .search__btn {
+            font-size: 20px;
+            color: #fff !important;
+            padding: 20px 20px 21px;
+            background: #2b2f4c;
+          }
+
+          /* --- Category Mode --- */
+
+          .cate-header {
+            background: #2b2f4c;
+            color: #fff;
+            padding: 15px 20px;
+          }
+
+          .cate-header h4 {
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 24px;
+          }
+
+          .category-by-cat {
+            width: 100%;
+            display: inline-table;
+          }
+
+          .category-by-cat li {
+            width: 33.333%;
+            vertical-align: middle;
+            display: inline-block;
+            list-style: none;
+            float: left;
+          }
+
+          .single-cat-item {
+            text-align: center;
+            padding: 20px 10px;
+            display: block;
+          }
+
+          .single-cat-item:hover {
+            background: #f9f9f9;
+          }
+
+          .single-cat-item .text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2b2f4c;
+          }
+
+          .single-cat-item .icon {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 15px;
+          }
+
+          .single-cat-item .icon img {
+            width: 50px;
+          }
+
+          .morecate-btn {
+            display: block;
+            text-align: center;
+            border-top: 1px solid #efefef;
+            padding: 20px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #2b2f4c;
+          }
+
+          .morecate-btn i {
+            margin-right: 5px;
+          }
+
+          .morecate-btn:hover {
+            color: #f55d2c !important;
+          }
+
+          .search-ground-area {
+            max-width: 400px !important;
+          }
+
+          .search-header {
+            position: relative;
+            width: 100%;
+            border-bottom: 1px solid #efefef;
+          }
+
+          .search-header input {
+            width: 100%;
+            border: 0;
+            padding: 20px;
+            position: relative;
+          }
+
+          .search-header button {
+            position: absolute;
+            right: 0px;
+            background: transparent;
+            border: 0;
+            padding: 17px;
+            font-size: 20px;
+          }
+
+          .search-by-cat {
+            width: 100%;
+            height: 321px;
+            overflow: hidden scroll;
+          }
+
+          .search-by-cat .single-cat {
+            -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=85)';
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+            margin-bottom: 0;
+            -webkit-transition: all 0.25s;
+            transition: all 0.25s;
+            padding: 15px 20px;
+          }
+
+          .search-by-cat .single-cat .icon {
+            background-color: #f9f9f9;
+            border-radius: 5%;
+            color: #fff;
+            font-size: 22px;
+            height: 50px;
+            line-height: 47px;
+            text-align: center;
+            width: 50px;
+          }
+
+          .search-by-cat .single-cat .icon img {
+            width: 30px;
+          }
+
+          .search-by-cat .single-cat .text {
+            color: #2b2f4c;
+            font-weight: 400;
+            padding-left: 20px;
+            font-size: 16px;
+          }
+
+          .search-by-cat .single-cat:hover .text {
+            color: #f55d2c;
+          }
+          .map-container {
+            height: 700px;
+          }
+        `}</style>
       </div>
     </>
   )

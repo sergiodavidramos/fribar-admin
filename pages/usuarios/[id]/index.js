@@ -45,8 +45,9 @@ const viewClient = () => {
           if (data.error) {
             notify.show('Error en el servidor', 'error', 2000)
           } else {
-            console.log(data.body[0][0])
             setCliente(data.body[0][0])
+            setLat(data.body[0][0].direccion[0].lat)
+            setLng(data.body[0][0].direccion[0].lon)
           }
         })
         .catch((error) => {
@@ -84,7 +85,9 @@ const viewClient = () => {
           <main>
             <Notifications options={{ zIndex: 9999, top: '56px' }} />
             <div className="container-fluid">
-              <h2 className="mt-30 page-title">Usuarios</h2>
+              <h2 className="mt-30 page-title">
+                Informacion del usuarios
+              </h2>
               <ol className="breadcrumb mb-30">
                 <li className="breadcrumb-item">
                   <Link href="/">

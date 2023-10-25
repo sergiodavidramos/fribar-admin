@@ -24,7 +24,7 @@ export default ({ id, token, notify }) => {
   }
   return (
     <div
-      id="category_model"
+      id="confirmacion_model"
       className="header-cate-model main-gambo-model modal fade"
       tabIndex="-1"
       role="dialog"
@@ -44,14 +44,16 @@ export default ({ id, token, notify }) => {
           </div>
           <div className="category-model-content modal-content">
             <div className="cate-header">
-              <h4>¿Esta seguro de eliminar?</h4>
+              <h4>¿Model de confirmacio de venta?</h4>
             </div>
             <div className="btn-confirmation">
               <a
                 data-dismiss="modal"
                 className="view-btn hover-btn btn-margin"
                 style={{ cursor: 'pointer' }}
-                onClick={handlerDelete}
+                // onClick={handlerDelete}
+                data-toggle="modal"
+                data-target="#comprobante_model"
               >
                 SI
               </a>
