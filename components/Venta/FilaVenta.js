@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-
+import expectedRound from 'expected-round'
 const FilaVenta = ({
   pro,
   setCantidad,
@@ -10,6 +10,8 @@ const FilaVenta = ({
   const [cantidad, setCa] = useState(pro.cantidad)
 
   const textCantidad = useRef(null)
+  const precioConDescuento =
+    pro.precioVenta - (pro.descuento * pro.precioVenta) / 100
 
   useEffect(() => {
     textCantidad.current.focus()
@@ -43,9 +45,22 @@ const FilaVenta = ({
       </td>
       <td>{pro.code}</td>
       <td>{pro.name}</td>
-      <td>{pro.category.name}</td>
       <td>{pro.precioVenta}</td>
       <td>{(pro.cantidad * pro.precioVenta).toFixed(2)}</td>
+      <td>
+        {`${pro.descuento} % ${
+          pro.descuento > 0
+            ? 'Precio con escuento:(' +
+              expectedRound.round10(precioConDescuento, -1).toFixed(2) +
+              ')'
+            : ''
+        }`}
+      </td>
+      <td>
+        {(
+          pro.cantidad * expectedRound.round10(precioConDescuento, -1)
+        ).toFixed(2)}
+      </td>
       <td className="action-btns">
         <a className="edit-btn" title="Editar">
           <i className="fas fa-trash" onClick={handlerDeleteProduct}></i>

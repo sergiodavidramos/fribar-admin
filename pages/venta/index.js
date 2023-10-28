@@ -8,9 +8,9 @@ import FilaVenta from '../../components/Venta/FilaVenta'
 import UserContext from '../../components/UserContext'
 import { API_URL } from '../../components/Config'
 import ConfirmacionModel from '../../components/Venta/modelConfirmarVenta'
-import Comprobante from '../../components/Venta/modelComprobante'
+import expectedRound from 'expected-round'
 
-import { PDFViewer } from '@react-pdf/renderer'
+import dynamic from 'next/dynamic'
 
 const Venta = () => {
   const [productFilter, setProductFilter] = useState([])
@@ -18,8 +18,7 @@ const Venta = () => {
   const textBusqueda = useRef()
   const [total, setTotal] = useState(0)
 
-  const { getAdmSucursal, token, signOut, setVenta } =
-    useContext(UserContext)
+  const { getAdmSucursal, token, signOut } = useContext(UserContext)
 
   let auxTotal = 0
 
@@ -27,11 +26,13 @@ const Venta = () => {
 
   const nombreCliente = useRef(false)
   const ciCliente = useRef(false)
+  const efectivo = useRef(0)
 
   const [idCliente, setIdCliente] = useState(false)
   const [sucursal, setSucursal] = useState(false)
   const [gerente, setGerente] = useState(false)
   const [focus, setfocus] = useState(false)
+  const [totalCambio, setTotalCambio] = useState(0)
 
   const [butt, setButt] = useState(false)
 
@@ -84,7 +85,18 @@ const Venta = () => {
                 pro.producto.cantidad = 1
                 setProductFilter([pro.producto])
                 notify.show(`Producto Agregado`, 'success', 1000)
-                setTotal(pro.producto.cantidad * pro.producto.precioVenta)
+                console.log('SSS', pro)
+                const precioConDescuento =
+                  pro.producto.precioVenta -
+                  (pro.producto.descuento * pro.producto.precioVenta) / 100
+                setTotal(
+                  pro.producto.descuento > 0
+                    ? (
+                        pro.producto.cantidad *
+                        expectedRound.round10(precioConDescuento, -1)
+                      ).toFixed(2)
+                    : pro.producto.cantidad * pro.producto.precioVenta
+                )
               }
             } else setBuscarText('')
           }
@@ -117,8 +129,16 @@ const Venta = () => {
       pro.producto.cantidad = 1
       setProductFilter(productFilter.concat([pro.producto]))
       notify.show(`Producto Agregado`, 'success', 1000)
+      const precioConDescuento =
+        pro.producto.precioVenta -
+        (pro.producto.descuento * pro.producto.precioVenta) / 100
       setTotal(
-        (parseFloat(total) + pro.producto.precioVenta * 1).toFixed(2)
+        pro.producto.descuento > 0
+          ? (
+              parseFloat(total) +
+              expectedRound.round10(precioConDescuento, -1)
+            ).toFixed(2)
+          : (parseFloat(total) + pro.producto.precioVenta * 1).toFixed(2)
       )
     }
   }
@@ -136,8 +156,19 @@ const Venta = () => {
 
   const handlerTotal = () => {
     for (let j = 0; j < productFilter.length; j++) {
-      auxTotal =
-        auxTotal + productFilter[j].cantidad * productFilter[j].precioVenta
+      if (productFilter[j].descuento > 0) {
+        const precioConDescuento =
+          productFilter[j].precioVenta -
+          (productFilter[j].descuento * productFilter[j].precioVenta) / 100
+        auxTotal =
+          auxTotal +
+          productFilter[j].cantidad *
+            expectedRound.round10(precioConDescuento, -1)
+      } else {
+        auxTotal =
+          auxTotal +
+          productFilter[j].cantidad * productFilter[j].precioVenta
+      }
     }
     setTotal(auxTotal.toFixed(2))
   }
@@ -168,7 +199,11 @@ const Venta = () => {
           if (data.body.persons.length > 0) {
             setdesactivarInput(true)
             nombreCliente.current.value = data.body.persons[0].nombre_comp
-            setIdCliente(data.body.persons[0]._id)
+            setIdCliente({
+              id: data.body.persons[0]._id,
+              nombre: data.body.persons[0].nombre_comp,
+              ci: data.body.persons[0].ci,
+            })
           } else {
             setIdCliente(false)
             nombreCliente.current.value = null
@@ -208,15 +243,33 @@ const Venta = () => {
   }
   function confirmarVenta() {
     let detalle = []
+
     for (let producto of productFilter) {
+      const precioConDescuento =
+        producto.precioVenta -
+        (producto.descuento * producto.precioVenta) / 100
       const auxDetalle = {
         producto: producto._id,
         cantidad: producto.cantidad,
-        subTotal: (producto.precioVenta * producto.cantidad).toFixed(2),
+        subTotal:
+          producto.descuento > 0
+            ? (
+                producto.cantidad *
+                expectedRound.round10(precioConDescuento, -1)
+              ).toFixed(2)
+            : producto.cantidad * producto.precioVenta,
+        tipoVenta: producto.tipoVenta,
+        precioVenta: producto.precioVenta,
+        nombreProducto: producto.name,
+        descuento: producto.descuento,
       }
       detalle.push(auxDetalle)
     }
-    var venta = { detalleVenta: detalle }
+    var venta = {
+      detalleVenta: detalle,
+      sucursal,
+      efectivo: efectivo.current.value,
+    }
     if (idCliente) venta.client = idCliente
     if (!idCliente) {
       setButt(true)
@@ -243,8 +296,16 @@ const Venta = () => {
             if (response.error) {
               notify.show(response.body, 'error', 5000)
             } else {
-              setIdCliente(response.body._id)
-              venta.client = response.body._id
+              setIdCliente({
+                id: response.body._id,
+                nombre: response.body.nombre_comp,
+                ci: response.body.ci,
+              })
+              venta.client = {
+                id: response.body._id,
+                nombre: response.body.nombre_comp,
+                ci: response.body.ci,
+              }
 
               fetch(`${API_URL}/venta`, {
                 method: 'POST',
@@ -254,32 +315,48 @@ const Venta = () => {
                   'Content-Type': 'application/json',
                 },
               })
-                .then((res) => {
-                  if (res.status === 401) signOut()
-                  return res.json()
-                })
-                .then((response) => {
-                  if (response.error) {
-                    console.log('RRRRR', response)
-                    notify.show(
-                      `Error al registrar la venta ${response.body.message}`,
-                      'error',
-                      5000
-                    )
-                    setButt(false)
+                .then(async (res) => ({
+                  blob: await res.blob(),
+                }))
+                .then((resObj) => {
+                  notify.show(
+                    'Venta realizada con exito!',
+                    'success',
+                    2000
+                  )
+                  // It is necessary to create a new blob object with mime-type explicitly set for all browsers except Chrome, but it works for Chrome too.
+                  const newBlob = new Blob([resObj.blob], {
+                    type: 'application/pdf',
+                  })
+                  // MS Edge and IE don't allow using a blob object directly as link href, instead it is necessary to use msSaveOrOpenBlob
+                  if (
+                    window.navigator &&
+                    window.navigator.msSaveOrOpenBlob
+                  ) {
+                    window.navigator.msSaveOrOpenBlob(newBlob)
                   } else {
-                    console.log(response.body)
-                    notify.show(
-                      'Venta realizada con exito!',
-                      'success',
-                      2000
-                    )
                     setButt(false)
-                    setVenta(venta)
+                    // For other browsers: create a link pointing to the ObjectURL containing the blob.
+                    const objUrl = window.URL.createObjectURL(newBlob)
+
+                    const windowFeatures =
+                      'left=100,top=100,width=320,height=900'
+                    var win = window.open(
+                      objUrl,
+                      'mozillaTab',
+                      windowFeatures
+                    )
                   }
+                  setProductFilter([])
+                  setTotal(0)
+                  setTotalCambio(0)
+                  efectivo.current.value = ''
+                  nombreCliente.current.value = ''
+                  ciCliente.current.value = ''
+                  setIdCliente(false)
                 })
                 .catch((err) => {
-                  console.log('Sergio Error', err)
+                  console.log('Sergio Error Primero', err)
                   notify.show(
                     'No se pudo registrar la venta error (servidor)',
                     'error'
@@ -299,36 +376,36 @@ const Venta = () => {
           'Content-Type': 'application/json',
         },
       })
-        .then((res) => {
-          if (res.status === 401) signOut()
-          return res.json()
-        })
-        .then((response) => {
-          if (response.error) {
-            console.log('RRRRR', response)
-            notify.show(
-              `Error al registrar la venta ${response.body.message}`,
-              'error',
-              5000
-            )
-            setButt(false)
+        .then(async (res) => ({
+          blob: await res.blob(),
+        }))
+        .then((resObj) => {
+          notify.show('Venta realizada con exito!', 'success', 2000)
+          // It is necessary to create a new blob object with mime-type explicitly set for all browsers except Chrome, but it works for Chrome too.
+          const newBlob = new Blob([resObj.blob], {
+            type: 'application/pdf',
+          })
+          // MS Edge and IE don't allow using a blob object directly as link href, instead it is necessary to use msSaveOrOpenBlob
+          if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(newBlob)
           } else {
-            console.log('Entro a qui', venta)
-            setVenta(venta)
-            localStorage.setItem('venta', JSON.stringify(venta))
-            console.log(response.body)
-            notify.show('Venta realizada con exito!', 'success', 2000)
-            // const windowFeatures = 'left=100,top=100,width=320,height=900'
-            // var win = window.open(
-            //   `http://127.0.0.1:3000/recibo`,
-            //   'mozillaTab',
-            //   windowFeatures
-            // )
             setButt(false)
+            // For other browsers: create a link pointing to the ObjectURL containing the blob.
+            const objUrl = window.URL.createObjectURL(newBlob)
+
+            const windowFeatures = 'left=100,top=100,width=320,height=900'
+            var win = window.open(objUrl, 'mozillaTab', windowFeatures)
           }
+          setProductFilter([])
+          setTotal(0)
+          setTotalCambio(0)
+          efectivo.current.value = ''
+          nombreCliente.current.value = ''
+          ciCliente.current.value = ''
+          setIdCliente(false)
         })
         .catch((err) => {
-          console.log('Sergio Error', err)
+          console.log('Sergio Error Segundo', err)
           notify.show(
             'No se pudo registrar la venta error (servidor)',
             'error'
@@ -336,23 +413,35 @@ const Venta = () => {
           setButt(false)
         })
     }
+  }
+  let fnGetFileNameFromContentDispostionHeader = function (header) {
+    console.log('ssss', header)
+    let contentDispostion = header.split(';')
+    const fileNameToken = `filename*=UTF-8''`
 
-    // console.log('PEUBA', productFilter)
-    // const windowFeatures = 'left=100,top=100,width=320,height=900'
-    // var win = window.open(
-    //   'http://127.0.0.1:5500/static/factura.html',
-    //   'mozillaTab',
-    //   windowFeatures
-    // )
-    // if (win) {
-    //   //   win.focus()
-    // }
+    let fileName = 'downloaded.pdf'
+    for (let thisValue of contentDispostion) {
+      if (thisValue.trim().indexOf(fileNameToken) === 0) {
+        fileName = decodeURIComponent(
+          thisValue.trim().replace(fileNameToken, '')
+        )
+        break
+      }
+    }
+
+    return fileName
+  }
+
+  const handlerCalcularCambio = () => {
+    if (efectivo.current.value)
+      setTotalCambio(
+        (parseFloat(efectivo.current.value) - parseFloat(total)).toFixed(2)
+      )
+    else setTotalCambio(0)
   }
   return (
     <>
-      <ConfirmacionModel />
-
-      <Comprobante />
+      <ConfirmacionModel confirmarVenta={confirmarVenta} />
       <TopNavbar />
       <div id="layoutSidenav">
         <SideNav />
@@ -400,9 +489,10 @@ const Venta = () => {
                               <th>Cantidad</th>
                               <th>Código</th>
                               <th>Nombre</th>
-                              <th>Categoria</th>
                               <th>Precio Un/Kg</th>
                               <th>Sub total</th>
+                              <th>Descuento</th>
+                              <th>Sub total con descuento</th>
                               <th>Eliminar</th>
                             </tr>
                           </thead>
@@ -426,13 +516,45 @@ const Venta = () => {
                           </tbody>
                         </table>
 
-                        <div className="col-lg-2">
-                          <div className="order-total-dt">
-                            <div className="order-total-left-text fsz-18">
-                              Total
-                            </div>
-                            <div className="order-total-right-text fsz-18">
-                              {total} Bs
+                        <div className="col-lg-12 col-md-7">
+                          <div className="all-cate-tags">
+                            <div
+                              className="row justify-content-between mt-30"
+                              style={{ marginBottom: '10px' }}
+                            >
+                              <div className="col-lg-3 col-md-5">
+                                <div className="bulk-section mt-20">
+                                  <div className="order-total-left-text fsz-18">
+                                    Total
+                                  </div>
+                                  <div className="order-total-right-text fsz-18">
+                                    {total} Bs
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="col-lg-4 col-md-5">
+                                <div className="bulk-section ">
+                                  <div className="search-by-name-input">
+                                    <input
+                                      ref={efectivo}
+                                      type="number"
+                                      className="form-control"
+                                      placeholder="Ingrese el efectivo recibido"
+                                      onChange={handlerCalcularCambio}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="col-lg-2 col-md-5">
+                                <div className="bulk-section ">
+                                  <div className="order-total-left-text fsz-18">
+                                    Cambio
+                                  </div>
+                                  <div className="order-total-right-text fsz-18">
+                                    {totalCambio} Bs
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -479,20 +601,7 @@ const Venta = () => {
                           />
                         </div>
                       </div>
-                      {/* <div className="col-lg-6">
-                        <div className="form-group mb-3">
-                          <label className="form-label">
-                            Numero Telefonico*
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            ref={telefonoCliente}
-                            placeholder="Ingrese su numero telefonico"
-                            disabled={desactivarInput}
-                          />
-                        </div>
-                      </div> */}
+
                       {/* 
                       <div className="col-lg-6">
                         <div className="form-group mb-3">
@@ -530,5 +639,4 @@ const Venta = () => {
     </>
   )
 }
-
 export default Venta

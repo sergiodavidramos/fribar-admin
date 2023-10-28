@@ -24,7 +24,7 @@ const Pedidos = () => {
                 <li className="breadcrumb-item active">Pedidos</li>
               </ol>
               <div className="row justify-content-between">
-                {/* <div className="col-lg-3 col-md-4">
+                <div className="col-lg-3 col-md-4">
                   <div className="bulk-section mb-30">
                     <div className="input-group">
                       <select
@@ -41,7 +41,7 @@ const Pedidos = () => {
                       </select>
                     </div>
                   </div>
-                </div> */}
+                </div>
 
                 <div className="col-lg-12 col-md-12">
                   <div className="card card-static-2 mb-30">

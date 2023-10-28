@@ -1,0 +1,151 @@
+[33mcommit 76474a3d509db133b74d75981babaa5fded4cf28[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Tue Oct 10 00:19:00 2023 -0400
+
+    mapa agregado a usuario y sucursal
+
+[33mcommit 95d159bb775c4e8248ee055a4b4370ec7ef13b4b[m
+Merge: 398f3b9 e68a5c8
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Fri Oct 6 20:47:47 2023 -0400
+
+    Merge branch 'master' of https://github.com/sergiodavidramos/fribar-admin
+
+[33mcommit 398f3b9f6a40758eda6da404c3d8767f0f0c3eea[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Fri Oct 6 20:47:31 2023 -0400
+
+    Archivo package antigua el laptop
+
+[33mcommit e68a5c8c94e562ae3a3596eaaf9d31feaec630ff[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Thu Oct 5 18:26:05 2023 -0400
+
+    Mapa para obtener las cordenadas al crear sucursal
+
+[33mcommit bc2a4c727c80732bb29574dde594b6ba1c7f20a4[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Wed Oct 4 17:47:27 2023 -0400
+
+    Prueba commit de terminal
+
+[33mcommit 0e86a76ba80384638b89f77962a740d11928a2e4[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Wed Oct 4 17:44:32 2023 -0400
+
+    prueba commit directo
+
+[33mcommit d651bea7a152a8e7a15217600899de290231c56e[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Thu Aug 17 14:44:33 2023 -0400
+
+    pagina para agregar un nuevo usuario terminado
+
+[33mcommit 772bb99abb8910aa7e74ddb21cb02d12622591be[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Fri Aug 11 08:08:39 2023 -0400
+
+    Pagina principal de clientes solicionado y agrege el campo de estado a categoria y proveedor
+
+[33mcommit 9ebb0469ea246f0e3b7a0a109840fdaf93349760[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Thu Oct 13 18:35:54 2022 -0400
+
+    mdg2 octubre
+
+[33mcommit 3c8c1bdc4509cebacef0b4f1c9d70850761eeb87[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Mon Jun 27 06:58:14 2022 -0400
+
+    solucionando la pagina de usuario
+
+[33mcommit 4886b120e31b802c6ea047fb9e30565828546b15[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Thu Jun 16 18:49:33 2022 -0400
+
+    Componente sucursal agregado y paginas modificadas
+
+[33mcommit d480c33d7ec60c2b35473d43d39d871848c3ca25[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Mon Jun 14 04:00:21 2021 -0400
+
+    lista de pedidos modificado y tablero de pedidos las cantidades
+
+[33mcommit 612001a96a367a9bca3881b949e1df6e3e5713f4[m
+Merge: 6165f38 9eb3efd
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Wed Jun 2 17:46:59 2021 -0400
+
+    Merge branch 'master' of github.com:sergiodavidramos/frifolly-admin
+
+[33mcommit 6165f38fe864418aad6ebe5b0fe6bda919775147[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Wed Jun 2 17:46:30 2021 -0400
+
+    login modificado
+
+[33mcommit 9eb3efd6ebeca64d18ae0b8e1706fbec4d67e9c1[m
+Author: Sergio David Ramos <sergioramosdavid@hotmail.com>
+Date:   Wed Jun 2 17:12:48 2021 -0400
+
+    CardTable modificado
+
+[33mcommit 9251adb733d718c052ec623a8fd59d280ab94e71[m
+Author: sergio ramos <sergioramosdavid@hotmail.com>
+Date:   Sun Oct 11 20:29:39 2020 -0400
+
+    Mapa agregado
+
+[33mcommit 4362f315652dd268f040b5fd70251d986a6a33b8[m
+Author: sergio ramos <sergioramosdavid@hotmail.com>
+Date:   Thu Oct 8 10:19:05 2020 -0400
+
+    Pedidos terminado
+
+[33mcommit d4a04b2a1881c9618bb83a20e32262401ae1d9a4[m
+Author: sergio ramos <sergioramosdavid@hotmail.com>
+Date:   Sat Oct 3 12:15:59 2020 -0400
+
+    pedidos agregado
+
+[33mcommit 9c8d4e2e589194374bbeef0c2f57d331745fa863[m
+Author: sergio ramos <sergioramosdavid@hotmail.com>
+Date:   Mon Sep 28 17:10:03 2020 -0400
+
+    Socket instalado
+
+[33mcommit f4851e1d267e37a2a59ac6071abe8cca6fb364ba[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Sat Sep 12 06:14:26 2020 -0400
+
+    pagina de usuarios terminado
+
+[33mcommit 043b18ff246746204a29b7e3bfe767cfc8dbc938[m
+Author: sergio ramos <sergioramosdavid@hotmail.com>
+Date:   Thu Sep 10 21:06:31 2020 -0400
+
+    Pagina clientes terminado
+
+[33mcommit b4a9907596385425a29b4fc4ea25b02337af2332[m
+Author: sergio ramos <sergioramosdavid@hotmail.com>
+Date:   Tue Sep 8 19:10:26 2020 -0400
+
+    Pagina de Clientes agregada
+
+[33mcommit 12936741096d78dcaf00f27186787c7ba131fc32[m
+Author: sergio ramos <sergioramosdavid@hotmail.com>
+Date:   Sun Aug 30 19:49:36 2020 -0400
+
+    Login terminado
+
+[33mcommit 9bd7144e61713a3858926937e68a8132acf8bfdf[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Sat Aug 15 10:41:35 2020 -0400
+
+    Primer commit
+
+[33mcommit 1071e85ef66e41bd220ad95f1f1e15c3fe04e8a8[m
+Author: Sergio Ramos <sergioramosdavid@hotmail.com>
+Date:   Sat Aug 15 08:49:36 2020 -0400
+
+    Initial commit from Create Next App

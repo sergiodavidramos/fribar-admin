@@ -1,27 +1,7 @@
-export default ({ id, token, notify }) => {
-  function handlerDelete() {
-    fetch(`http://localhost:3001/user/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          signOut()
-        }
-        return res.json()
-      })
-      .then((data) => {
-        if (data.error) {
-          notify.show('Error el en servidor', 'error')
-        } else {
-          notify.show('El Cliente a sido eliminado', 'success')
-        }
-      })
-      .catch((error) => notify.show('Error en el servidor', 'error', 2000))
-  }
+import { useRef } from 'react'
+export default ({ confirmarVenta }) => {
+  const factura = useRef(false)
+
   return (
     <div
       id="confirmacion_model"
@@ -44,14 +24,14 @@ export default ({ id, token, notify }) => {
           </div>
           <div className="category-model-content modal-content">
             <div className="cate-header">
-              <h4>¿Model de confirmacio de venta?</h4>
+              <h4>¿Conformar de venta?</h4>
             </div>
             <div className="btn-confirmation">
               <a
                 data-dismiss="modal"
                 className="view-btn hover-btn btn-margin"
                 style={{ cursor: 'pointer' }}
-                // onClick={handlerDelete}
+                onClick={() => confirmarVenta()}
                 data-toggle="modal"
                 data-target="#comprobante_model"
               >

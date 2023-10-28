@@ -59,7 +59,7 @@ export default () => {
         el.appendChild(img1)
         el.appendChild(img2)
         //
-        var popup = new mapboxgl.Popup({ offset: 25 }).setText(
+        var popup = new Mapboxgl.Popup({ offset: 25 }).setText(
           'Por favor llévame hacia la ubucación exacta.'
         )
 
