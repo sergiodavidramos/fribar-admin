@@ -16,10 +16,16 @@ const Proveedor = () => {
 
   useEffect(() => {
     const tokenLocal = localStorage.getItem('fribar-token')
-    if (!tokenLocal) {
+    const user = localStorage.getItem('fribar-user')
+    if (!tokenLocal && !user) {
       signOut()
     }
-    getProveedorWithStatus(tokenLocal)
+    if (
+      JSON.parse(user).role === 'GERENTE-ROLE' ||
+      JSON.parse(user).role === 'ADMIN-ROLE'
+    )
+      getProveedorWithStatus(tokenLocal)
+    else signOut()
   }, [])
 
   function getProveedorWithStatus(token) {

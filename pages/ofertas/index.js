@@ -9,7 +9,7 @@ import Model from '../../components/Model'
 import GetImg from '../../components/GetImg'
 import { API_URL } from '../../components/Config'
 const Ofertas = () => {
-  const [token, setToken] = useState(false)
+  const [token] = useState(false)
   const { signOut } = useContext(UserContext)
   const [ofertas, setOfertas] = useState(false)
   const [id, setId] = useState(null)
@@ -21,9 +21,6 @@ const Ofertas = () => {
       },
     })
       .then((res) => {
-        if (res.status === 401) {
-          signOut()
-        }
         return res.json()
       })
       .then((data) => {
@@ -38,16 +35,21 @@ const Ofertas = () => {
       })
   }
   useEffect(() => {
-    const tokenLocal = localStorage.getItem('frifolly-token')
-    if (!tokenLocal) {
+    const tokenLocal = localStorage.getItem('fribar-token')
+    const user = localStorage.getItem('fribar-user')
+    if (!tokenLocal && !user) {
       signOut()
     }
-    setToken(tokenLocal)
+    if (
+      JSON.parse(user).role === 'GERENTE-ROLE' ||
+      JSON.parse(user).role === 'ADMIN-ROLE'
+    ) {
+    } else signOut()
     getUserAPi()
   }, [])
   return (
     <>
-      <Model id={id} token={token} notify={notify} />
+      <Model id={id} token={token} notify={notify} ofertas={true} />
       <TopNavbar />
       <div id="layoutSidenav">
         <SideNav />
@@ -80,12 +82,6 @@ const Ofertas = () => {
                         <table className="table ucp-table table-hover">
                           <thead>
                             <tr>
-                              <th style={{ width: '60px' }}>
-                                <input
-                                  type="checkbox"
-                                  className="check-all"
-                                />
-                              </th>
                               <th style={{ width: '100px' }}>Imagen</th>
                               <th>Titulo</th>
                               <th>Descripción</th>
@@ -101,14 +97,6 @@ const Ofertas = () => {
                             ) : (
                               ofertas.map((offer) => (
                                 <tr key={offer._id}>
-                                  <td>
-                                    <input
-                                      type="checkbox"
-                                      className="check-item"
-                                      name="ids[]"
-                                      defaultValue="10"
-                                    />
-                                  </td>
                                   <td>
                                     <div className="cate-img-6">
                                       <img

@@ -7,15 +7,17 @@ import Notifications, { notify } from 'react-notify-toast'
 import Footer from '../../components/Footer'
 
 const Ciudad = () => {
-  const [signOut] = useContext(UserContext)
+  const { signOut } = useContext(UserContext)
   const [ciudades, setCiudades] = useState(false)
   const [estadoCiudad, setEstadoCiudad] = useState(true)
 
   useEffect(() => {
     const tokenLocal = localStorage.getItem('fribar-token')
-    if (!tokenLocal) {
+    const user = localStorage.getItem('fribar-user')
+    if (!tokenLocal && !user) {
       signOut()
     }
+    if (JSON.parse(user).role !== 'GERENTE-ROLE') signOut()
     obtenerCuidades(estadoCiudad)
   }, [])
 

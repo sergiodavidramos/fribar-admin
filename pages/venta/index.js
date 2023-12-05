@@ -41,7 +41,8 @@ const Venta = () => {
     setfocus(false)
     getSucursalId(token, getAdmSucursal)
     const user = JSON.parse(localStorage.getItem('fribar-user'))
-    user.role === 'GERENTE-ROLE' ? setGerente(true) : setGerente(false)
+    if (user)
+      user.role === 'GERENTE-ROLE' ? setGerente(true) : setGerente(false)
   }, [token, getAdmSucursal, focus])
   const handlerChange = (event) => {
     setBuscarText(event.target.value)

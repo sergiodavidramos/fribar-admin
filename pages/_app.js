@@ -10,7 +10,9 @@ import Router from 'next/router'
 import Notifications from 'react-notify-toast'
 import { API_URL } from '../components/Config'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import sonidoPedido from '../components/Pedidos/sonido/sonidoPedido.mp3'
 export default class MyApp extends App {
+  alarm
   constructor(props) {
     super(props)
     this.state = {
@@ -19,9 +21,10 @@ export default class MyApp extends App {
       categorias: [],
       sid: false,
       sucursales: [],
-      admSucursal: 0,
+      admSucursal: false,
     }
   }
+
   setSitNav = (sid) => {
     this.setState({
       sid,
@@ -40,7 +43,7 @@ export default class MyApp extends App {
   }
   getCategorias = async () => {
     try {
-      const res = await fetch('http://localhost:3001/categoria')
+      const res = await fetch(`${API_URL}/categoria`)
       const categorias = await res.json()
       this.setState({
         categorias: categorias.body,
@@ -53,6 +56,7 @@ export default class MyApp extends App {
   }
 
   componentDidMount() {
+    this.alarm = new Audio(sonidoPedido)
     this.getCategorias()
     const user = localStorage.getItem('fribar-user')
     const token = localStorage.getItem('fribar-token')
@@ -118,6 +122,7 @@ export default class MyApp extends App {
             getSucursales: this.state.sucursales,
             getAdmSucursal: this.state.admSucursal,
             sid: this.state.sid,
+            alarm: this.alarm,
             signIn: this.signIn,
             signOut: this.signOut,
             setUser: this.setUser,

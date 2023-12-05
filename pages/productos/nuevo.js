@@ -16,9 +16,15 @@ const ProductoNuevo = ({ categorias, marcas }) => {
   useEffect(() => {
     textCode.current.focus()
     const tokenLocal = localStorage.getItem('fribar-token')
-    if (!tokenLocal) {
+    const user = localStorage.getItem('fribar-user')
+    if (!tokenLocal && !user) {
       signOut()
     }
+    if (
+      JSON.parse(user).role === 'GERENTE-ROLE' ||
+      JSON.parse(user).role === 'ADMIN-ROLE'
+    ) {
+    } else signOut()
     setToken(tokenLocal)
   }, [])
   if (categorias.error === true) {

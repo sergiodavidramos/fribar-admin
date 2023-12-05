@@ -13,11 +13,17 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
   const { signOut } = useContext(UserContext)
   const [images, setImages] = useState([])
   useEffect(() => {
-    setImages(pro.img)
     const tokenLocal = localStorage.getItem('fribar-token')
-    if (!tokenLocal) {
+    const user = localStorage.getItem('fribar-user')
+    if (!tokenLocal && !user) {
       signOut()
     }
+    if (
+      JSON.parse(user).role === 'GERENTE-ROLE' ||
+      JSON.parse(user).role === 'ADMIN-ROLE'
+    ) {
+    } else signOut()
+    setImages(pro.img)
     setToken(tokenLocal)
   }, [])
   if (categorias.error === true) {

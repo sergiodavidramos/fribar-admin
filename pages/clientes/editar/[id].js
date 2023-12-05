@@ -18,9 +18,15 @@ const editClient = () => {
   const [isPersonal, setisPersonal] = useState(false)
   useEffect(() => {
     const tokenLocal = localStorage.getItem('fribar-token')
-    if (!tokenLocal) {
+    const user = localStorage.getItem('fribar-user')
+    if (!tokenLocal && !user) {
       signOut()
     }
+    if (
+      JSON.parse(user).role === 'GERENTE-ROLE' ||
+      JSON.parse(user).role === 'ADMIN-ROLE'
+    ) {
+    } else signOut()
     setToken(tokenLocal)
     if (!client && router && router.query && router.query.id) {
       const { id } = router.query

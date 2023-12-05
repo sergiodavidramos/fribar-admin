@@ -16,9 +16,15 @@ const editarProveedor = () => {
 
   useEffect(() => {
     const tokenLocal = localStorage.getItem('fribar-token')
-    if (!tokenLocal) {
+    const user = localStorage.getItem('fribar-user')
+    if (!tokenLocal && !user) {
       signOut()
     }
+    if (
+      JSON.parse(user).role === 'GERENTE-ROLE' ||
+      JSON.parse(user).role === 'ADMIN-ROLE'
+    ) {
+    } else signOut()
     if (router && router.query.id) getProveedorByID(token, router.query.id)
   }, [router])
 

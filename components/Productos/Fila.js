@@ -1,7 +1,10 @@
 import Link from 'next/link'
 import moment from 'moment'
+import { useContext } from 'react'
+import UserContext from '../UserContext'
 
 export default ({ pro }) => {
+  const { user } = useContext(UserContext)
   moment.locale('es')
   return (
     <tr>
@@ -36,11 +39,13 @@ export default ({ pro }) => {
             <i className="fas fa-eye"></i>
           </a>
         </Link>
-        <Link href="/productos/[id]" as={`/productos/${pro._id}`}>
-          <a className="edit-btn" title="Editar">
-            <i className="fas fa-edit"></i>
-          </a>
-        </Link>
+        {(user.role === 'ADMIN-ROLE' || user.role === 'GERENTE-ROLE') && (
+          <Link href="/productos/[id]" as={`/productos/${pro._id}`}>
+            <a className="edit-btn" title="Editar">
+              <i className="fas fa-edit"></i>
+            </a>
+          </Link>
+        )}
       </td>
     </tr>
   )

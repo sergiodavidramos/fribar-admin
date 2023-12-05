@@ -23,9 +23,15 @@ const viewClient = () => {
 
   useEffect(() => {
     const tokenLocal = localStorage.getItem('fribar-token')
-    if (!tokenLocal) {
+    const user = localStorage.getItem('fribar-user')
+    if (!tokenLocal && !user) {
       signOut()
     }
+    if (
+      JSON.parse(user).role === 'GERENTE-ROLE' ||
+      JSON.parse(user).role === 'ADMIN-ROLE'
+    ) {
+    } else signOut()
     if (!client && router && router.query && router.query.id) {
       const { id } = router.query
       fetch(`http://localhost:3001/user?id=${id}`, {

@@ -7,7 +7,7 @@ import { API_URL } from '../components/Config'
 import UserContext from '../components/UserContext'
 import { useEffect, useContext, useState } from 'react'
 import axios from 'axios'
-import io from 'socket.io-client'
+// import io from 'socket.io-client'
 import Notifications, { notify } from 'react-notify-toast'
 import TablaPedidos from '../components/Pedidos/TablaPedidos'
 import Link from 'next/link'
@@ -20,7 +20,7 @@ function Home() {
   const [totalVenta, setTotalVenta] = useState('0')
   const { token } = useContext(UserContext)
 
-  const socket = io(API_URL)
+  //   const socket = io(API_URL)
   async function getPedidosTablero() {
     try {
       const pedidosTablero = await fetch(
@@ -60,13 +60,13 @@ function Home() {
     }
   }
 
-  useEffect(() => {
-    socket.on('tablero-pedidos', (pedidos) => {
-      asignarDatos(pedidos.body)
-    })
-    getPedidosTablero()
-    return () => socket.disconnect()
-  }, [token])
+  //   useEffect(() => {
+  //     socket.on('tablero-pedidos', (pedidos) => {
+  //       asignarDatos(pedidos.body)
+  //     })
+  //     getPedidosTablero()
+  //     return () => socket.disconnect()
+  //   }, [token])
   return (
     <>
       <Head>

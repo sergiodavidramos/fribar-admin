@@ -1,4 +1,4 @@
-export default ({ id, token, notify }) => {
+export default ({ id, token, notify, ofertas = false }) => {
   function handlerDelete() {
     fetch(`http://localhost:3001/user/${id}`, {
       method: 'DELETE',
@@ -21,6 +21,9 @@ export default ({ id, token, notify }) => {
         }
       })
       .catch((error) => notify.show('Error en el servidor', 'error', 2000))
+  }
+  function handlerDeleteOferta() {
+    console.log('Eliminandon ofertas')
   }
   return (
     <div
@@ -51,7 +54,7 @@ export default ({ id, token, notify }) => {
                 data-dismiss="modal"
                 className="view-btn hover-btn btn-margin"
                 style={{ cursor: 'pointer' }}
-                onClick={handlerDelete}
+                onClick={ofertas ? handlerDeleteOferta : handlerDelete}
               >
                 SI
               </a>

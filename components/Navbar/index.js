@@ -84,7 +84,7 @@ export default () => {
           </div>
         ) : (
           <Link href={'/'}>
-            <a class="navbar-brand logo-brand">Fribar Minimarket</a>
+            <a className="navbar-brand logo-brand">Fribar Minimarket</a>
           </Link>
         )
       ) : (

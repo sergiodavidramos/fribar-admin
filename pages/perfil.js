@@ -175,11 +175,12 @@ export default function Perfil() {
                             </div>
                             <div className="shopowner-dt-list">
                               <span className="left-dt">Direccion</span>
-                              {user.direccion.map((direccion, index) => (
-                                <span className="right-dt" key={index}>
-                                  {direccion || ''}
-                                </span>
-                              ))}
+                              {user.direccion.length > 0 &&
+                                user.direccion.map((direccion, index) => (
+                                  <span className="right-dt" key={index}>
+                                    {direccion.direccion || ''}
+                                  </span>
+                                ))}
                             </div>
                           </div>
                         </div>
@@ -304,7 +305,13 @@ export default function Perfil() {
                                     disabled={true}
                                     className="text-control"
                                     placeholder="Direcciones (este campo no es editable.)"
-                                    defaultValue={user.direccion[1] || ''}
+                                    defaultValue={
+                                      user.direccion[0].nombre +
+                                        ' ; ' +
+                                        user.direccion[0].direccion +
+                                        ' ; ' +
+                                        user.direccion[0].referencia || ''
+                                    }
                                   ></textarea>
                                 </div>
                               </div>

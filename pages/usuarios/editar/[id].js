@@ -31,9 +31,15 @@ const editClient = () => {
 
   useEffect(() => {
     const tokenLocal = localStorage.getItem('fribar-token')
-    if (!tokenLocal) {
+    const user = localStorage.getItem('fribar-user')
+    if (!tokenLocal && !user) {
       signOut()
     }
+    if (
+      JSON.parse(user).role === 'GERENTE-ROLE' ||
+      JSON.parse(user).role === 'ADMIN-ROLE'
+    ) {
+    } else signOut()
     setToken(tokenLocal)
     if (!client && router && router.query && router.query.id) {
       const { id } = router.query
@@ -164,7 +170,7 @@ const editClient = () => {
         })
         .then((response) => {
           if (response.error) {
-            notify.show(response.body.message, 'error', 2000)
+            notify.show(response.body, 'error', 2000)
           } else {
             setCliente(response.body)
             notify.show('Cambios guardados con Exito! ', 'success', 2000)
@@ -187,7 +193,7 @@ const editClient = () => {
       var map = new mapboxgl.Map({
         container: mapContainer.current,
         projection: 'globe',
-        style: 'mapbox://styles/mapbox/streets-v12',
+        style: 'mapbox://styles/mapbox/standard-beta',
         center: [
           hayDireccion.length > 0
             ? hayDireccion[0].lon
@@ -198,23 +204,22 @@ const editClient = () => {
         ],
         zoom: 15.8,
       })
-      setTimeout(function () {
+      map.on('load', function () {
         map.resize()
-      }, 1000)
-      const marker = new mapboxgl.Marker({
-        draggable: true,
+        const marker = new mapboxgl.Marker({
+          draggable: true,
+        })
+          .setLngLat([
+            hayDireccion.length > 0
+              ? hayDireccion[0].lon
+              : ubicacion.coords.longitude,
+            hayDireccion.length > 0
+              ? hayDireccion[0].lat
+              : ubicacion.coords.latitude,
+          ])
+          .addTo(map)
+        obtenerUbicacionArrastrar(marker)
       })
-        .setLngLat([
-          hayDireccion.length > 0
-            ? hayDireccion[0].lon
-            : ubicacion.coords.longitude,
-          hayDireccion.length > 0
-            ? hayDireccion[0].lat
-            : ubicacion.coords.latitude,
-        ])
-        .addTo(map)
-
-      obtenerUbicacionArrastrar(marker)
     }
     const onErrorDeUbicacion = (err) => {
       console.log('Error obteniendo ubicación: ', err)
@@ -295,7 +300,7 @@ const editClient = () => {
         })
         .then((response) => {
           if (response.error) {
-            notify.show(response.body.message, 'error', 2000)
+            notify.show(response.body, 'error', 2000)
           } else {
             fetch(`${API_URL}/user/agregar/direccion/${client._id}`, {
               method: 'PATCH',

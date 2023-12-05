@@ -49,6 +49,12 @@ const sucursalNuevo = () => {
       })
   }
   useEffect(() => {
+    const tokenLocal = localStorage.getItem('fribar-token')
+    const user = localStorage.getItem('fribar-user')
+    if (!tokenLocal && !user) {
+      signOut()
+    }
+    if (JSON.parse(user).role !== 'GERENTE-ROLE') signOut()
     getCiudadesDB()
     longitudRegistro.current.value = banderaLng
     latitudRegistro.current.value = banderaLat
@@ -176,21 +182,23 @@ const sucursalNuevo = () => {
       var map = new mapboxgl.Map({
         container: mapContainer.current,
         projection: 'globe',
-        style: 'mapbox://styles/mapbox/streets-v12',
+        style: 'mapbox://styles/mapbox/standard-beta',
         center: [ubicacion.coords.longitude, ubicacion.coords.latitude],
         zoom: 15.8,
         marker: [ubicacion.coords.longitude, ubicacion.coords.latitude],
       })
-      setTimeout(function () {
+      map.on('load', function () {
         map.resize()
-      }, 1000)
-      const marker = new mapboxgl.Marker({
-        draggable: true,
+        const marker = new mapboxgl.Marker({
+          draggable: true,
+        })
+          .setLngLat([
+            ubicacion.coords.longitude,
+            ubicacion.coords.latitude,
+          ])
+          .addTo(map)
+        obtenerUbicacionArrastrar(marker)
       })
-        .setLngLat([ubicacion.coords.longitude, ubicacion.coords.latitude])
-        .addTo(map)
-
-      obtenerUbicacionArrastrar(marker)
     }
     const onErrorDeUbicacion = (err) => {
       console.log('Error obteniendo ubicación: ', err)
@@ -473,7 +481,7 @@ const sucursalNuevo = () => {
           <Footer />
         </div>
       </div>
-      {/* Modal del papa con su CSS */}
+      {/* Modal del mapa con su CSS */}
       <div
         id="mapa_model"
         className="header-cate-model main-gambo-model modal fade"

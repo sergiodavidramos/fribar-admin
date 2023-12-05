@@ -23,6 +23,10 @@
     "react-notify-toast": "0.5.1",
     "react-paginate": "6.3.2",
     "react-select": "3.1.0",
-    "socket.io-client": "2.3.0"
+    "socket.io-client": "^4.7.2"
+  },
+  "devDependencies": {
+    "file-loader": "^6.2.0",
+    "url-loader": "^4.1.1"
   }
 }
