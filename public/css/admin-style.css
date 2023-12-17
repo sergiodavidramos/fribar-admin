@@ -770,9 +770,9 @@ div#editor {
   display: none;
 }
 
-.form-group:last-child {
+/* .form-group:last-child {
   margin-bottom: 0;
-}
+} */
 
 .text-control {
   width: 100%;

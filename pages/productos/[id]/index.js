@@ -59,7 +59,6 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
             stock: target[5].value,
             precioCompra: target[6].value,
             precioVenta: target[7].value,
-            fechaCaducidad: target[8].value,
             detail: target[9].value,
           }),
           headers: {
@@ -285,20 +284,6 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
                               className="form-control"
                               placeholder="Bs 0"
                               defaultValue={pro.precioVenta}
-                              required
-                            />
-                          </div>
-                          <div className="form-group">
-                            <label className="form-label">
-                              Fecha de Vencimineto*
-                            </label>
-                            <input
-                              type="date"
-                              className="form-control"
-                              placeholder="Bs 0"
-                              defaultValue={moment(
-                                pro.fechaCaducidad
-                              ).format('YYYY-MM-DD')}
                               required
                             />
                           </div>

@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-export default ({ confirmarVenta }) => {
+export default ({ confirmar, titulo }) => {
   const factura = useRef(false)
 
   return (
@@ -24,14 +24,14 @@ export default ({ confirmarVenta }) => {
           </div>
           <div className="category-model-content modal-content">
             <div className="cate-header">
-              <h4>¿Conformar de venta?</h4>
+              <h4>{titulo}</h4>
             </div>
             <div className="btn-confirmation">
               <a
                 data-dismiss="modal"
                 className="view-btn hover-btn btn-margin"
                 style={{ cursor: 'pointer' }}
-                onClick={() => confirmarVenta()}
+                onClick={() => confirmar()}
                 data-toggle="modal"
                 data-target="#comprobante_model"
               >

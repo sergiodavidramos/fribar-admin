@@ -104,14 +104,7 @@ function ProductView({ pro }) {
                               {pro.status ? 'Activo' : 'Inactivo'}
                             </span>
                           </div>
-                          <div className="shopowner-dt-list">
-                            <span className="left-dt">
-                              Fecha de Vencimiento
-                            </span>
-                            <span className="right-dt">
-                              {moment(pro.vence).format('LL') || ''}
-                            </span>
-                          </div>
+
                           <div className="shopowner-dt-list">
                             <span className="left-dt">Código</span>
                             <span className="right-dt">{pro.code}</span>

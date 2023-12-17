@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useRef } from 'react'
+import { useContext, useEffect } from 'react'
 import UserContext from '../UserContext'
 import Link from 'next/link'
 import { API_URL } from '../Config'
@@ -78,7 +78,7 @@ export default () => {
                 onChange={handlerSetSucursal}
                 defaultValue={getAdmSucursal}
               >
-                <option value={0}>Todas las sucursales</option>
+                <option value={false}>Todas las sucursales</option>
               </select>
             )}
           </div>

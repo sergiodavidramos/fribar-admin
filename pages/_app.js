@@ -2,6 +2,7 @@ import '../public/css/styles.css'
 import '../public/css/admin-style.css'
 import '../public/vendor/bootstrap/css/bootstrap.min.css'
 import '../public/vendor/fontawesome-free/css/all.min.css'
+
 import React from 'react'
 import App from 'next/app'
 import Head from 'next/head'

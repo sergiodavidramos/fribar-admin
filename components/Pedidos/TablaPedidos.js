@@ -6,12 +6,10 @@ import io from 'socket.io-client'
 import { API_URL } from '../../components/Config'
 import { notify } from 'react-notify-toast'
 import Link from 'next/link'
-import sonidoPedido from './sonido/sonidoPedido.mp3'
 import UserContext from '../UserContext'
-const TablaPedidos = () => {
+const TablaPedidos = ({ sucursal }) => {
   let socket
-  const { alarm } = useContext(UserContext)
-  const mediaHora = '00:30:00'
+  const { alarm, token } = useContext(UserContext)
 
   const [pedidos, setPedidos] = useState([])
   const colourOptions = [
@@ -88,13 +86,17 @@ const TablaPedidos = () => {
           state: selectedOption.value,
         }),
         headers: {
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       })
       const newPedido = await newP.json()
       if (newPedido.error)
         notify.show('Error al cambiar estado', 'error', 500)
-      else notify.show('Estado Cambiado', 'success', 500)
+      else {
+        notify.show('Estado Cambiado', 'success', 500)
+        getPedidosDia()
+      }
     } catch (err) {
       console.error('Error en el Servidor', err)
     }
@@ -106,6 +108,7 @@ const TablaPedidos = () => {
         {
           method: 'GET',
           headers: {
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -133,49 +136,9 @@ const TablaPedidos = () => {
   }, [])
 
   async function iniciarSocket() {
-    socket = io(API_URL)
-
-    // socket.connect()
-
-    socket.on('connect', () => {
-      console.log('Connected to the server')
-    })
-    socket.on('disconnect', () => {
-      console.log('Disconnected from the server')
-    })
-
-    socket.on('connect_error', (error) => {
-      console.log('Connection error:', error)
-    })
-
-    socket.on('reconnect', (attemptNumber) => {
-      console.log('Reconnected to the server. Attempt:', attemptNumber)
-    })
-
-    socket.on('reconnect_error', (error) => {
-      console.log('Reconnection error:', error)
-    })
-
-    socket.on('reconnect_failed', () => {
-      console.log('Failed to reconnect to the server')
-    })
-
-    // Manage socket message events
-    socket.on('client-new', (message) => {
-      console.log('new client', message)
-    })
-
-    socket.on('message', (message) => {
-      console.log('Message', message)
-    })
-
-    socket.on('client-count', (count) => {
-      console.log('clientCount', count)
-    })
-
-    socket.on('escuchar-pedido', (pedido) => {
+    socket = io(API_URL, { transports: ['websocket'] })
+    socket.on(`pedido-${sucursal}`, (pedido) => {
       alarm.play()
-      console.log('SOCKET', pedido)
       if (pedidos.length > 0) {
         setPedidos([...pedidos, pedido])
       } else {
@@ -183,6 +146,7 @@ const TablaPedidos = () => {
       }
     })
   }
+
   return (
     <div className="card-body-table">
       <div className="table-responsive">
@@ -253,13 +217,13 @@ const TablaPedidos = () => {
                       }
                     />
                   </td>
-                  <td>{pedido.total} Bs</td>
+                  <td>{pedido.total.toFixed(2)} Bs</td>
                   <td className="action-btns">
                     <Link
                       href="/pedidos/[id]"
                       as={`/pedidos/${pedido._id}`}
                     >
-                      <a className="views-btn">
+                      <a className="views-btn" target="_blank">
                         <i className="fas fa-eye"></i>
                       </a>
                     </Link>

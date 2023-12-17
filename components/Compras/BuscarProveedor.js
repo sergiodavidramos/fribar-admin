@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { useRef, useState } from 'react'
 import { notify } from 'react-notify-toast'
-export default function Search({ token, setIdAdmin, user = false }) {
+export default function BuscarProveedor({ token, setIdProveedor }) {
   const [autocompleteState, setAutocompleteState] = useState({
     collections: [],
     isOpen: false,
@@ -11,7 +11,7 @@ export default function Search({ token, setIdAdmin, user = false }) {
   async function handlerSearch() {
     if (event.target.value && token) {
       const u = await axios.get(
-        `http://localhost:3001/user?ci=${event.target.value}`,
+        `http://localhost:3001/proveedor/buscar/termino?termino=${event.target.value}`,
         {
           headers: { Authorization: 'Bearer ' + token },
           'content-type': 'application/json',
@@ -40,20 +40,18 @@ export default function Search({ token, setIdAdmin, user = false }) {
   function handlerClick(dat, idUsuario) {
     inputRef.current.value = dat
     setAutocompleteState({ isOpen: false })
-    setIdAdmin(idUsuario)
+    setIdProveedor(idUsuario)
   }
   return (
     <>
       <div className="autocomplete" style={{ width: '300px' }}>
         <input
-          autocomplete="off"
           ref={inputRef}
           id="myInput"
           type="text"
           name="myAdmin"
-          placeholder="Buscar al ADM por C.I."
+          placeholder="Ingrese El Nombre comercial"
           onChange={handlerSearch}
-          defaultValue={user ? user : ''}
         />
         {autocompleteState.isOpen && (
           <div
@@ -61,21 +59,19 @@ export default function Search({ token, setIdAdmin, user = false }) {
             className="autocomplete-items"
           >
             {autocompleteState.collections.map((datos, index) => (
-              <ul>
+              <ul key={index}>
                 <li>
                   <a
                     style={{ cursor: 'pointer' }}
-                    key={index}
                     onClick={() =>
                       handlerClick(
-                        `${datos.persona[0].nombre_comp} - ${datos.persona[0].ci}`,
+                        `${datos.nombreComercial} - Cel: ${datos.phone}`,
                         datos._id
                       )
                     }
                   >
                     <strong>
-                      {datos.persona[0].nombre_comp} -{' '}
-                      {datos.persona[0].ci}
+                      {datos.nombreComercial} - Cel: {datos.phone}{' '}
                     </strong>
                   </a>
                 </li>
@@ -122,6 +118,7 @@ export default function Search({ token, setIdAdmin, user = false }) {
             top: 100%;
             left: 0;
             right: 0;
+            background-color: #fff;
           }
           .autocomplete-items div {
             padding: 10px;

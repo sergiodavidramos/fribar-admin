@@ -3,18 +3,10 @@ export default () => (
     <div className="container-fluid">
       <div className="d-flex align-items-center justify-content-between small">
         <div className="text-muted-1">
-          © 2022 <b>FriBar</b>. De
+          © 2023 <b>FriBar</b>. De
           {` Potosí-Bolivia con `} <i className="fas fa-heart"></i>
           {` para el mundo`}
         </div>
-        {/* <div className="footer-links">
-          <a href="">
-            Politicas de Provacidad
-          </a>
-          <a href="">
-            Terminos &amp; Condiciones
-          </a>
-        </div> */}
       </div>
     </div>
     <style jsx>{`

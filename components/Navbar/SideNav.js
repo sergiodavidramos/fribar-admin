@@ -325,32 +325,188 @@ const SideNav = (props) => {
                     )}
                   </nav>
                 </div>
-                <Link href="/pedidos">
-                  <a
-                    className={`nav-link sub_nav_link ${
-                      props.router.pathname === '/pedidos' ? 'active' : ''
-                    }`}
-                    onClick={() => alarm.play()}
-                  >
-                    <div className="sb-nav-link-icon">
-                      {/* <i className="fas fa-cart-arrow-down"></i> */}
-                      <i className="fas fa-truck"></i>
+                <a
+                  style={{ cursor: 'pointer' }}
+                  className={`nav-link ${
+                    props.router.pathname.split('/')[1] === 'pedidos'
+                      ? 'active'
+                      : 'collapsed'
+                  }`}
+                  data-toggle="collapse"
+                  data-target="#collapsePedidos"
+                  aria-expanded="false"
+                  aria-controls="collapsePedidos"
+                >
+                  <div className="sb-nav-link-icon">
+                    {/* <i className="fas fa-cart-arrow-down"></i> */}
+                    <i className="fas fa-truck"></i>
+                  </div>
+                  Pedidos
+                  <div className="sb-sidenav-collapse-arrow">
+                    <i className="fas fa-angle-down"></i>
+                  </div>
+                </a>
+
+                <div
+                  className={`collapse ${
+                    props.router.pathname.split('/')[1] === 'pedidos'
+                      ? 'show'
+                      : ''
+                  }`}
+                  id="collapsePedidos"
+                  aria-labelledby="headingTwo"
+                  data-parent="#sidenavAccordion"
+                >
+                  <nav className="sb-sidenav-menu-nested nav">
+                    <Link href="/pedidos">
+                      <a
+                        className={`nav-link sub_nav_link ${
+                          props.router.pathname === '/pedidos'
+                            ? 'active'
+                            : ''
+                        }`}
+                        onClick={() => alarm.play()}
+                      >
+                        Escuchar pedidos de hoy
+                      </a>
+                    </Link>
+                    {(user.role === 'GERENTE-ROLE' ||
+                      user.role === 'ADMIN-ROLE') && (
+                      <Link href="/pedidos/lista">
+                        <a
+                          className={`nav-link sub_nav_link ${
+                            props.router.pathname === '/pedidos/lista'
+                              ? 'active'
+                              : ''
+                          }`}
+                        >
+                          Pedidos anteriores
+                        </a>
+                      </Link>
+                    )}
+                  </nav>
+                </div>
+
+                <a
+                  style={{ cursor: 'pointer' }}
+                  className={`nav-link ${
+                    props.router.pathname.split('/')[1] === 'venta'
+                      ? 'active'
+                      : 'collapsed'
+                  }`}
+                  data-toggle="collapse"
+                  data-target="#collapseVentas"
+                  aria-expanded="false"
+                  aria-controls="collapseVentas"
+                >
+                  <div className="sb-nav-link-icon">
+                    <i className="fas fa-cart-arrow-down"></i>
+                  </div>
+                  Ventas
+                  <div className="sb-sidenav-collapse-arrow">
+                    <i className="fas fa-angle-down"></i>
+                  </div>
+                </a>
+                <div
+                  className={`collapse ${
+                    props.router.pathname.split('/')[1] === 'venta'
+                      ? 'show'
+                      : ''
+                  }`}
+                  id="collapseVentas"
+                  aria-labelledby="headingTwo"
+                  data-parent="#sidenavAccordion"
+                >
+                  <nav className="sb-sidenav-menu-nested nav">
+                    <Link href="/venta">
+                      <a
+                        className={`nav-link sub_nav_link ${
+                          props.router.pathname === '/venta'
+                            ? 'active'
+                            : ''
+                        }`}
+                      >
+                        Realizar Venta
+                      </a>
+                    </Link>
+                    {(user.role === 'GERENTE-ROLE' ||
+                      user.role === 'ADMIN-ROLE') && (
+                      <Link href="/venta/lista">
+                        <a
+                          className={`nav-link sub_nav_link ${
+                            props.router.pathname === '/venta/lista'
+                              ? 'active'
+                              : ''
+                          }`}
+                        >
+                          Ventas anteriores
+                        </a>
+                      </Link>
+                    )}
+                  </nav>
+                </div>
+
+                {(user.role === 'GERENTE-ROLE' ||
+                  user.role === 'ADMIN-ROLE') && (
+                  <>
+                    <a
+                      style={{ cursor: 'pointer' }}
+                      className={`nav-link ${
+                        props.router.pathname.split('/')[1] === 'compras'
+                          ? 'active'
+                          : 'collapsed'
+                      }`}
+                      data-toggle="collapse"
+                      data-target="#collapseCompras"
+                      aria-expanded="false"
+                      aria-controls="collapseCompras"
+                    >
+                      <div className="sb-nav-link-icon">
+                        <i className="fas fa-cart-arrow-down"></i>
+                      </div>
+                      Compras
+                      <div className="sb-sidenav-collapse-arrow">
+                        <i className="fas fa-angle-down"></i>
+                      </div>
+                    </a>
+                    <div
+                      className={`collapse ${
+                        props.router.pathname.split('/')[1] === 'compras'
+                          ? 'show'
+                          : ''
+                      }`}
+                      id="collapseCompras"
+                      aria-labelledby="headingTwo"
+                      data-parent="#sidenavAccordion"
+                    >
+                      <nav className="sb-sidenav-menu-nested nav">
+                        <Link href="/compras">
+                          <a
+                            className={`nav-link sub_nav_link ${
+                              props.router.pathname === '/compras'
+                                ? 'active'
+                                : ''
+                            }`}
+                          >
+                            Realizar Compra
+                          </a>
+                        </Link>
+
+                        <Link href="/compras/lista">
+                          <a
+                            className={`nav-link sub_nav_link ${
+                              props.router.pathname === '/compras/lista'
+                                ? 'active'
+                                : ''
+                            }`}
+                          >
+                            Compras anteriores
+                          </a>
+                        </Link>
+                      </nav>
                     </div>
-                    Pedidos
-                  </a>
-                </Link>
-                <Link href="/venta">
-                  <a
-                    className={`nav-link sub_nav_link ${
-                      props.router.pathname === '/venta' ? 'active' : ''
-                    }`}
-                  >
-                    <div className="sb-nav-link-icon">
-                      <i className="fas fa-cart-arrow-down"></i>
-                    </div>
-                    Venta
-                  </a>
-                </Link>
+                  </>
+                )}
                 {(user.role === 'GERENTE-ROLE' ||
                   user.role === 'ADMIN-ROLE') && (
                   <Link href="/clientes">

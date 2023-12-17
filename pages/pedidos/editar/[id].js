@@ -1,19 +1,22 @@
 import Notifications, { notify } from 'react-notify-toast'
-import TopNavbar from '../../components/Navbar'
-import SideNav from '../../components/Navbar/SideNav'
-import Footer from '../../components/Footer'
+import TopNavbar from '../../../components/Navbar'
+import SideNav from '../../../components/Navbar/SideNav'
+import Footer from '../../../components/Footer'
 import Link from 'next/link'
-import { API_URL } from '../../components/Config'
-import UserContext from '../../components/UserContext'
-import { useEffect, useContext, useState } from 'react'
+import { API_URL } from '../../../components/Config'
+import UserContext from '../../../components/UserContext'
+import { useEffect, useContext, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import moment from 'moment'
 import expectedRound from 'expected-round'
 const ViewPedidos = () => {
   moment.locale('es')
   const router = useRouter()
-  const { signOut } = useContext(UserContext)
+  const { signOut, token } = useContext(UserContext)
   const [pedido, setPedido] = useState(null)
+  const [idPedido, setIdPedido] = useState(false)
+  const [estadoPedido, setEstadoPedido] = useState(false)
+  const selectEstado = useRef(null)
   useEffect(() => {
     const tokenLocal = localStorage.getItem('fribar-token')
     const token = localStorage.getItem('fribar-token')
@@ -22,6 +25,7 @@ const ViewPedidos = () => {
     }
     if (router && router.query && router.query.id) {
       const { id } = router.query
+      setIdPedido(id)
       fetch(`${API_URL}/pedido/detalle/${id}`, {
         method: 'GET',
         headers: {
@@ -35,6 +39,7 @@ const ViewPedidos = () => {
             notify.show('Error el en servidor', 'error')
           } else {
             setPedido(pedido.body)
+            setEstadoPedido(pedido.body.state)
           }
         })
         .catch((err) => {
@@ -47,6 +52,29 @@ const ViewPedidos = () => {
         })
     }
   }, [router])
+  async function handlerActualizarPedido() {
+    try {
+      const newP = await fetch(`${API_URL}/pedido/${idPedido}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          state: parseInt(selectEstado.current.value),
+        }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const newPedido = await newP.json()
+      if (newPedido.error)
+        notify.show('Error al cambiar estado', 'error', 500)
+      else {
+        notify.show('Estado Cambiado', 'success', 500)
+        setEstadoPedido(newPedido.body.state)
+      }
+    } catch (err) {
+      console.error('Error en el Servidor', err)
+    }
+  }
   return (
     <>
       <TopNavbar />
@@ -104,7 +132,7 @@ const ViewPedidos = () => {
                           <div className="col-lg-12">
                             <div className="card card-static-2 mb-30 mt-30">
                               <div className="card-title-2">
-                                <h4>Órdenes recientes</h4>
+                                <h4>Productos del pedido</h4>
                               </div>
                               <div className="card-body-table">
                                 <div className="table-responsive">
@@ -266,32 +294,47 @@ const ViewPedidos = () => {
                             </div>
                           </div>
                           <div className="col-lg-7"></div>
-                          <div className="col-lg-5">
-                            <div className="select-status">
-                              <label htmlFor="status">Estado*</label>
-                              {pedido.state === 0 ? (
-                                <div className="status-active">
-                                  Pendiente
-                                </div>
-                              ) : pedido.state === 1 ? (
-                                <div className="status-active">
-                                  Preparando
-                                </div>
-                              ) : pedido.state === 2 ? (
-                                <div className="status-active">
-                                  En camino
-                                </div>
-                              ) : pedido.state === 2 ? (
-                                <div className="status-active">
-                                  Entregado
-                                </div>
-                              ) : (
+                          {estadoPedido === 4 ? (
+                            <div className="col-lg-5">
+                              <div className="select-status">
+                                <label htmlFor="status">Estado*</label>
+
                                 <div className="status-active">
                                   Cancelado
                                 </div>
-                              )}
+                              </div>
                             </div>
-                          </div>
+                          ) : (
+                            <div className="col-lg-5">
+                              <div className="select-status">
+                                <label htmlFor="status">Estado*</label>
+                                <div className="input-group">
+                                  <select
+                                    id="status"
+                                    name="status"
+                                    className="custom-select"
+                                    defaultValue={pedido.state}
+                                    ref={selectEstado}
+                                  >
+                                    <option value={0}>Pediente</option>
+                                    <option value={1}>Preparando</option>
+                                    <option value={2}>En camino</option>
+                                    <option value={3}>Entregado</option>
+                                    <option value={4}>Cancelado</option>
+                                  </select>
+                                  <div className="input-group-append">
+                                    <button
+                                      className="status-btn hover-btn"
+                                      type="submit"
+                                      onClick={handlerActualizarPedido}
+                                    >
+                                      Actualizar
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

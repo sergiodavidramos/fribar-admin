@@ -10,8 +10,6 @@ import { API_URL } from '../../components/Config'
 import ConfirmacionModel from '../../components/Venta/modelConfirmarVenta'
 import expectedRound from 'expected-round'
 
-import dynamic from 'next/dynamic'
-
 const Venta = () => {
   const [productFilter, setProductFilter] = useState([])
   const [buscarText, setBuscarText] = useState('')
@@ -244,7 +242,13 @@ const Venta = () => {
   }
   function confirmarVenta() {
     let detalle = []
-
+    if (productFilter.length <= 0) {
+      notify.show(
+        'Por favor ingrese almenos un producto para vender',
+        'warning'
+      )
+      return
+    }
     for (let producto of productFilter) {
       const precioConDescuento =
         producto.precioVenta -
@@ -415,23 +419,6 @@ const Venta = () => {
         })
     }
   }
-  let fnGetFileNameFromContentDispostionHeader = function (header) {
-    console.log('ssss', header)
-    let contentDispostion = header.split(';')
-    const fileNameToken = `filename*=UTF-8''`
-
-    let fileName = 'downloaded.pdf'
-    for (let thisValue of contentDispostion) {
-      if (thisValue.trim().indexOf(fileNameToken) === 0) {
-        fileName = decodeURIComponent(
-          thisValue.trim().replace(fileNameToken, '')
-        )
-        break
-      }
-    }
-
-    return fileName
-  }
 
   const handlerCalcularCambio = () => {
     if (efectivo.current.value)
@@ -442,7 +429,10 @@ const Venta = () => {
   }
   return (
     <>
-      <ConfirmacionModel confirmarVenta={confirmarVenta} />
+      <ConfirmacionModel
+        confirmar={confirmarVenta}
+        titulo={'¿Confirmar la Venta?'}
+      />
       <TopNavbar />
       <div id="layoutSidenav">
         <SideNav />
@@ -462,8 +452,9 @@ const Venta = () => {
                   {sucursal.nombre ? sucursal.nombre.toUpperCase() : ''}""
                 </li>
               </ol>
-              {gerente === true && sucursal === false ? (
-                'PORFAVOR SELECCIONE UNA SUCURSAL'
+              {gerente === true &&
+              (sucursal === false || sucursal === '0') ? (
+                <h4>'PORFAVOR SELECCIONE UNA SUCURSAL'</h4>
               ) : (
                 <div className="row justify-content-between">
                   <div className="col-lg-12 col-md-12">
@@ -622,7 +613,6 @@ const Venta = () => {
                           data-target="#confirmacion_model"
                           className="save-btn hover-btn"
                           type="submit"
-                          //   onClick={confirmarVenta}
                           disabled={butt}
                         >
                           Confirmar la venta

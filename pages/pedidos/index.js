@@ -4,7 +4,10 @@ import SideNav from '../../components/Navbar/SideNav'
 import Footer from '../../components/Footer'
 import Link from 'next/link'
 import TablaPedidos from '../../components/Pedidos/TablaPedidos'
+import { useContext } from 'react'
+import UserContext from '../../components/UserContext'
 const Pedidos = () => {
+  const { getAdmSucursal } = useContext(UserContext)
   return (
     <>
       <TopNavbar />
@@ -48,7 +51,13 @@ const Pedidos = () => {
                     <div className="card-title-2">
                       <h4>Todos los pedidos</h4>
                     </div>
-                    <TablaPedidos />
+                    {getAdmSucursal === 'false' ||
+                    getAdmSucursal === '0' ||
+                    getAdmSucursal === false ? (
+                      <h4>Por favor selecione una sucursal</h4>
+                    ) : (
+                      <TablaPedidos sucursal={getAdmSucursal} />
+                    )}
                   </div>
                 </div>
               </div>
