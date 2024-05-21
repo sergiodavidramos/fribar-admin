@@ -1,7 +1,8 @@
-export default ({ confirmar, titulo }) => {
+import moment from 'moment'
+export default ({ titulo, lotesProducto, setLoteEscogido }) => {
   return (
     <div
-      id="confirmacion_model"
+      id="lotes_model"
       className="header-cate-model main-gambo-model modal fade"
       tabIndex="-1"
       role="dialog"
@@ -24,23 +25,50 @@ export default ({ confirmar, titulo }) => {
               <h4>{titulo}</h4>
             </div>
             <div className="btn-confirmation">
-              <a
-                data-dismiss="modal"
-                className="view-btn hover-btn btn-margin"
-                style={{ cursor: 'pointer' }}
-                onClick={() => confirmar()}
-                data-toggle="modal"
-                data-target="#comprobante_model"
-              >
-                SI
-              </a>
-              <a
-                data-dismiss="modal"
-                className="view-btn hover-btn btn-margin"
-                style={{ cursor: 'pointer' }}
-              >
-                NO
-              </a>
+              <table className="table ucp-table table-hover">
+                <thead>
+                  <tr>
+                    <th>Lote</th>
+                    <th>Stock</th>
+                    <th>Fecha Vencimiento</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lotesProducto !== false &&
+                    lotesProducto.stockLotes.length > 0 &&
+                    lotesProducto.stockLotes.map((lote, index) => (
+                      <tr
+                        data-dismiss="modal"
+                        key={index}
+                        onClick={() => {
+                          setLoteEscogido({
+                            idLote: lote.lote ? lote.lote._id : lote._id,
+                            numeroLote: lote.lote
+                              ? lote.lote.numeroLote
+                              : lote.numeroLote,
+                            stockDisponible: lote.lote
+                              ? lote.lote.stock
+                              : lote.stock,
+                          })
+                        }}
+                      >
+                        <td>
+                          {lote.lote
+                            ? lote.lote.numeroLote
+                            : lote.numeroLote}
+                        </td>
+                        <td>{lote.lote ? lote.lote.stock : lote.stock}</td>
+                        <td>
+                          {lote.lote
+                            ? moment(lote.lote.fechaVencimiento).format(
+                                'LL'
+                              )
+                            : moment(lote.fechaVencimiento).format('LL')}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

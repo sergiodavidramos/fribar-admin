@@ -115,7 +115,10 @@ const Sucursal = () => {
                                       href="/sucursales/detalle/[id]"
                                       as={`/sucursales/detalle/${sucursal._id}`}
                                     >
-                                      <a className="view-shop-btn">
+                                      <a
+                                        className="view-shop-btn"
+                                        title="Ver sucursal"
+                                      >
                                         <i className="fas fa-eye"></i>
                                       </a>
                                     </Link>
@@ -123,7 +126,10 @@ const Sucursal = () => {
                                       href="/sucursales/tienda-productos/[id]"
                                       as={`/sucursales/tienda-productos/${sucursal._id}`}
                                     >
-                                      <a className="list-btn">
+                                      <a
+                                        className="list-btn"
+                                        title="Enviar productos a otra sucursal"
+                                      >
                                         <i className="fas fa-list-alt"></i>
                                       </a>
                                     </Link>
@@ -131,7 +137,10 @@ const Sucursal = () => {
                                       href="/sucursales/editar/[id]"
                                       as={`/sucursales/editar/${sucursal._id}`}
                                     >
-                                      <a className="edit-btn">
+                                      <a
+                                        className="edit-btn"
+                                        title="Editar Sucursal"
+                                      >
                                         <i className="fas fa-edit"></i>
                                       </a>
                                     </Link>

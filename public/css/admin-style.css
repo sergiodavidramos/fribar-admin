@@ -987,7 +987,7 @@ div#editor {
 .shop-content-left {
   display: flex;
   width: 100%;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .shop_img {
@@ -1053,7 +1053,7 @@ div#editor {
 
 .shopowner-dt-list {
   display: flex;
-  align-items: start;
+  align-items: flex-start;
   padding: 10px;
   border-bottom: 1px solid #efefef;
   width: 100%;

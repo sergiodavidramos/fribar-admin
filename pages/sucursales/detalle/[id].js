@@ -151,7 +151,10 @@ const viewSucursal = () => {
                                 {sucursal.administrador.direccion.length >
                                 0
                                   ? sucursal.administrador.direccion[0]
-                                      .direccion
+                                      .direccion +
+                                    ' - ' +
+                                    sucursal.administrador.direccion[0]
+                                      .referencia
                                   : 'Direccion no agregada'}
                               </span>
                             </div>

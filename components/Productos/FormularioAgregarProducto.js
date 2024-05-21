@@ -2,8 +2,9 @@ import { useState, useEffect, useContext, useRef } from 'react'
 import UserContext from '../UserContext'
 import FormData from 'form-data'
 import { notify } from 'react-notify-toast'
+import { API_URL } from '../Config'
 
-export default ({
+const FormularioAgregarProducto = ({
   categorias,
   marcas,
   desabilitarStock = false,
@@ -60,7 +61,7 @@ export default ({
           notify.show('Por favor seleccione una sucursal', 'warning', 2000)
         } else {
           setButt(true)
-          fetch('http://localhost:3001/productos', {
+          fetch(`${API_URL}/productos`, {
             method: 'POST',
             body: JSON.stringify({
               code: target[0].value,
@@ -95,16 +96,13 @@ export default ({
                   for (let i = 0; i < 4; i++) {
                     formData.append('imagen', im[i])
                   }
-                fetch(
-                  `http://localhost:3001/upload/producto/${response.body._id}`,
-                  {
-                    method: 'PUT',
-                    body: formData,
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
-                )
+                fetch(`${API_URL}/upload/producto/${response.body._id}`, {
+                  method: 'PUT',
+                  body: formData,
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                })
                   .then((response) => response.json())
                   .then((response) => {
                     if (response.error) {
@@ -369,3 +367,4 @@ export default ({
     </div>
   )
 }
+export default FormularioAgregarProducto

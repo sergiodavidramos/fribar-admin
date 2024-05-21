@@ -1,8 +1,17 @@
 import Link from 'next/link'
 import moment from 'moment'
 
-export default ({ pro }) => {
+const filaProductos = ({
+  pro,
+  setLotesProducto,
+  setAgregarProducto,
+  agregarProducto,
+}) => {
   moment.locale('es')
+  function agregar(pro) {
+    setLotesProducto(pro)
+    setAgregarProducto(!agregarProducto)
+  }
   return (
     <tr>
       <td>{pro.producto.code}</td>
@@ -15,7 +24,17 @@ export default ({ pro }) => {
         </div>
       </td>
       <td>{pro.producto.name}</td>
-      <td>{moment(pro.producto.fechaCaducidad).format('LL') || ''}</td>
+      {pro.stockLotes.length > 0 ? (
+        <td>
+          {moment(
+            pro.stockLotes[0].lote
+              ? pro.stockLotes[0].lote.fechaVencimiento
+              : pro.stockLotes[0].fechaVencimiento
+          ).format('LL')}
+        </td>
+      ) : (
+        <td>Sin vencimiento</td>
+      )}
       <td>
         {pro.producto.status ? (
           <span className="badge-item badge-status">Activo</span>
@@ -23,14 +42,23 @@ export default ({ pro }) => {
           <span className="badge-item badge-status-false">Inactivo</span>
         )}
       </td>
-      <td>{pro.stock}</td>
+      <td>{pro.stockTotal}</td>
       <td className="action-btns">
         <Link href="/productos/[id]" as={`/productos/${pro.producto._id}`}>
           <a className="edit-btn" title="Editar">
             <i className="fas fa-edit"></i>
           </a>
         </Link>
+        <a
+          className="edit-btn"
+          style={{ cursor: 'pointer' }}
+          title="Mover Producto"
+          onClick={() => agregar(pro)}
+        >
+          <i className="fas fa-truck-loading"></i>
+        </a>
       </td>
     </tr>
   )
 }
+export default filaProductos

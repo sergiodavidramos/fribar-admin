@@ -1,36 +1,43 @@
 import TopNavbar from '../../../components/Navbar'
 import SideNav from '../../../components/Navbar/SideNav'
 import Footer from '../../../components/Footer'
-import Link from 'next/link'
 import Notifications, { notify } from 'react-notify-toast'
-import axios from 'axios'
 import UserContext from '../../../components/UserContext'
 import { useEffect, useContext, useState, useRef } from 'react'
 import { API_URL } from '../../../components/Config'
-import { useRouter } from 'next/router'
 import CardTableInventario from '../../../components/Productos/CardTableInventario'
+
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import axios from 'axios'
+import moment from 'moment'
+
+let auxProducto = []
 const sucursalNuevo = () => {
+  moment.locale('es')
   const { token, signOut } = useContext(UserContext)
-  const [productos, setProductos] = useState([])
+  const [sucursales, setSucursales] = useState([])
   const [sucursal, setSucursal] = useState(false)
   const [idSucursal, setIdSucursal] = useState(false)
-  const [idProducto, setIdProducto] = useState(false)
   const [proFiltrado, setProFiltrado] = useState(null)
+  const [lotesProducto, setLotesProducto] = useState(false)
+  const [agregado, setAgregado] = useState(false)
+  const [agregarProducto, setAgregarProducto] = useState(false)
+  const [loteSelecionado, setLoteSelecionado] = useState(false)
+  const [sucursalDestino, setSucursalDestino] = useState(false)
 
   const router = useRouter()
 
-  const inputPrecio = useRef(0)
-  const inputCantidad = useRef(null)
-  const selectProducto = useRef(false)
   let buttonDisable = false
-  function getProductosDB() {
+
+  function getSucursalesDB() {
     axios
-      .get(`${API_URL}/productos/all`, {
+      .get(`${API_URL}/sucursal/all`, {
         headers: { 'Content-Type': 'application/json' },
         params: { status: true },
       })
       .then((response) => {
-        setProductos(response.data.body)
+        setSucursales(response.data.body)
       })
       .catch((err) => {
         notify.show(
@@ -70,71 +77,68 @@ const sucursalNuevo = () => {
     if (!tokenLocal) {
       signOut()
     } else {
-      getProductosDB()
+      getSucursalesDB()
       setIdSucursal(router.query.id)
       getSucursalId(tokenLocal, router)
     }
   }, [router])
 
+  useEffect(() => {
+    agregarProductoParaMover(lotesProducto)
+  }, [agregarProducto])
+
   async function handlerSubmit() {
     buttonDisable = true
-    if (
-      !inputCantidad.current.value ||
-      inputCantidad.current.value === 0 ||
-      selectProducto.current.value === '0' ||
-      !selectProducto.current.value
-    )
+    let error = false
+    let movimiento = []
+    if (auxProducto.length <= 0 || !sucursalDestino)
       notify.show(
-        'El producto y la cantidad es necesaria',
+        'Seleccione al menos un producto para mover y la sucursal destino',
         'warning',
         2000
       )
     else {
       try {
-        const datos = await axios.get(
-          `${API_URL}/inventario/buscar/producto-sucursal?idProducto=${idProducto}&idSucursal=${idSucursal}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-        if (datos.status === 401) signOut()
-        if (datos.status === 200) {
-          if (datos.data.body.length <= 0) {
-            const nuevoProductoInventario = await axios.post(
-              `${API_URL}/inventario/nuevo/producto`,
-              {
-                producto: idProducto,
-                stock: inputCantidad.current.value,
-                idSucursal: idSucursal,
-              },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-              }
-            )
-            if (nuevoProductoInventario.status === 401) signOut()
-            nuevoProductoInventario.data.error
-              ? notify.show(
-                  'Error al registrar el producto en la sucursal',
-                  'error'
-                )
-              : notify.show(
-                  'Se agrego el producto con exito!',
-                  'success',
-                  2000
-                )
+        for (let producto of auxProducto) {
+          if (producto.stockLotes.length <= 0) {
+            movimiento.push({
+              productos: producto.producto._id,
+              cantidad: producto.cantidadMover,
+            })
+            if (!actualizarProductoInventario(producto)) {
+              error = true
+              break
+            }
           } else {
-            const aumentarStockInventario = await axios.patch(
-              `${API_URL}/inventario/actualiza-stock`,
+            movimiento.push({
+              productos: producto.producto._id,
+              cantidad: producto.cantidadMover,
+              numeroLote: producto.stockLotes[producto.loteSelecionado]
+                .lote
+                ? producto.stockLotes[producto.loteSelecionado].lote
+                    .numeroLote + sucursal.nombre
+                : producto.stockLotes[producto.loteSelecionado]
+                    .numeroLote + sucursal.nombre,
+              fechaVencimiento: producto.stockLotes[
+                producto.loteSelecionado
+              ].lote
+                ? producto.stockLotes[producto.loteSelecionado].lote
+                    .fechaVencimiento
+                : producto.stockLotes[producto.loteSelecionado]
+                    .fechaVencimiento,
+            })
+            if (!actualizarProductoInventario(producto)) {
+              error = true
+              break
+            }
+            const loteActualizado = await axios.patch(
+              `${API_URL}/lotes/actualizar/stock/${
+                producto.stockLotes[producto.loteSelecionado].lote
+                  ? producto.stockLotes[producto.loteSelecionado].lote._id
+                  : producto.stockLotes[producto.loteSelecionado]._id
+              }`,
               {
-                idProducto: idProducto,
-                stock: inputCantidad.current.value,
-                idSucursal: idSucursal,
+                stock: -producto.cantidadMover,
               },
               {
                 headers: {
@@ -143,17 +147,43 @@ const sucursalNuevo = () => {
                 },
               }
             )
-            if (aumentarStockInventario.status === 401) signOut()
-            aumentarStockInventario.data.error
-              ? notify.show(
-                  'Error al actualizar el producto en la sucursal',
-                  'error'
-                )
-              : notify.show(
-                  'Stock actualizado con exito!',
-                  'success',
-                  2000
-                )
+            if (loteActualizado.status === 401) signOut()
+            if (loteActualizado.data.error) {
+              error = true
+              notify.show('Error al actualizar el Lote', 'error')
+              break
+            }
+          }
+        }
+        if (!error) {
+          const nuevoMovimiento = await axios.post(
+            `${API_URL}/movimiento-productos`,
+            {
+              movimiento,
+              sucursalOrigen: sucursal._id,
+              sucursalDestino,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+          if (nuevoMovimiento.status === 401) signOut()
+          if (nuevoMovimiento.data.error)
+            notify.show(
+              'Error al registrar el producto en la sucursal',
+              'error'
+            )
+          else {
+            notify.show(
+              'Se registro un movimiento con exito!',
+              'success',
+              2000
+            )
+            auxProducto = []
+            setAgregado(!agregado)
           }
         }
       } catch (err) {
@@ -163,14 +193,53 @@ const sucursalNuevo = () => {
     }
     buttonDisable = false
   }
-  async function handlerSeleccionarProducto() {
-    let datos
-    if (selectProducto.current.value !== '0') {
-      datos = selectProducto.current.value.split(',')
-      setIdProducto(datos[0])
-      inputPrecio.current.value = datos[1]
-    } else {
-      inputPrecio.current.value = 0
+
+  async function actualizarProductoInventario(producto) {
+    const productoActializado = await axios.patch(
+      `${API_URL}/productos/${producto.producto._id}`,
+      {
+        desStock: -producto.cantidadMover,
+        movimiento: true,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+    if (productoActializado.status === 401) {
+      signOut()
+      return false
+    }
+    if (productoActializado.status === 200) {
+      const inventarioActualizado = await axios.patch(
+        `${API_URL}/inventario/actualiza-stock`,
+        {
+          idProducto: producto.producto._id,
+          datos: {
+            stockTotal: producto.stockTotal - producto.cantidadMover,
+          },
+          idSucursal: producto.idSucursal,
+          venta: false,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      if (inventarioActualizado.status === 401) signOut()
+      if (inventarioActualizado.data.error) {
+        notify.show('Error al actualizar el inventario sin lote', 'error')
+        return false
+      }
+    } else return false
+  }
+  async function handlerSeleccionarSucursal() {
+    if (event.target.value && event.target.value !== '0') {
+      setSucursalDestino(event.target.value)
     }
   }
 
@@ -193,8 +262,15 @@ const sucursalNuevo = () => {
             let pro = []
             for (let d of data.data.body) {
               const producto = d.producto[0]
-              const stock = d.allProducts.stock
-              pro.push({ producto: producto, stock })
+              const stock = d.stockLotes
+              const stockTotal = d.stockTotal
+              const idSucursal = d.idSucursal
+              pro.push({
+                producto: producto,
+                stockLotes: stock,
+                stockTotal,
+                idSucursal,
+              })
             }
             setProFiltrado(pro)
           }
@@ -229,8 +305,15 @@ const sucursalNuevo = () => {
               let pro = []
               for (let d of data.data.body) {
                 const producto = d.producto[0]
-                const stock = d.allProducts.stock
-                pro.push({ producto: producto, stock })
+                const stock = d.stockLotes
+                const stockTotal = d.stockTotal
+                const idSucursal = d.idSucursal
+                pro.push({
+                  producto: producto,
+                  stockLotes: stock,
+                  stockTotal,
+                  idSucursal,
+                })
               }
               setProFiltrado(pro)
             }
@@ -241,7 +324,38 @@ const sucursalNuevo = () => {
       setProFiltrado(null)
     }
   }
-
+  const agregarProductoParaMover = (producto) => {
+    if (producto) {
+      let existe = auxProducto.filter((p) => {
+        return p.producto._id === producto.producto._id
+      })
+      if (existe.length <= 0) {
+        auxProducto.push(producto)
+        setAgregado(!agregado)
+      }
+    }
+  }
+  const handleChangeLote = () => {
+    if (event.target.value && event.target.value !== 'false') {
+      setLoteSelecionado(parseInt(event.target.value))
+    }
+  }
+  const hanlderCantidadProducto = (datos) => {
+    auxProducto[datos.index].cantidadMover = datos.cantidad
+    if (auxProducto[datos.index].stockLotes.length > 0) {
+      if (
+        datos.loteSelecionado !== false &&
+        datos.loteSelecionado !== 'false'
+      ) {
+        auxProducto[datos.index].loteSelecionado = datos.loteSelecionado
+        setLoteSelecionado(false)
+      } else {
+        if (!Number.isFinite(auxProducto[datos.index].loteSelecionado)) {
+          notify.show('Por favor seleccione un Lote', 'warning')
+        }
+      }
+    }
+  }
   return (
     <>
       <TopNavbar />
@@ -271,57 +385,133 @@ const sucursalNuevo = () => {
               </ol>
               {sucursal ? (
                 <div className="row">
-                  <div className="col-lg-4 col-md-5">
+                  <div className="col-lg-5 col-md-5">
                     <div className="card card-static-2 mb-30">
                       <div className="card-title-2">
-                        <h4>Agregar nuevo producto</h4>
+                        <h4>Mover productos entre sucursales</h4>
                       </div>
                       <div className="card-body-table">
+                        <div className="table-responsive">
+                          <table className="table ucp-table table-hover">
+                            <thead>
+                              <tr>
+                                <th>Nombre</th>
+                                <th>Lote</th>
+                                <th>Fecha de vencimiento</th>
+                                <th>Stock</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {auxProducto.length > 0 &&
+                                auxProducto.map((pro, index) => (
+                                  <tr key={index}>
+                                    <td>{pro.producto.name}</td>
+                                    <td>
+                                      <select
+                                        className="form-control"
+                                        defaultValue={false}
+                                        onChange={handleChangeLote}
+                                      >
+                                        <option value={false}>
+                                          Seleccione un lote
+                                        </option>
+                                        {pro.stockLotes.length > 0 ? (
+                                          pro.stockLotes.map(
+                                            (l, index) => (
+                                              <option
+                                                value={index}
+                                                key={index}
+                                              >
+                                                {l.lote
+                                                  ? l.lote.numeroLote
+                                                  : l.numeroLote}
+                                                {' / '}
+                                                Unidades:{'  '}
+                                                {l.lote
+                                                  ? l.lote.stock
+                                                  : l.stock}
+                                                {' / '}
+                                                Vencimiento:
+                                                {moment(
+                                                  l.lote
+                                                    ? l.lote
+                                                        .fechaVencimiento
+                                                    : l.fechaVencimiento
+                                                ).format('LL')}
+                                              </option>
+                                            )
+                                          )
+                                        ) : (
+                                          <option value={false}>
+                                            Sin Lote
+                                          </option>
+                                        )}
+                                      </select>
+                                    </td>
+                                    <td>
+                                      {pro.stockLotes.length > 0
+                                        ? moment(
+                                            pro.stockLotes[0].lote
+                                              ? pro.stockLotes[0].lote
+                                                  .fechaVencimiento
+                                              : pro.stockLotes[0]
+                                                  .fechaVencimiento
+                                          ).format('LL')
+                                        : 'Sin vencimiento'}
+                                    </td>
+                                    <td>
+                                      <input
+                                        type="number"
+                                        style={{ width: '45px' }}
+                                        min="1"
+                                        defaultValue={1}
+                                        onChange={() =>
+                                          hanlderCantidadProducto({
+                                            cantidad: event.target.value,
+                                            index,
+                                            loteSelecionado,
+                                            // fechaCaducidadLoteSeleccionado,
+                                          })
+                                        }
+                                      />
+                                    </td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </div>
                         <div className="news-content-right pd-20">
                           <div className="form-group">
-                            <label className="form-label">Producto*</label>
+                            <label
+                              className="form-label"
+                              htmlFor="categeory"
+                            >
+                              Sucursal destino*
+                            </label>
                             <select
                               id="categeory"
                               name="categeory"
                               className="form-control"
                               defaultValue={'0'}
-                              ref={selectProducto}
-                              onChange={handlerSeleccionarProducto}
+                              onChange={handlerSeleccionarSucursal}
                             >
                               <option value="0">
-                                --Seleecionar Producto--
+                                --Seleecionar una sucursal--
                               </option>
-                              {productos.length > 0
-                                ? productos.map((pro) => (
-                                    <option
-                                      value={[pro._id, pro.precioVenta]}
-                                      key={pro._id}
-                                    >
-                                      {pro.name}
-                                    </option>
-                                  ))
+                              {sucursales.length > 0
+                                ? sucursales.map(
+                                    (su) =>
+                                      idSucursal !== su._id && (
+                                        <option
+                                          value={su._id}
+                                          key={su._id}
+                                        >
+                                          {su.nombre}
+                                        </option>
+                                      )
+                                  )
                                 : ''}
                             </select>
-                          </div>
-                          <div className="form-group">
-                            <label className="form-label">Precio*</label>
-                            <input
-                              disabled={true}
-                              type="text"
-                              className="form-control"
-                              placeholder="0 Bs"
-                              ref={inputPrecio}
-                              defaultValue={inputPrecio.current.value}
-                            />
-                          </div>
-                          <div className="form-group">
-                            <label className="form-label">Cantidad*</label>
-                            <input
-                              type="number"
-                              className="form-control"
-                              placeholder="0"
-                              ref={inputCantidad}
-                            />
                           </div>
 
                           <button
@@ -330,13 +520,13 @@ const sucursalNuevo = () => {
                             onClick={handlerSubmit}
                             disabled={buttonDisable}
                           >
-                            Agregar nuevo producto ala sucursal
+                            Registrar movimiento de productos
                           </button>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="col-lg-8 col-md-7">
+                  <div className="col-lg-7 col-md-7">
                     <div className="all-cate-tags">
                       <div className="row justify-content-between">
                         <div className="col-lg-6 col-md-5">
@@ -347,6 +537,7 @@ const sucursalNuevo = () => {
                                 className="form-control"
                                 placeholder="Buscar Producto (nombre)"
                                 onChange={handleChangeBuscarNombre}
+                                name="buscar nombre"
                               />
                             </div>
                           </div>
@@ -359,6 +550,7 @@ const sucursalNuevo = () => {
                                 className="form-control"
                                 placeholder="Buscar Producto (codigo)"
                                 onChange={handleChangeBuscarCodigo}
+                                name="buscar codigo"
                               />
                             </div>
                           </div>
@@ -379,6 +571,9 @@ const sucursalNuevo = () => {
                               proFilter={proFiltrado}
                               idSucursal={sucursal._id}
                               token={token}
+                              setLotesProducto={setLotesProducto}
+                              setAgregarProducto={setAgregarProducto}
+                              agregarProducto={agregarProducto}
                             />
                           </div>
                         </div>

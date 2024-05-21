@@ -3,16 +3,15 @@ import TopNavbar from '../../components/Navbar'
 import SideNav from '../../components/Navbar/SideNav'
 import Footer from '../../components/Footer'
 import Link from 'next/link'
-import TablaListaPedidos from '../../components/Pedidos/TablaListaPedidos'
+import TablaListaCompra from '../../components/Compras/TablaListaCompra'
 import { useContext, useRef, useState } from 'react'
 import UserContext from '../../components/UserContext'
 import { API_URL } from '../../components/Config'
 import moment from 'moment'
-const Pedidos = () => {
+const ComprasLista = () => {
   moment.locale('es')
   const { getAdmSucursal, signOut, token } = useContext(UserContext)
-  const [pedidos, setPedidos] = useState([])
-  let filtroEstado = false
+  const [compras, setCompras] = useState([])
   const inputId = useRef(null)
   const inputFechaInicio = useRef(null)
   const inputFechaFin = useRef(null)
@@ -22,7 +21,7 @@ const Pedidos = () => {
     else {
       try {
         const res = await fetch(
-          `${API_URL}/pedido/detalle/${inputId.current.value}`,
+          `${API_URL}/compras/${inputId.current.value}`,
           {
             method: 'GET',
             headers: {
@@ -32,11 +31,12 @@ const Pedidos = () => {
           }
         )
         if (res.status === 401) signOut()
-        const resPedido = await res.json()
-        if (resPedido.error) {
-          notify.show('Error al obtener el pedido', 'error')
+        const resCompra = await res.json()
+        if (resCompra.error) {
+          notify.show('Error al obtener la Venta', 'error')
         } else {
-          setPedidos([resPedido.body])
+          setCompras([resCompra.body])
+          console.log(resCompra)
         }
       } catch (error) {
         console.log(error)
@@ -44,13 +44,8 @@ const Pedidos = () => {
       }
     }
   }
-  function handleChangeEstadoPedido() {
-    const value = event.target.value
-    if (value === 'false') filtroEstado = value
-    else filtroEstado = parseInt(value)
-  }
+
   async function handlerFiltrarFecha() {
-    console.log(inputFechaInicio.current.value)
     if (
       inputFechaFin.current.value === '' &&
       inputFechaInicio.current.value === ''
@@ -58,11 +53,11 @@ const Pedidos = () => {
       notify.show('Por favor seleccione un rango de fecha', 'warning')
     else {
       const res = await fetch(
-        `${API_URL}/pedido/filtrar/fecha?fechaInicio=${moment(
+        `${API_URL}/venta?fechaInicio=${moment(
           inputFechaInicio.current.value
-        ).format('YYYY/MM/DD')}&fechaFin=${moment(
+        ).format('DD/MM/YYYY')}&fechaFin=${moment(
           inputFechaFin.current.value
-        ).format('YYYY/MM/DD')}&estado=${filtroEstado}`,
+        ).format('DD/MM/YYYY')}`,
         {
           method: 'GET',
           headers: {
@@ -72,12 +67,12 @@ const Pedidos = () => {
         }
       )
       if (res.status === 401) signOut()
-      const resPedidos = await res.json()
-      if (resPedidos.error) {
-        console.log('Error>>>>', resPedidos)
+      const resVentas = await res.json()
+      if (resVentas.error) {
+        console.log('Error>>>>', resVentas)
         notify.show('Error al mostrar los pedidos', 'error')
       } else {
-        setPedidos(resPedidos.body)
+        setCompras(resVentas.body)
       }
     }
   }
@@ -90,17 +85,19 @@ const Pedidos = () => {
           <main>
             <Notifications options={{ zIndex: 9999, top: '56px' }} />
             <div className="container-fluid">
-              <h2 className="mt-30 page-title">Pedidos</h2>
+              <h2 className="mt-30 page-title">Lista de Compras</h2>
               <ol className="breadcrumb mb-30">
                 <li className="breadcrumb-item">
                   <Link href="/">
                     <a>Tablero</a>
                   </Link>
                 </li>
-                <li className="breadcrumb-item active">Pedidos</li>
+                <li className="breadcrumb-item active">
+                  Lsita de compras anteriores
+                </li>
               </ol>
               <div className="row justify-content-between">
-                <div className="col-lg-4 col-md-4">
+                <div className="col-lg-5 col-md-4">
                   <div className="bulk-section mb-30">
                     <div className="search-by-name-input">
                       <input
@@ -121,29 +118,10 @@ const Pedidos = () => {
                     </div>
                   </div>
                 </div>
-                <div className="col-lg-3 col-md-4">
-                  <div className="bulk-section mb-30">
-                    <div className="input-group">
-                      <select
-                        id="action"
-                        name="action"
-                        className="form-control"
-                        defaultValue={false}
-                        onChange={handleChangeEstadoPedido}
-                      >
-                        <option value={false}>Todos los Estados</option>
-                        <option value={0}>Pendiente</option>
-                        <option value={1}>Preparando</option>
-                        <option value={2}>En camino</option>
-                        <option value={3}>Completo</option>
-                        <option value={4}>Cancelado</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-lg-5 col-md-4">
-                  <div className="bulk-section mb-30">
-                    <div className="form-group">
+
+                <div className="col-lg-6 col-md-4">
+                  <div className="bulk-section mb-25">
+                    <div className="form-group mr-auto">
                       <label className="form-label">Fecha Inicio</label>
                       <input
                         type="date"
@@ -163,16 +141,6 @@ const Pedidos = () => {
                         ref={inputFechaFin}
                       />
                     </div>
-
-                    {/* <div className="input-group-append">
-                      <button
-                        className="status-btn hover-btn"
-                        type="submit"
-                        onClick={handlerFiltrarFecha}
-                      >
-                        Filtrar por fecha
-                      </button>
-                    </div> */}
                   </div>
                 </div>
                 <div className="col-lg-12 col-md-12">
@@ -192,14 +160,14 @@ const Pedidos = () => {
                 <div className="col-lg-12 col-md-12">
                   <div className="card card-static-2 mb-30">
                     <div className="card-title-2">
-                      <h4>Todos los pedidos</h4>
+                      <h4>Todas las Compras</h4>
                     </div>
                     {getAdmSucursal === 'false' ||
                     getAdmSucursal === '0' ||
                     getAdmSucursal === false ? (
                       <h4>Por favor selecione una sucursal</h4>
                     ) : (
-                      <TablaListaPedidos pedidos={pedidos} />
+                      <TablaListaCompra compras={compras} />
                     )}
                   </div>
                 </div>
@@ -212,4 +180,4 @@ const Pedidos = () => {
     </>
   )
 }
-export default Pedidos
+export default ComprasLista

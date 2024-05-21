@@ -226,6 +226,7 @@ const Compras = ({ categorias, marcas }) => {
       const auxDetalle = {
         producto: producto._id,
         cantidad: producto.cantidad,
+        idSucursal: sucursal._id,
       }
       if (producto.lote) auxDetalle.numeroLote = producto.numeroLote
       detalle.push(auxDetalle)

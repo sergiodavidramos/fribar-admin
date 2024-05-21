@@ -46,7 +46,7 @@ export default function Search({ token, setIdAdmin, user = false }) {
     <>
       <div className="autocomplete" style={{ width: '300px' }}>
         <input
-          autocomplete="off"
+          autoComplete="off"
           ref={inputRef}
           id="myInput"
           type="text"
@@ -61,11 +61,10 @@ export default function Search({ token, setIdAdmin, user = false }) {
             className="autocomplete-items"
           >
             {autocompleteState.collections.map((datos, index) => (
-              <ul>
+              <ul key={index}>
                 <li>
                   <a
                     style={{ cursor: 'pointer' }}
-                    key={index}
                     onClick={() =>
                       handlerClick(
                         `${datos.persona[0].nombre_comp} - ${datos.persona[0].ci}`,

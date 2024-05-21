@@ -98,6 +98,7 @@ const sucursalNuevo = () => {
           if (datos.status === 401) signOut()
           if (datos.status === 200) {
             formData.append('imagen', imgParaSubir)
+            console.log('sucursal creado', datos.data)
             const createImgPromise = axios.put(
               `${API_URL}/upload/sucursal/${datos.data.body._id}`,
               formData,
@@ -108,22 +109,11 @@ const sucursalNuevo = () => {
                 },
               }
             )
-            const createInventarioPromise = axios.post(
-              `${API_URL}/inventario`,
-              {
-                sucursal: datos.data.body._id,
-              },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'content-type': 'application/json',
-                },
-              }
-            )
-            Promise.all([createImgPromise, createInventarioPromise])
+
+            Promise.all([createImgPromise])
               .then((dat) => {
                 setEstadoBoton(false)
-                if (dat[0].data.error || dat[1].data.error) {
+                if (dat[0].data.error) {
                   notify.show(dat.data.body, 'error', 2000)
                   setButt(false)
                 } else {
@@ -146,6 +136,7 @@ const sucursalNuevo = () => {
                     2000
                   )
                   setEstadoBoton(false)
+                  console.log('Respuesta de la foto', dat)
                 }
               })
               .catch((err) => {

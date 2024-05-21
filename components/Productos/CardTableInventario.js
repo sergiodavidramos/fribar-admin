@@ -3,12 +3,21 @@ import ReactPaginate from 'react-paginate'
 import Notifications, { notify } from 'react-notify-toast'
 import { useState, useEffect } from 'react'
 import { API_URL } from '../Config'
-const CardTable = ({ proFilter, idSucursal, token }) => {
+import ModelLotes from '../sucursal/modelLotes'
+const CardTable = ({
+  proFilter,
+  idSucursal,
+  token,
+  setLotesProducto,
+  setAgregarProducto,
+  agregarProducto,
+}) => {
   const [product, setProduct] = useState(false)
   const [pageState, setPageState] = useState(0)
   const [count, setCount] = useState(0)
+
   async function paginationHandler(page) {
-    setPageState(page.selected)
+    setPageState(page.selected + 1)
   }
   useEffect(() => {
     if (!proFilter) {
@@ -26,8 +35,9 @@ const CardTable = ({ proFilter, idSucursal, token }) => {
         .then((data) => {
           if (data.error) {
             notify.show('Error el en servidor', 'error')
+            console.log(data)
           } else {
-            setProduct(data.body[0][0].allProducts)
+            setProduct(data.body[0])
             setCount(data.body[1][0].totalProductos)
           }
         })
@@ -39,50 +49,58 @@ const CardTable = ({ proFilter, idSucursal, token }) => {
   }, [proFilter, pageState])
 
   return (
-    <div className="card-body-table">
-      <Notifications options={{ zIndex: 9999, top: '56px' }} />
-      <div className="table-responsive">
-        <table className="table ucp-table table-hover">
-          <thead>
-            <tr>
-              <th style={{ width: '60px' }}>Código</th>
-              <th style={{ width: '100px' }}>Imagen</th>
-              <th>Nombre</th>
-              <th>Fecha de vencimiento</th>
-              <th>Estado</th>
-              <th>Stock</th>
-              <th>Accion</th>
-            </tr>
-          </thead>
-          <tbody>
-            {!product ? (
+    <>
+      <div className="card-body-table">
+        <Notifications options={{ zIndex: 9999, top: '56px' }} />
+        <div className="table-responsive">
+          <table className="table ucp-table table-hover">
+            <thead>
               <tr>
-                <td>...</td>
+                <th style={{ width: '60px' }}>Código</th>
+                <th style={{ width: '100px' }}>Imagen</th>
+                <th>Nombre</th>
+                <th>Fecha de vencimiento</th>
+                <th>Estado</th>
+                <th>Stock</th>
+                <th>Accion</th>
               </tr>
-            ) : (
-              product.map((pro, index) => (
-                <FilaInventario key={index} pro={pro} />
-              ))
-            )}
-          </tbody>
-        </table>
-        <div className="pages">
-          <ReactPaginate
-            previousLabel={'previous'}
-            nextLabel={'next'}
-            breakLabel={'...'}
-            breakClassName={'break-me'}
-            activeClassName={'active-page'}
-            containerClassName={'pagination'}
-            initialPage={0}
-            pageCount={count / 10}
-            marginPagesDisplayed={3}
-            pageRangeDisplayed={5}
-            onPageChange={paginationHandler}
-          />
+            </thead>
+            <tbody>
+              {!product ? (
+                <tr>
+                  <td>...</td>
+                </tr>
+              ) : (
+                product.map((pro, index) => (
+                  <FilaInventario
+                    key={index}
+                    pro={pro}
+                    setLotesProducto={setLotesProducto}
+                    setAgregarProducto={setAgregarProducto}
+                    agregarProducto={agregarProducto}
+                  />
+                ))
+              )}
+            </tbody>
+          </table>
+          <div className="pages">
+            <ReactPaginate
+              previousLabel={'Anterior'}
+              nextLabel={'Siguiente'}
+              breakLabel={'...'}
+              breakClassName={'break-me'}
+              activeClassName={'active-page'}
+              containerClassName={'pagination'}
+              initialPage={0}
+              pageCount={count / 10}
+              marginPagesDisplayed={3}
+              pageRangeDisplayed={5}
+              onPageChange={paginationHandler}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

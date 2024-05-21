@@ -5,7 +5,7 @@ import Footer from '../../components/Footer'
 import Link from 'next/link'
 import Notifications from 'react-notify-toast'
 import FormularioAgregarProducto from '../../components/Productos/FormularioAgregarProducto'
-
+import { API_URL } from '../../components/Config'
 const ProductoNuevo = ({ categorias, marcas }) => {
   return (
     <>
@@ -50,11 +50,9 @@ const ProductoNuevo = ({ categorias, marcas }) => {
 
 export async function getStaticProps() {
   try {
-    const res = await fetch('http://localhost:3001/categoria?status=true')
+    const res = await fetch(`${API_URL}/categoria?status=true`)
     const categorias = await res.json()
-    const mar = await fetch(
-      'http://localhost:3001/proveedor/all?status=true'
-    )
+    const mar = await fetch(`${API_URL}/proveedor/all?status=true`)
     const marcas = await mar.json()
 
     return {

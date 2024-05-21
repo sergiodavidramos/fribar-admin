@@ -57,7 +57,7 @@ const Venta = () => {
       )
         .then((res) => res.json())
         .then((data) => {
-          if (data.error) notify.show(data.body.message, 'error')
+          if (data.error) notify.show(data.body, 'error')
           else {
             if (data.body !== null) {
               setBuscarText('')
@@ -67,7 +67,7 @@ const Venta = () => {
                   const producto = d.producto[0]
                   const categoria = d.category[0]
                   producto.category = categoria
-                  producto.stock = d.allProducts.stock
+                  producto.stock = d.stockTotal
                   pro = { producto }
                 }
                 arrayHandlerProduct(pro)
@@ -77,14 +77,14 @@ const Venta = () => {
                   const producto = d.producto[0]
                   const categoria = d.category[0]
                   producto.category = categoria
-                  producto.stock = d.allProducts.stock
+                  producto.stock = d.stockTotal
                   //   pro.push({ producto })
                   pro = { producto }
                 }
+
                 pro.producto.cantidad = 1
                 setProductFilter([pro.producto])
                 notify.show(`Producto Agregado`, 'success', 1000)
-                console.log('SSS', pro)
                 const precioConDescuento =
                   pro.producto.precioVenta -
                   (pro.producto.descuento * pro.producto.precioVenta) / 100
@@ -101,8 +101,6 @@ const Venta = () => {
           }
         })
         .catch((err) => console.log('Errorrrrr', err))
-    } else {
-      setProductFilter(null)
     }
   }
 
@@ -265,8 +263,8 @@ const Venta = () => {
             : producto.cantidad * producto.precioVenta,
         tipoVenta: producto.tipoVenta,
         precioVenta: producto.precioVenta,
-        nombreProducto: producto.name,
         descuento: producto.descuento,
+        idSucursal: sucursal._id,
       }
       detalle.push(auxDetalle)
     }
