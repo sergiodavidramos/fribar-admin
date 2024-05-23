@@ -1,8 +1,9 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import UserContext from '../UserContext'
 import Link from 'next/link'
 import { API_URL } from '../Config'
-export default () => {
+var sucursalElegido = ''
+const TopNavbar = () => {
   const {
     signOut,
     setSitNav,
@@ -14,6 +15,7 @@ export default () => {
     getSucursales,
     token,
   } = useContext(UserContext)
+  const [nobreSucursal, setNombreSucursal] = useState(false)
 
   function handlerSid() {
     sid ? setSitNav(false) : setSitNav(true)
@@ -24,6 +26,7 @@ export default () => {
     }
   }
   async function getSurcursalesServer(token) {
+    let sucursalEncontrado = false
     try {
       const sucursalesServer = await fetch(`${API_URL}/sucursal/all`, {
         method: 'GET',
@@ -36,6 +39,12 @@ export default () => {
       if (det.error) alert('Error al obtener las sucursales')
       else {
         setSucursales(det.body)
+        if (sucursalElegido !== '0') {
+          sucursalEncontrado = det.body.find(
+            (sucursal) => sucursal._id === sucursalElegido
+          )
+          setNombreSucursal(sucursalEncontrado.nombre)
+        }
       }
     } catch (error) {
       alert(error.message)
@@ -44,6 +53,7 @@ export default () => {
 
   useEffect(() => {
     if (token && user.role === 'GERENTE-ROLE') {
+      sucursalElegido = localStorage.getItem('fribar-sucursal')
       getSurcursalesServer(token)
     } else {
       if (user) setAdmSucursal(user.idSucursal)
@@ -62,7 +72,9 @@ export default () => {
                 onChange={handlerSetSucursal}
                 defaultValue={getAdmSucursal}
               >
-                <option value={0}>Todas las sucursales</option>
+                <option value={0}>
+                  {nobreSucursal ? nobreSucursal : 'Todas las sucursales'}
+                </option>
                 {getSucursales.map((suc) => (
                   <option value={suc._id} key={suc._id}>
                     {suc.nombre} - {suc.direccion.direccion} -{' '}
@@ -143,3 +155,4 @@ export default () => {
     </nav>
   )
 }
+export default TopNavbar

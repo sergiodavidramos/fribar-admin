@@ -5,11 +5,343 @@ import Link from 'next/link'
 import Notifications, { notify } from 'react-notify-toast'
 import { useState, useEffect, useContext, useRef } from 'react'
 import UserContext from '../components/UserContext'
-var map
+import VentasDiaMes from '../components/Reportes/VentasDiaMes'
+import { API_URL } from '../components/Config'
+import ProductosMasVendidos from '../components/Reportes/ProductosMasVendidos'
+import IngresosSucursal from '../components/Reportes/Ingresos'
+import EgresosSucursal from '../components/Reportes/Egresos'
+import PocoStock from '../components/Reportes/PocoStock'
+import ProductosVencimiento from '../components/Reportes/ProductosVencimiento'
+import ReporteInventario from '../components/Reportes/ReporteInventario'
+import TrasladoProductos from '../components/Reportes/TrasladoProductos'
 const Reportes = () => {
+  const { getAdmSucursal, token, user } = useContext(UserContext)
+  const [reporteSeleccionado, setReporteSeleccionado] = useState('0')
+  const [sucursales, setSucursales] = useState([])
+  const [sucursalSeleccionado, setSucursalSeleccionado] = useState(false)
+  const [datosReporte, setDatosReporte] = useState([])
+
+  const fechaInicio = useRef()
+  const fechaFin = useRef()
+  const cantidadProductos = useRef()
+  const cantidadDias = useRef()
+
+  const handlerReporteSelecionado = () => {
+    if (event.target.value) {
+      setReporteSeleccionado(event.target.value)
+    }
+  }
+  useEffect(() => {
+    setSucursalSeleccionado(getAdmSucursal)
+    if (user && user.role === 'GERENTE-ROLE') {
+      getSurcursalesServer(token)
+    }
+  }, [user, getAdmSucursal])
+  async function getSurcursalesServer(token) {
+    try {
+      const sucursalesServer = await fetch(`${API_URL}/sucursal/all`, {
+        method: 'GET',
+        headers: {
+          Authorization: 'Bearer ' + token,
+          'Content-Type': 'application/json',
+        },
+      })
+      const det = await sucursalesServer.json()
+      if (det.error) alert('Error al obtener las sucursales')
+      else {
+        setSucursales(det.body)
+      }
+    } catch (error) {
+      alert(error.message)
+    }
+  }
+  function handlerSeleccionarSucursal() {
+    if (event.target.value === '0') {
+      setSucursalSeleccionado(getAdmSucursal)
+    }
+    if (event.target.value && event.target.value != '0') {
+      setSucursalSeleccionado(event.target.value)
+    }
+  }
+  function generarReporte() {
+    if (
+      reporteSeleccionado === '4' ||
+      reporteSeleccionado === '5' ||
+      reporteSeleccionado === '6' ||
+      fechaInicio.current.value === '' ||
+      fechaFin.current.value === ''
+    ) {
+      switch (reporteSeleccionado) {
+        case '4':
+          reportePocoStockProductos(
+            sucursalSeleccionado,
+            token,
+            cantidadProductos.current.value
+          )
+          break
+        case '5':
+          reporteProductosVencimiento(
+            sucursalSeleccionado,
+            token,
+            cantidadDias.current.value
+          )
+          break
+        case '6':
+          reporteInventario(sucursalSeleccionado, token)
+          break
+        default: {
+          notify.show('El rango de fechas es necesario', 'warning')
+        }
+      }
+    } else {
+      switch (reporteSeleccionado) {
+        case '1':
+          reporteProductoMasVendido(
+            sucursalSeleccionado,
+            token,
+            fechaInicio.current.value,
+            fechaFin.current.value
+          )
+          break
+        case '2':
+          reporteIngresosSucursal(
+            sucursalSeleccionado,
+            token,
+            fechaInicio.current.value,
+            fechaFin.current.value
+          )
+          break
+        case '3':
+          reporteEgresosSucursal(
+            sucursalSeleccionado,
+            token,
+            fechaInicio.current.value,
+            fechaFin.current.value
+          )
+          break
+        case '7':
+          reporteMovimientoProductos(
+            sucursalSeleccionado,
+            token,
+            fechaInicio.current.value,
+            fechaFin.current.value
+          )
+          break
+      }
+    }
+  }
+
+  async function reporteProductoMasVendido(
+    idSucursal,
+    token,
+    fechaInicio,
+    fechaFin
+  ) {
+    try {
+      const datos = await fetch(
+        `${API_URL}/detalle/reporte/productos-mas-vendidos/${idSucursal}?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      const produtosMasVendidos = await datos.json()
+      if (produtosMasVendidos.error)
+        notify.show('Error en la peticion de productos', 'error')
+      else {
+        setDatosReporte(produtosMasVendidos.body)
+      }
+    } catch (error) {
+      notify.show('Error al obtener los datos de productos mas vendidos')
+      console.log(error)
+    }
+  }
+  async function reporteIngresosSucursal(
+    idSucursal,
+    token,
+    fechaInicio,
+    fechaFin
+  ) {
+    try {
+      const datos = await fetch(
+        `${API_URL}/detalle/reporte/ingresos/${idSucursal}?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      const ingresosSucursal = await datos.json()
+      if (ingresosSucursal.error)
+        notify.show('Error en la peticion de ingresos', 'error')
+      else {
+        setDatosReporte(ingresosSucursal.body)
+      }
+    } catch (error) {
+      notify.show('Error en el servidor al obtener los datos de ingresos')
+      console.log(error)
+    }
+  }
+  async function reporteEgresosSucursal(
+    idSucursal,
+    token,
+    fechaInicio,
+    fechaFin
+  ) {
+    try {
+      const datos = await fetch(
+        `${API_URL}/compras/reporte/egresos/${idSucursal}?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      const egresosSucursal = await datos.json()
+      if (egresosSucursal.error)
+        notify.show('Error en la peticion de Egresos', 'error')
+      else {
+        setDatosReporte(egresosSucursal.body)
+      }
+    } catch (error) {
+      notify.show('Error en el servidor al obtener los datos de Egresos')
+      console.log(error)
+    }
+  }
+  async function reportePocoStockProductos(
+    idSucursal,
+    token,
+    cantidad = 5
+  ) {
+    try {
+      const datos = await fetch(
+        `${API_URL}/inventario/reporte/productos-poco-stock/${idSucursal}?cantidad=${cantidad}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      const productosPocaCantidad = await datos.json()
+      if (productosPocaCantidad.error)
+        notify.show(
+          'Error en la peticion de Poco stock de Productos',
+          'error'
+        )
+      else {
+        setDatosReporte(productosPocaCantidad.body)
+      }
+    } catch (error) {
+      notify.show(
+        'Error en el servidor al obtener los datos de poco Stock'
+      )
+      console.log(error)
+    }
+  }
+  async function reporteProductosVencimiento(
+    idSucursal,
+    token,
+    dias = 15
+  ) {
+    try {
+      const datos = await fetch(
+        `${API_URL}/inventario/reporte/productos/caducidad/${idSucursal}?dias=${dias}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      const productosCaducidad = await datos.json()
+      if (productosCaducidad.error)
+        notify.show(
+          'Error en la peticion de Poco stock de Productos',
+          'error'
+        )
+      else {
+        setDatosReporte(productosCaducidad.body)
+      }
+    } catch (error) {
+      notify.show(
+        'Error en el servidor al obtener los datos de poco Stock'
+      )
+      console.log(error)
+    }
+  }
+  async function reporteInventario(idSucursal, token) {
+    try {
+      const datos = await fetch(
+        `${API_URL}/inventario/reporte/inventario/${idSucursal}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      const inventario = await datos.json()
+      if (inventario.error)
+        notify.show(
+          'Error en la peticion de Poco stock de Productos',
+          'error'
+        )
+      else {
+        setDatosReporte(inventario.body)
+      }
+    } catch (error) {
+      notify.show(
+        'Error en el servidor al obtener los datos de poco Stock'
+      )
+      console.log(error)
+    }
+  }
+  async function reporteMovimientoProductos(
+    idSucursal,
+    token,
+    fechaInicio,
+    fechaFin
+  ) {
+    try {
+      const datos = await fetch(
+        `${API_URL}/movimiento-productos/reporte/movimiento/${idSucursal}?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      const traslados = await datos.json()
+      if (traslados.error)
+        notify.show(
+          'Error en la peticion de Poco stock de Productos',
+          'error'
+        )
+      else {
+        setDatosReporte(traslados.body)
+      }
+    } catch (error) {
+      notify.show(
+        'Error en el servidor al obtener los datos de poco Stock'
+      )
+      console.log(error)
+    }
+  }
   return (
     <>
-      {/* <Model id={id} token={token} notify={notify} ofertas={true} /> */}
       <TopNavbar />
       <div id="layoutSidenav">
         <SideNav />
@@ -17,7 +349,7 @@ const Reportes = () => {
           <main>
             <Notifications options={{ zIndex: 9999, top: '56px' }} />
             <div className="container-fluid">
-              <h2 className="mt-30 page-title">Entrega general</h2>
+              <h2 className="mt-30 page-title">Generador de reportes</h2>
               <ol className="breadcrumb mb-30">
                 <li className="breadcrumb-item">
                   <Link href={'/'}>
@@ -40,62 +372,128 @@ const Reportes = () => {
                             id="categeory"
                             name="categeory"
                             className="form-control"
-                            defaultValue={'0'}
+                            defaultValue={reporteSeleccionado}
+                            onChange={handlerReporteSelecionado}
                           >
                             <option value="0">
                               --Seleccione un tipo de reporte--
                             </option>
-                            <option value="1">Reort 1</option>
-                            <option value="2">Reort 2</option>
-                            <option value="3">Reort 3</option>
-                            <option value="4">Reort 4</option>
-                            <option value="5">Reort 5</option>
+                            <option value="1">
+                              Reporte para obtener los productos mas
+                              vendidos
+                            </option>
+                            <option value="2">
+                              Reporte para obtener todos los Ingresos
+                            </option>
+                            <option value="3">
+                              Reporte para obtener todos los Egresos
+                            </option>
+                            <option value="4">
+                              Reporte para obtener los Productos con poca
+                              cantidad es Stock
+                            </option>
+                            <option value="5">
+                              Reporte para obtener los Productos Proximos a
+                              vencer
+                            </option>
+                            <option value="6">
+                              Reporte para obtener el Inventario
+                            </option>
+                            <option value="7">
+                              Reporte de traslado de Productos
+                            </option>
                           </select>
                         </div>
-                        <div className="form-group">
-                          <label className="form-label">
-                            Seleccionar Sucursal*
-                          </label>
-                          <select
-                            id="categeory"
-                            name="categeory"
-                            className="form-control"
-                          >
-                            <option value="0">--sucursales--</option>
-                            {/* <option value="1">Reort 1</option>
-                            <option value="2">Reort 2</option>
-                            <option value="3">Reort 3</option>
-                            <option value="4">Reort 4</option>
-                            <option value="5">Reort 5</option> */}
-                          </select>
-                        </div>
+                        {user && user.role === 'GERENTE-ROLE' ? (
+                          <div className="form-group">
+                            <label className="form-label">
+                              Seleccionar Sucursal*
+                            </label>
+                            <select
+                              id="categeory"
+                              name="categeory"
+                              className="form-control"
+                              defaultValue={'0'}
+                              onChange={handlerSeleccionarSucursal}
+                            >
+                              <option value="0">--sucursales--</option>
+                              {sucursales.map((sucursal, index) => (
+                                <option key={index} value={sucursal._id}>
+                                  {sucursal.nombre}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          ''
+                        )}
 
-                        <div className="form-group">
-                          <label className="form-label">
-                            Inicio de fecha*
-                          </label>
-                          <input
-                            type="date"
-                            className="form-control datepicker-here"
-                            data-language="en"
-                            placeholder="Fecha inicio"
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label className="form-label">
-                            Fin de fecha*
-                          </label>
-                          <input
-                            type="date"
-                            className="form-control datepicker-here"
-                            data-language="en"
-                            placeholder="Fecha limite"
-                            onChange={(e) => console.log(e.target.value)}
-                          />
-                        </div>
+                        {(reporteSeleccionado === '1' ||
+                          reporteSeleccionado === '2' ||
+                          reporteSeleccionado === '3' ||
+                          reporteSeleccionado === '7') && (
+                          <>
+                            <div className="form-group">
+                              <label className="form-label">
+                                Inicio de fecha*
+                              </label>
+                              <input
+                                type="date"
+                                className="form-control datepicker-here"
+                                data-language="es"
+                                placeholder="Fecha inicio"
+                                ref={fechaInicio}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label className="form-label">
+                                Fin de fecha*
+                              </label>
+                              <input
+                                type="date"
+                                className="form-control datepicker-here"
+                                data-language="es"
+                                placeholder="Fecha limite"
+                                ref={fechaFin}
+                              />
+                            </div>
+                          </>
+                        )}
+                        {reporteSeleccionado === '4' && (
+                          <div className="form-group">
+                            <label className="form-label">
+                              Productos con Stock Menor que:*
+                            </label>
+                            <input
+                              type="Number"
+                              className="form-control datepicker-here"
+                              data-language="es"
+                              placeholder="Cantidad productos"
+                              ref={cantidadProductos}
+                              defaultValue={5}
+                            />
+                          </div>
+                        )}
+                        {reporteSeleccionado === '5' && (
+                          <div className="form-group">
+                            <label className="form-label">
+                              Productos con fecha de vencimiento menor
+                              que:*
+                            </label>
+                            <input
+                              type="Number"
+                              className="form-control datepicker-here"
+                              data-language="es"
+                              placeholder="Cantidad dias"
+                              ref={cantidadDias}
+                              defaultValue={15}
+                            />
+                          </div>
+                        )}
                         <button
                           className="save-btn hover-btn"
                           type="submit"
+                          onClick={generarReporte}
                         >
                           Filtro de busqueda
                         </button>
@@ -107,196 +505,33 @@ const Reportes = () => {
                   <div className="all-cate-tags">
                     <div className="row">
                       <div className="col-lg-12 col-md-12">
-                        <div className="card card-static-2 mb-30">
-                          <div className="card-title-2">
-                            <h4>Ventas por hora</h4>
-                          </div>
-                          <div className="card-body-table">
-                            <div className="table-responsive">
-                              <table className="table ucp-table table-hover">
-                                <thead>
-                                  <tr>
-                                    <th>Horas</th>
-                                    <th>Pedidos totales</th>
-                                    <th>Ventas totales</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {/* <tr>
-                                    <td>00.00</td>
-                                    <td>5</td>
-                                    <td>$50</td>
-                                  </tr>
-                                  <tr>
-                                    <td>01.00</td>
-                                    <td>4</td>
-                                    <td>$35</td>
-                                  </tr>
-                                  <tr>
-                                    <td>02.00</td>
-                                    <td>1</td>
-                                    <td>$13</td>
-                                  </tr>
-                                  <tr>
-                                    <td>03.00</td>
-                                    <td>8</td>
-                                    <td>$150</td>
-                                  </tr>
-                                  <tr>
-                                    <td>04.00</td>
-                                    <td>4</td>
-                                    <td>$45</td>
-                                  </tr>
-                                  <tr>
-                                    <td>05.00</td>
-                                    <td>7</td>
-                                    <td>$80</td>
-                                  </tr> */}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                          <div className="card-body-table-footer">
-                            <ul>
-                              {/* <li>
-                                <button className="download-btn hover-btn">
-                                  Download JPG
-                                </button>
-                              </li>
-                              <li>
-                                <button className="download-btn hover-btn">
-                                  Download PNG
-                                </button>
-                              </li> */}
-                              <li>
-                                <button className="download-btn hover-btn">
-                                  Esportar en exel
-                                </button>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="card card-static-2 mb-30">
-                          <div className="card-title-2">
-                            <h4>Ventas por dia</h4>
-                          </div>
-                          <div className="card-body-table">
-                            <div className="table-responsive">
-                              <table className="table ucp-table table-hover">
-                                <thead>
-                                  <tr>
-                                    <th>Año</th>
-                                    <th>Mes</th>
-                                    <th>Dia</th>
-                                    <th>Pedidos totales</th>
-                                    <th>Ventas Totales</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {/* <tr>
-                                    <td>2020</td>
-                                    <td>5</td>
-                                    <td>15</td>
-                                    <td>25</td>
-                                    <td>$523</td>
-                                  </tr>
-                                  <tr>
-                                    <td>2020</td>
-                                    <td>4</td>
-                                    <td>20</td>
-                                    <td>32</td>
-                                    <td>$723</td>
-                                  </tr> */}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                          <div className="card-body-table-footer">
-                            <ul>
-                              <li>
-                                <button className="download-btn hover-btn">
-                                  Export to Excel
-                                </button>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="card card-static-2 mb-30">
-                          <div className="card-title-2">
-                            <h4>Ventas por mes</h4>
-                          </div>
-                          <div className="card-body-table">
-                            <div className="table-responsive">
-                              <table className="table ucp-table table-hover">
-                                <thead>
-                                  <tr>
-                                    <th>Año</th>
-                                    <th>Mes</th>
-                                    <th>Pedodos Totales</th>
-                                    <th>Ventas totales</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {/* <tr>
-                                    <td>2020</td>
-                                    <td>5</td>
-                                    <td>400</td>
-                                    <td>$25523</td>
-                                  </tr>
-                                  <tr>
-                                    <td>2020</td>
-                                    <td>4</td>
-                                    <td>250</td>
-                                    <td>$10723</td>
-                                  </tr> */}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                          <div className="card-body-table-footer">
-                            <ul>
-                              <li>
-                                <button className="download-btn hover-btn">
-                                  Export to Excel
-                                </button>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="card card-static-2 mb-30">
-                          <div className="card-title-2">
-                            <h4>Sucursales mas vendidas</h4>
-                          </div>
-                          <div className="card-body-table">
-                            <div className="table-responsive">
-                              <table className="table ucp-table table-hover">
-                                <thead>
-                                  <tr>
-                                    <th>Nombre</th>
-                                    <th>Pedidos totales</th>
-                                    <th>Ventas Totales</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {/* <tr>
-                                    <td>Ludhiana</td>
-                                    <td>2530</td>
-                                    <td>$125523</td>
-                                  </tr> */}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                          <div className="card-body-table-footer">
-                            <ul>
-                              <li>
-                                <button className="download-btn hover-btn">
-                                  Export to Excel
-                                </button>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
+                        {reporteSeleccionado === '0' && (
+                          <VentasDiaMes
+                            adminSucursal={getAdmSucursal}
+                            token={token}
+                          />
+                        )}
+                        {reporteSeleccionado === '1' && (
+                          <ProductosMasVendidos productos={datosReporte} />
+                        )}
+                        {reporteSeleccionado === '2' && (
+                          <IngresosSucursal ingresos={datosReporte} />
+                        )}
+                        {reporteSeleccionado === '3' && (
+                          <EgresosSucursal egresos={datosReporte} />
+                        )}
+                        {reporteSeleccionado === '4' && (
+                          <PocoStock productos={datosReporte} />
+                        )}
+                        {reporteSeleccionado === '5' && (
+                          <ProductosVencimiento productos={datosReporte} />
+                        )}
+                        {reporteSeleccionado === '6' && (
+                          <ReporteInventario productos={datosReporte} />
+                        )}
+                        {reporteSeleccionado === '7' && (
+                          <TrasladoProductos traslados={datosReporte} />
+                        )}
                       </div>
                     </div>
                   </div>
