@@ -8,6 +8,7 @@ import { useState, useEffect, useContext } from 'react'
 import UserContext from '../../components/UserContext'
 import Model from '../../components/Model'
 import GetImg from '../../components/GetImg'
+import { API_URL } from '../../components/Config'
 const Clientes = () => {
   const [token, setToken] = useState(false)
   const { signOut } = useContext(UserContext)
@@ -20,16 +21,13 @@ const Clientes = () => {
     setPageState(page.selected)
   }
   function getUserAPi(tokenLocal) {
-    fetch(
-      `http://localhost:3001/user?desde=${pageState * 10}&limite=${10}`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${tokenLocal}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+    fetch(`${API_URL}/user?desde=${pageState * 10}&limite=${10}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${tokenLocal}`,
+        'Content-Type': 'application/json',
+      },
+    })
       .then((res) => {
         if (res.status === 401) {
           signOut()
@@ -71,9 +69,9 @@ const Clientes = () => {
   function handleChangeClientes() {
     if (event.target.value !== '0') {
       fetch(
-        `http://localhost:3001/user?desde=${
-          pageState * 10
-        }&limite=${10}&state=${event.target.value}`,
+        `${API_URL}/user?desde=${pageState * 10}&limite=${10}&state=${
+          event.target.value
+        }`,
         {
           method: 'GET',
           headers: {
@@ -107,7 +105,7 @@ const Clientes = () => {
   function handlerSubmit() {
     event.preventDefault()
     if (event.target[0].value !== '') {
-      fetch(`http://localhost:3001/user/buscar/${event.target[0].value}`, {
+      fetch(`${API_URL}/user/buscar/${event.target[0].value}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -228,7 +226,7 @@ const Clientes = () => {
                                       <img
                                         src={GetImg(
                                           cli.img,
-                                          'http://localhost:3001/upload/user'
+                                          `${API_URL}/upload/user`
                                         )}
                                         alt="cliente-fribar"
                                       />

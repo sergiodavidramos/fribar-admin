@@ -8,6 +8,7 @@ import Notifications, { notify } from 'react-notify-toast'
 import FormData from 'form-data'
 import UserContext from '../../components/UserContext'
 import { useRouter } from 'next/router'
+import { API_URL } from '../../components/Config'
 const CategoriaNuevo = () => {
   const router = useRouter()
   const [token, setToken] = useState(false)
@@ -32,7 +33,7 @@ const CategoriaNuevo = () => {
     if (!image) {
       setButt(true)
       formData.append('imagen', imageUpload)
-      fetch(`http://localhost:3001/categoria/${categoriaUpload._id}`, {
+      fetch(`${API_URL}/categoria/${categoriaUpload._id}`, {
         method: 'PATCH',
         body: JSON.stringify({
           name: target[0].value,
@@ -67,37 +68,31 @@ const CategoriaNuevo = () => {
     } else {
       setButt(true)
       formData.append('imagen', imageUpload)
-      fetch(
-        `http://localhost:3001/upload/categoria/${categoriaUpload._id}`,
-        {
-          method: 'PUT',
-          body: formData,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      fetch(`${API_URL}/upload/categoria/${categoriaUpload._id}`, {
+        method: 'PUT',
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
         .then((response) => response.json())
         .then((response) => {
           if (response.error) {
             notify.show(response.body, 'error', 2000)
             setButt(false)
           } else {
-            fetch(
-              `http://localhost:3001/categoria/${categoriaUpload._id}`,
-              {
-                method: 'PATCH',
-                body: JSON.stringify({
-                  name: target[0].value,
-                  status: target[1].value,
-                  description: target[2].value,
-                }),
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-              }
-            )
+            fetch(`${API_URL}/categoria/${categoriaUpload._id}`, {
+              method: 'PATCH',
+              body: JSON.stringify({
+                name: target[0].value,
+                status: target[1].value,
+                description: target[2].value,
+              }),
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            })
               .then((res) => {
                 if (res.status === 401) signOut()
                 return res.json()
@@ -241,7 +236,7 @@ const CategoriaNuevo = () => {
                                       src={
                                         image
                                           ? image
-                                          : `http://localhost:3001/upload/categoria/${categoriaUpload.img}`
+                                          : `${API_URL}/upload/categoria/${categoriaUpload.img}`
                                       }
                                       alt="Imagen de Categoria frifolly"
                                     />

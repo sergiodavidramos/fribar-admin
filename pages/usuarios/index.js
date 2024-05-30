@@ -7,13 +7,14 @@ import { useState, useEffect, useContext } from 'react'
 import UserContext from '../../components/UserContext'
 import Model from '../../components/Model'
 import GetImg from '../../components/GetImg'
+import { API_URL } from '../../components/Config'
 const Users = () => {
   const [token, setToken] = useState(false)
   const { signOut } = useContext(UserContext)
   const [usuarios, setUsuarios] = useState(false)
   const [id, setId] = useState(null)
   function getUserAPi(tokenLocal) {
-    fetch(`http://localhost:3001/user/role`, {
+    fetch(`${API_URL}/user/role`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${tokenLocal}`,
@@ -55,7 +56,7 @@ const Users = () => {
   }
   function handleChangeClientes() {
     if (event.target.value !== '0') {
-      fetch(`http://localhost:3001/user/role?role=${event.target.value}`, {
+      fetch(`${API_URL}/user/role?role=${event.target.value}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -158,7 +159,7 @@ const Users = () => {
                                       <img
                                         src={GetImg(
                                           cli.img,
-                                          'http://localhost:3001/upload/user'
+                                          `${API_URL}/upload/user`
                                         )}
                                         alt="cliente-fribar"
                                       />

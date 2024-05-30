@@ -7,17 +7,15 @@ import Link from 'next/link'
 import Notifications, { notify } from 'react-notify-toast'
 import { useState, useContext } from 'react'
 import UserContext from '../../components/UserContext'
+import { API_URL } from '../../components/Config'
 export default function Productos() {
   const [proFiltrado, setProFiltrado] = useState(null)
   const { categorias, token } = useContext(UserContext)
   const handleChangeBuscarNombre = () => {
     if (event.target.value) {
-      fetch(
-        `http://localhost:3001/productos/buscar/${event.target.value}`,
-        {
-          method: 'GET',
-        }
-      )
+      fetch(`${API_URL}/productos/buscar/${event.target.value}`, {
+        method: 'GET',
+      })
         .then((res) => res.json())
         .then((data) => {
           if (data.error) {
@@ -33,7 +31,7 @@ export default function Productos() {
   }
   const handleChangeCategory = () => {
     if (event.target.value !== '0') {
-      fetch(`http://localhost:3001/productos/${event.target.value}`, {
+      fetch(`${API_URL}/productos/${event.target.value}`, {
         method: 'GET',
       })
         .then((res) => res.json())
@@ -54,7 +52,7 @@ export default function Productos() {
   const handleChangeBuscarCodigo = () => {
     if (event.target.value) {
       fetch(
-        `http://localhost:3001/productos/codigoproducto?code=${event.target.value}`,
+        `${API_URL}/productos/codigoproducto?code=${event.target.value}`,
         {
           method: 'GET',
           headers: {

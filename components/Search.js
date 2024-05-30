@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useRef, useState } from 'react'
 import { notify } from 'react-notify-toast'
+import { API_URL } from './Config'
 export default function Search({ token, setIdAdmin, user = false }) {
   const [autocompleteState, setAutocompleteState] = useState({
     collections: [],
@@ -11,7 +12,7 @@ export default function Search({ token, setIdAdmin, user = false }) {
   async function handlerSearch() {
     if (event.target.value && token) {
       const u = await axios.get(
-        `http://localhost:3001/user?ci=${event.target.value}`,
+        `${API_URL}/user?ci=${event.target.value}`,
         {
           headers: { Authorization: 'Bearer ' + token },
           'content-type': 'application/json',

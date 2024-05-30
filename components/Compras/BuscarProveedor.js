@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useRef, useState } from 'react'
 import { notify } from 'react-notify-toast'
+import { API_URL } from '../Config'
 export default function BuscarProveedor({ token, setIdProveedor }) {
   const [autocompleteState, setAutocompleteState] = useState({
     collections: [],
@@ -11,7 +12,7 @@ export default function BuscarProveedor({ token, setIdProveedor }) {
   async function handlerSearch() {
     if (event.target.value && token) {
       const u = await axios.get(
-        `http://localhost:3001/proveedor/buscar/termino?termino=${event.target.value}`,
+        `${API_URL}/proveedor/buscar/termino?termino=${event.target.value}`,
         {
           headers: { Authorization: 'Bearer ' + token },
           'content-type': 'application/json',

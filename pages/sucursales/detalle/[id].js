@@ -9,7 +9,7 @@ import GetImg from '../../../components/GetImg'
 import mapboxgl from 'mapbox-gl'
 import { useRouter } from 'next/router'
 import axios from 'axios'
-import { mapboxglAccessToken } from '../../../components/Config'
+import { mapboxglAccessToken, API_URL } from '../../../components/Config'
 const viewSucursal = () => {
   const { signOut } = useContext(UserContext)
   const [sucursal, setSucursales] = useState(false)
@@ -30,7 +30,7 @@ const viewSucursal = () => {
       if (router && router.query && router.query.id) {
         const { id } = router.query
         axios
-          .get(`http://localhost:3001/sucursal/${id}`, {
+          .get(`${API_URL}/sucursal/${id}`, {
             headers: {
               Authorization: `Bearer ${tokenLocal}`,
               'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ const viewSucursal = () => {
                             <img
                               src={GetImg(
                                 sucursal.img,
-                                'http://localhost:3001/upload/sucursal'
+                                `${API_URL}/upload/sucursal`
                               )}
                               alt="Sucursal Fribar"
                             />

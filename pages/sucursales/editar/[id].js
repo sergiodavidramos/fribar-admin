@@ -13,7 +13,7 @@ import GetImg from '../../../components/GetImg'
 import Search from '../../../components/Search'
 
 import mapboxgl from 'mapbox-gl'
-import { mapboxglAccessToken } from '../../../components/Config'
+import { mapboxglAccessToken, API_URL } from '../../../components/Config'
 const sucursalNuevo = () => {
   const { token, signOut } = useContext(UserContext)
   const [ciudades, setCiudades] = useState([])
@@ -55,7 +55,7 @@ const sucursalNuevo = () => {
     if (router && router.query && router.query.id) {
       const { id } = router.query
       axios
-        .get(`http://localhost:3001/sucursal/${id}`, {
+        .get(`${API_URL}/sucursal/${id}`, {
           headers: {
             Authorization: `Bearer ${tokenLocal}`,
             'Content-Type': 'application/json',
@@ -521,7 +521,7 @@ const sucursalNuevo = () => {
                                         !imgParaMostrar
                                           ? GetImg(
                                               sucursal.img,
-                                              'http://localhost:3001/upload/sucursal'
+                                              `${API_URL}/upload/sucursal`
                                             )
                                           : imgParaMostrar
                                       }

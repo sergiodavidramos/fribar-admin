@@ -46,7 +46,7 @@ const Compras = ({ categorias, marcas }) => {
     setBuscarText(event.target.value)
     if (event.target.value) {
       fetch(
-        `http://localhost:3001/productos/codigoproducto?code=${event.target.value}`,
+        `${API_URL}/productos/codigoproducto?code=${event.target.value}`,
         {
           method: 'GET',
           headers: {
@@ -492,11 +492,9 @@ const Compras = ({ categorias, marcas }) => {
 }
 export async function getStaticProps() {
   try {
-    const res = await fetch('http://localhost:3001/categoria?status=true')
+    const res = await fetch(`${API_URL}/categoria?status=true`)
     const categorias = await res.json()
-    const mar = await fetch(
-      'http://localhost:3001/proveedor/all?status=true'
-    )
+    const mar = await fetch(`${API_URL}/proveedor/all?status=true`)
     const marcas = await mar.json()
 
     return {

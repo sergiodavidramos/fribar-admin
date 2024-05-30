@@ -21,7 +21,7 @@ const ciudadNueva = () => {
     if (JSON.parse(user).role !== 'GERENTE-ROLE') signOut()
     if (!ciudad && router && router.query.id) {
       const { id } = router.query
-      fetch(`http://localhost:3001/ciudad/${id}`, {
+      fetch(`${API_URL}/ciudad/${id}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${tokenLocal}`,

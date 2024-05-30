@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import moment from 'moment'
-
+import { API_URL } from '../Config'
 const filaProductos = ({
   pro,
   setLotesProducto,
@@ -18,7 +18,7 @@ const filaProductos = ({
       <td>
         <div className="cate-img-5">
           <img
-            src={`http://localhost:3001/upload/producto/${pro.producto.img[0]}`}
+            src={`${API_URL}/upload/producto/${pro.producto.img[0]}`}
             alt={pro.producto.name}
           />
         </div>

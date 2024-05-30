@@ -247,7 +247,7 @@ const sucursalNuevo = () => {
     if (event.target.value) {
       axios
         .get(
-          `http://localhost:3001/inventario/buscar/termino?termino=${event.target.value}&idSucursal=${idSucursal}`,
+          `${API_URL}/inventario/buscar/termino?termino=${event.target.value}&idSucursal=${idSucursal}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -284,7 +284,7 @@ const sucursalNuevo = () => {
     if (event.target.value) {
       axios
         .get(
-          `http://localhost:3001/inventario/buscar/codigoproducto?code=${event.target.value}&idSucursal=${idSucursal}`,
+          `${API_URL}/inventario/buscar/codigoproducto?code=${event.target.value}&idSucursal=${idSucursal}`,
           {
             method: 'GET',
             headers: {

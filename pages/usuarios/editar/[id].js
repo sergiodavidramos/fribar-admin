@@ -537,7 +537,7 @@ const editClient = () => {
                                     !image
                                       ? GetImg(
                                           client.img,
-                                          'http://localhost:3001/upload/user'
+                                          `${API_URL}/upload/user`
                                         )
                                       : image
                                   }

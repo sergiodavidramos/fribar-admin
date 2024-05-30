@@ -5,6 +5,7 @@ import { useEffect, useContext, useState } from 'react'
 import UserContext from '../../components/UserContext'
 import Notifications, { notify } from 'react-notify-toast'
 import Footer from '../../components/Footer'
+import { API_URL } from '../../components/Config'
 
 const Ciudad = () => {
   const { signOut } = useContext(UserContext)
@@ -22,7 +23,7 @@ const Ciudad = () => {
   }, [])
 
   function obtenerCuidades(estado) {
-    fetch(`http://localhost:3001/ciudad?status=${estado}`, {
+    fetch(`${API_URL}/ciudad?status=${estado}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

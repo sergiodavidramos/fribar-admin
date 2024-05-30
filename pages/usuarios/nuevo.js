@@ -7,6 +7,7 @@ import UserContext from '../../components/UserContext'
 import GetImg from '../../components/GetImg'
 import FormData from 'form-data'
 import Notifications, { notify } from 'react-notify-toast'
+import { API_URL } from '../../components/Config'
 // Prueba commit desde terminal
 const nuevoUsuario = () => {
   const { signOut, getSucursales } = useContext(UserContext)
@@ -38,7 +39,7 @@ const nuevoUsuario = () => {
     if (imageUpload) {
       formData.append('imagen', imageUpload)
 
-      fetch(`http://localhost:3001/user`, {
+      fetch(`${API_URL}/user`, {
         method: 'POST',
         body: JSON.stringify({
           nombre_comp: target[0].value,
@@ -68,16 +69,13 @@ const nuevoUsuario = () => {
             notify.show(response.body, 'error', 2000)
           } else {
             console.log(response.body)
-            fetch(
-              `http://localhost:3001/upload/user/${response.body._id}`,
-              {
-                method: 'PUT',
-                body: formData,
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            )
+            fetch(`${API_URL}/upload/user/${response.body._id}`, {
+              method: 'PUT',
+              body: formData,
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
               .then((res) => {
                 if (res.status === 401) signOut()
                 return res.json()
@@ -259,7 +257,7 @@ const nuevoUsuario = () => {
                                   !image
                                     ? GetImg(
                                         false,
-                                        'http://localhost:3001/upload/user'
+                                        `${API_URL}/upload/user`
                                       )
                                     : image
                                 }

@@ -66,7 +66,7 @@ const OfertaNueva = ({ productos }) => {
           notify.show('Error en el servidor', 'error', 2000)
         } else {
           formData.append('imagen', imageUpload)
-          fetch(`http://localhost:3001/upload/oferta/${res.body._id}`, {
+          fetch(`${API_URL}/upload/oferta/${res.body._id}`, {
             method: 'PUT',
             body: formData,
             headers: {
@@ -330,7 +330,7 @@ const OfertaNueva = ({ productos }) => {
 }
 export async function getStaticProps() {
   try {
-    const res = await fetch('http://localhost:3001/productos/all')
+    const res = await fetch(`${API_URL}/productos/all`)
     const productos = await res.json()
     return {
       props: {

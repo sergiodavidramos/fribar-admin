@@ -5,6 +5,7 @@ import Notifications, { notify } from 'react-notify-toast'
 import Link from 'next/link'
 import { useEffect, useContext, useState } from 'react'
 import UserContext from '../../components/UserContext'
+import { API_URL } from '../../components/Config'
 
 const ciudadNueva = () => {
   const { signOut } = useContext(UserContext)
@@ -29,7 +30,7 @@ const ciudadNueva = () => {
         2000
       )
     else {
-      fetch('http://localhost:3001/ciudad', {
+      fetch(`${API_URL}/ciudad`, {
         method: 'POST',
         body: JSON.stringify({
           nombre: target[0].value,

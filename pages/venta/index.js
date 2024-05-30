@@ -46,7 +46,7 @@ const Venta = () => {
     setBuscarText(event.target.value)
     if (event.target.value) {
       fetch(
-        `http://localhost:3001/inventario/buscar/codigoProducto?code=${event.target.value}&idSucursal=${getAdmSucursal}`,
+        `${API_URL}/inventario/buscar/codigoProducto?code=${event.target.value}&idSucursal=${getAdmSucursal}`,
         {
           method: 'GET',
           headers: {
@@ -179,7 +179,7 @@ const Venta = () => {
   }
   const handlerBuscarCi = (event) => {
     const tokenLocal = localStorage.getItem('fribar-token')
-    fetch(`http://localhost:3001/person?ci=${event.target.value}`, {
+    fetch(`${API_URL}/person?ci=${event.target.value}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${tokenLocal}`,

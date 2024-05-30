@@ -8,6 +8,7 @@ import moment from 'moment'
 import Notifications, { notify } from 'react-notify-toast'
 import FormData from 'form-data'
 import UserContext from '../../../components/UserContext'
+import { API_URL } from '../../../components/Config'
 const ProductoNuevo = ({ categorias, pro, marcas }) => {
   const [token, setToken] = useState(false)
   const { signOut } = useContext(UserContext)
@@ -48,7 +49,7 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
         )
       } else {
         setButt(true)
-        fetch(`http://localhost:3001/productos/${pro._id}`, {
+        fetch(`${API_URL}/productos/${pro._id}`, {
           method: 'PATCH',
           body: JSON.stringify({
             name: target[0].value,
@@ -82,16 +83,13 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
                   for (let i = 0; i < 4; i++) {
                     formData.append('imagen', im[i])
                   }
-                fetch(
-                  `http://localhost:3001/upload/producto/${response.body._id}`,
-                  {
-                    method: 'PUT',
-                    body: formData,
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
-                )
+                fetch(`${API_URL}/upload/producto/${response.body._id}`, {
+                  method: 'PUT',
+                  body: formData,
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                })
                   .then((response) => response.json())
                   .then((response) => {
                     if (response.error) {
@@ -335,7 +333,7 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
                                       src={
                                         im
                                           ? url
-                                          : `http://localhost:3001/upload/producto/${url}`
+                                          : `${API_URL}/upload/producto/${url}`
                                       }
                                       alt="Seleecione una imagen de producto frifolly"
                                     />
@@ -368,7 +366,7 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
 }
 
 export async function getStaticPaths() {
-  const pro = await fetch(`http://localhost:3001/productos/all`, {
+  const pro = await fetch(`${API_URL}/productos/all`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   })
@@ -386,19 +384,14 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   try {
-    const mar = await fetch(
-      'http://localhost:3001/proveedor/all?status=true'
-    )
+    const mar = await fetch(`${API_URL}/proveedor/all?status=true`)
     const marcas = await mar.json()
-    const res = await fetch('http://localhost:3001/categoria?status=true')
+    const res = await fetch(`${API_URL}/categoria?status=true`)
     const categorias = await res.json()
-    const pro = await fetch(
-      `http://localhost:3001/productos?id=${params.id}`,
-      {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      }
-    )
+    const pro = await fetch(`${API_URL}/productos?id=${params.id}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    })
     const data = await pro.json()
     return {
       props: {

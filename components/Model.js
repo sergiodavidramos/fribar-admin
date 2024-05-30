@@ -1,6 +1,7 @@
+import { API_URL } from './Config'
 export default ({ id, token, notify, ofertas = false }) => {
   function handlerDelete() {
-    fetch(`http://localhost:3001/user/${id}`, {
+    fetch(`${API_URL}/user/${id}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,

@@ -8,6 +8,7 @@ import UserContext from '../../../components/UserContext'
 import GetImg from '../../../components/GetImg'
 import FormData from 'form-data'
 import Notifications, { notify } from 'react-notify-toast'
+import { API_URL } from '../../../components/Config'
 const editClient = () => {
   const { signOut, getSucursales } = useContext(UserContext)
   const [client, setCliente] = useState(null)
@@ -30,7 +31,7 @@ const editClient = () => {
     setToken(tokenLocal)
     if (!client && router && router.query && router.query.id) {
       const { id } = router.query
-      fetch(`http://localhost:3001/user?id=${id}`, {
+      fetch(`${API_URL}/user?id=${id}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${tokenLocal}`,
@@ -64,7 +65,7 @@ const editClient = () => {
     const target = event.target
     if (imageUpload) {
       formData.append('imagen', imageUpload)
-      fetch(`http://localhost:3001/upload/user/${client._id}`, {
+      fetch(`${API_URL}/upload/user/${client._id}`, {
         method: 'PUT',
         body: formData,
         headers: {
@@ -79,7 +80,7 @@ const editClient = () => {
           if (response.error) {
             notify.show(response.body, 'error', 2000)
           } else {
-            fetch(`http://localhost:3001/user/${client._id}`, {
+            fetch(`${API_URL}/user/${client._id}`, {
               method: 'PATCH',
               body: JSON.stringify({
                 nombre_comp: target[0].value,
@@ -125,7 +126,7 @@ const editClient = () => {
           notify.show('No se pudo subir las imagenes', 'error')
         })
     } else {
-      fetch(`http://localhost:3001/user/${client._id}`, {
+      fetch(`${API_URL}/user/${client._id}`, {
         method: 'PATCH',
         body: JSON.stringify({
           nombre_comp: target[0].value,
@@ -372,7 +373,7 @@ const editClient = () => {
                                     !image
                                       ? GetImg(
                                           client.img,
-                                          'http://localhost:3001/upload/user'
+                                          `${API_URL}/upload/user`
                                         )
                                       : image
                                   }

@@ -5,6 +5,7 @@ import { useEffect, useContext, useState } from 'react'
 import UserContext from '../../components/UserContext'
 import Notifications, { notify } from 'react-notify-toast'
 import Footer from '../../components/Footer'
+import { API_URL } from '../../components/Config'
 
 const Sucursal = () => {
   const { signOut } = useContext(UserContext)
@@ -16,7 +17,7 @@ const Sucursal = () => {
       signOut()
     } else {
       setToken(tokenLocal)
-      fetch(`http://localhost:3001/sucursal/all`, {
+      fetch(`${API_URL}/sucursal/all`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${tokenLocal}`,

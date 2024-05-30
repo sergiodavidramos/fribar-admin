@@ -7,6 +7,7 @@ import { useState, useEffect, useContext } from 'react'
 import Notifications, { notify } from 'react-notify-toast'
 import FormData from 'form-data'
 import UserContext from '../../components/UserContext'
+import { API_URL } from '../../components/Config'
 const CategoriaNuevo = () => {
   const [token, setToken] = useState(false)
   const { signOut } = useContext(UserContext)
@@ -33,7 +34,7 @@ const CategoriaNuevo = () => {
     } else {
       setButt(true)
       formData.append('imagen', imageUpload)
-      fetch('http://localhost:3001/categoria', {
+      fetch(`${API_URL}/categoria`, {
         method: 'POST',
         body: JSON.stringify({
           name: target[0].value,
@@ -55,16 +56,13 @@ const CategoriaNuevo = () => {
             notify.show('Error al agregar la categoria', 'error', 1000)
             setButt(false)
           } else {
-            fetch(
-              `http://localhost:3001/upload/categoria/${response.body._id}`,
-              {
-                method: 'PUT',
-                body: formData,
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            )
+            fetch(`${API_URL}/upload/categoria/${response.body._id}`, {
+              method: 'PUT',
+              body: formData,
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
               .then((response) => response.json())
               .then((response) => {
                 if (response.error) {

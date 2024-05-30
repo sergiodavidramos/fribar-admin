@@ -4,6 +4,7 @@ import Footer from '../../components/Footer'
 import Link from 'next/link'
 import { useContext } from 'react'
 import UserContext from '../../components/UserContext'
+import { API_URL } from '../../components/Config'
 const Categorias = () => {
   const { categorias } = useContext(UserContext)
   console.log(categorias)
@@ -58,7 +59,7 @@ const Categorias = () => {
                                     <td>
                                       <div className="cate-img">
                                         <img
-                                          src={`http://localhost:3001/upload/categoria/${cate.img}`}
+                                          src={`${API_URL}/upload/categoria/${cate.img}`}
                                           alt=""
                                         />
                                       </div>

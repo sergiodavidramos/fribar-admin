@@ -102,7 +102,7 @@ const Ofertas = () => {
                                       <img
                                         src={GetImg(
                                           offer.img,
-                                          'http://localhost:3001/upload/oferta'
+                                          `${API_URL}/upload/oferta`
                                         )}
                                         alt="cliente-frifolly"
                                       />

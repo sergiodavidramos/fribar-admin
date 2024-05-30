@@ -2,6 +2,7 @@ import TopNavbar from '../../../components/Navbar'
 import SideNav from '../../../components/Navbar/SideNav'
 import Link from 'next/link'
 import moment from 'moment'
+import { API_URL } from '../../../components/Config'
 function ProductView({ pro }) {
   moment.locale('es')
   //   const router = useRouter()
@@ -48,7 +49,7 @@ function ProductView({ pro }) {
                       <div className="shopowner-content-left text-center pd-20">
                         <div className="shop_img">
                           <img
-                            src={`http://localhost:3001/upload/producto/${pro.img[0]}`}
+                            src={`${API_URL}/upload/producto/${pro.img[0]}`}
                             alt=""
                           />
                         </div>
@@ -124,30 +125,30 @@ function ProductView({ pro }) {
 }
 
 export async function getStaticPaths() {
-  const pro = await fetch(`http://localhost:3001/productos/all`, {
+  const pro = await fetch(`${API_URL}/productos/all`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   })
   const temp = await pro.json()
-  const paths = temp.body.map((pro) => ({
-    params: {
-      id: pro._id,
-      title: pro.name.toLowerCase().replace(/\s/g, '-'),
-    },
-  }))
+  const paths =
+    temp.body.length > 0
+      ? temp.body.map((pro) => ({
+          params: {
+            id: pro._id,
+            title: pro.name.toLowerCase().replace(/\s/g, '-'),
+          },
+        }))
+      : []
   return {
     paths,
     fallback: false,
   }
 }
 export async function getStaticProps({ params }) {
-  const pro = await fetch(
-    `http://localhost:3001/productos?id=${params.id}`,
-    {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    }
-  )
+  const pro = await fetch(`${API_URL}/productos?id=${params.id}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
   const data = await pro.json()
   return {
     props: { pro: data.body[0][0] },

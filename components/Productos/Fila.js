@@ -2,6 +2,7 @@ import Link from 'next/link'
 import moment from 'moment'
 import { useContext } from 'react'
 import UserContext from '../UserContext'
+import { API_URL } from '../Config'
 
 export default ({ pro }) => {
   const { user } = useContext(UserContext)
@@ -12,7 +13,7 @@ export default ({ pro }) => {
       <td>
         <div className="cate-img-5">
           <img
-            src={`http://localhost:3001/upload/producto/${pro.img[0]}`}
+            src={`${API_URL}/upload/producto/${pro.img[0]}`}
             alt={pro.name}
           />
         </div>

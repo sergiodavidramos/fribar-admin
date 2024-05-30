@@ -257,20 +257,4 @@ const Login = () => {
   )
 }
 
-export async function getStaticProps() {
-  //   startApp()
-  // let categorias
-  // await axios
-  //   .get(`http://localhost:3001/categoria`)
-  //   .then((p) => {
-  //     categorias = p.data.body
-  //   })
-  //   .catch((err) => (categorias = []))
-  return {
-    props: {
-      categorias: 'ssd',
-    },
-    revalidate: 1,
-  }
-}
 export default Login

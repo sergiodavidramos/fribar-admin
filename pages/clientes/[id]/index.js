@@ -7,7 +7,7 @@ import { useEffect, useContext, useState, useRef } from 'react'
 import UserContext from '../../../components/UserContext'
 import GetImg from '../../../components/GetImg'
 import Notifications, { notify } from 'react-notify-toast'
-import { mapboxglAccessToken } from '../../../components/Config'
+import { mapboxglAccessToken, API_URL } from '../../../components/Config'
 import mapboxgl from 'mapbox-gl'
 const viewClient = () => {
   const { signOut } = useContext(UserContext)
@@ -34,7 +34,7 @@ const viewClient = () => {
     } else signOut()
     if (!client && router && router.query && router.query.id) {
       const { id } = router.query
-      fetch(`http://localhost:3001/user?id=${id}`, {
+      fetch(`${API_URL}/user?id=${id}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${tokenLocal}`,
@@ -116,7 +116,7 @@ const viewClient = () => {
                             <img
                               src={GetImg(
                                 client.img,
-                                'http://localhost:3001/upload/user'
+                                `${API_URL}/upload/user`
                               )}
                               alt="cliente-Fribar"
                             />
