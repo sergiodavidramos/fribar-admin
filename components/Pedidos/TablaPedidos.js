@@ -104,7 +104,9 @@ const TablaPedidos = ({ sucursal }) => {
   const getPedidosDia = async () => {
     try {
       const pedidosDia = await fetch(
-        `${API_URL}/pedido/${moment().format('YYYY-MM-DD')}`,
+        `${API_URL}/pedido/pedidos-dia/${moment().format(
+          'YYYY-MM-DD'
+        )}/${sucursal}`,
         {
           method: 'GET',
           headers: {
@@ -137,6 +139,9 @@ const TablaPedidos = ({ sucursal }) => {
 
   async function iniciarSocket() {
     socket = io(API_URL, { transports: ['websocket'] })
+    socket.on('connect', () => {
+      console.log('Connected to the server')
+    })
     socket.on(`pedido-${sucursal}`, (pedido) => {
       alarm.play()
       if (pedidos.length > 0) {
@@ -153,10 +158,10 @@ const TablaPedidos = ({ sucursal }) => {
         <table className="table ucp-table table-hover">
           <thead>
             <tr>
-              <th>Item</th>
+              <th style={{ width: '500px' }}>Productos</th>
               <th style={{ width: '150px' }}>Fecha</th>
               <th style={{ width: '150px' }}>Hora Entrega</th>
-              <th style={{ width: '300px' }}>Direccion</th>
+              <th style={{ width: '200px' }}>Direccion</th>
               <th style={{ width: '130px' }}>Estado</th>
               <th style={{ width: '80px' }}>Total</th>
               <th style={{ width: '50px' }}>Action</th>
@@ -169,20 +174,35 @@ const TablaPedidos = ({ sucursal }) => {
                   <td>
                     {pedido.detallePedido.detalle.map((pro) => {
                       return (
-                        <div key={pro._id}>
-                          <Link
-                            href="/productos/[id]/[title]"
-                            as={`/productos/${
-                              pro.producto._id
-                            }/${pro.producto.name
-                              .toLowerCase()
-                              .replace(/\s/g, '-')}`}
-                          >
-                            <a target="_blank">{pro.producto.name} </a>
-                          </Link>
-                          {pro.cantidad}-{pro.producto.tipoVenta}
-                          <br />
-                        </div>
+                        <table key={pro._id}>
+                          <thead>
+                            <tr>
+                              <th>Producto</th>
+                              <th>Cantidad</th>
+                              <th>Tipo Venta</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>
+                                <Link
+                                  href="/productos/[id]/[title]"
+                                  as={`/productos/${
+                                    pro.producto._id
+                                  }/${pro.producto.name
+                                    .toLowerCase()
+                                    .replace(/\s/g, '-')}`}
+                                >
+                                  <a target="_blank">
+                                    {pro.producto.name}{' '}
+                                  </a>
+                                </Link>
+                              </td>
+                              <td>{pro.cantidad}</td>
+                              <td>{pro.producto.tipoVenta}</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       )
                     })}
                   </td>

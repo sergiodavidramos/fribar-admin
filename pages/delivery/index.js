@@ -5,10 +5,10 @@ import Link from 'next/link'
 import Notifications, { notify } from 'react-notify-toast'
 import { useState, useEffect, useContext, useRef } from 'react'
 import UserContext from '../../components/UserContext'
-import Model from '../../components/Model'
 import mapboxgl from 'mapbox-gl'
 import { API_URL, mapboxglAccessToken } from '../../components/Config'
 import io from 'socket.io-client'
+import GetImg from '../../components/GetImg'
 var map
 var markerDelivery
 let socket
@@ -23,6 +23,14 @@ const Delivery = () => {
   const [editarEstadoPedido, setEditarEstadoPedido] = useState(false)
   const [mapaCargado, setMapaCargado] = useState(false)
   const [ubicionDelivery, setUbicacionDelivery] = useState(false)
+
+  const [ubicacionDeliveryTiempoReal, setUbicacionDeliveryTiempoReal] =
+    useState([])
+
+  const [inputNumeroCelularCliente, setInputNumeroCelularCliente] =
+    useState(false)
+  const [textareaDetalleDireccion, setTextareaDetalleDireccion] =
+    useState(false)
 
   const mapContainer = useRef(null)
   const seleccionEstado = useRef(null)
@@ -66,18 +74,17 @@ const Delivery = () => {
           center: [longitude, latitude],
           zoom: 15,
         })
-        // if (map.getStyle()) var newStyle = map.getStyle()
-        // map.setStyle(newStyle)
 
         map.on('load', function () {
+          const iconDelivery = document.createElement('div')
+          iconDelivery.className = 'markerDelivery'
           map.resize()
           setMapaCargado(true)
-          markerDelivery = new mapboxgl.Marker({
-            draggable: false,
-          })
+          markerDelivery = new mapboxgl.Marker(iconDelivery)
             .setLngLat([longitude, latitude])
             .addTo(map)
           setUbicacionDelivery([longitude, latitude])
+          setUbicacionDeliveryTiempoReal([longitude, latitude])
           //   geolocate.on('geolocate', function (e) {
           //     var lon = e.coords.longitude
           //     var lat = e.coords.latitude
@@ -190,25 +197,84 @@ const Delivery = () => {
     }
   }
   async function handlerVerPedidoMapa(index, pedido) {
+    setInputNumeroCelularCliente(pedido.cliente.phone)
+    setTextareaDetalleDireccion(pedido.direction.referencia)
+
     setEditarEstadoPedido(pedido)
     for (let m of marcadores) {
       m.remove()
     }
     setClickPedido(index)
-    const marker = new mapboxgl.Marker({
+
+    // marcador del cliente
+    const iconCliente = document.createElement('div')
+    iconCliente.className = 'markerCliente'
+    iconCliente.style.backgroundImage = `url(${GetImg(
+      pedido.cliente.img,
+      API_URL + '/upload/user'
+    )})`
+    const marker = new mapboxgl.Marker(iconCliente, {
       draggable: false,
-      color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+      //   color: '#' + Math.floor(Math.random() * 16777215).toString(16),
     })
       .setLngLat([pedido.direction.lon, pedido.direction.lat])
       .addTo(map)
-    setMarcadores([...marcadores, marker])
+    //   */
+    //   Marcador de la Sucursal
+    const iconSucursal = document.createElement('div')
+    iconSucursal.className = 'markerSucursal'
+    const markerSucursal = new mapboxgl.Marker(iconSucursal)
+      .setLngLat([
+        pedido.idSucursal.direccion.lon,
+        pedido.idSucursal.direccion.lat,
+      ])
+      .addTo(map)
+    //   */
+
+    setMarcadores([...marcadores, marker, markerSucursal])
     const corrdenadas = cargarCordenadas([
       ubicionDelivery[0],
       ubicionDelivery[1],
       pedido.direction.lon,
       pedido.direction.lat,
     ])
-    console.log(corrdenadas)
+      .then((indicaciones) => {
+        const ruta = indicaciones.geometry.coordinates
+        map.addSource('route', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: ruta,
+            },
+          },
+        })
+        map.addLayer({
+          id: 'route',
+          type: 'line',
+          source: 'route',
+          layaut: {
+            'line-join': 'round',
+            'line-cap': 'round',
+          },
+          paint: {
+            'line-color': 'orange',
+            'line-width': 5,
+          },
+        })
+        map.fitBounds(
+          [ruta[ruta.length - 1], ubicacionDeliveryTiempoReal],
+          {
+            padding: 100,
+          }
+        )
+      })
+      .catch((error) => {
+        console.log('Error al obtener las Indicaciones', error)
+      })
+
     if (!'geolocation' in navigator) {
       return notify.show(
         'Tu navegador no soporta el acceso a la ubicación. Intenta con otro',
@@ -218,7 +284,7 @@ const Delivery = () => {
     }
     const onErrorDeUbicacion = (err) => {
       console.log('Error obteniendo ubicación: ', err)
-      return notify.show('Error al obtener la ubicacion', 'error', 5000)
+      return notify.show('Poca precicios en la ubicacion', 'warning', 5000)
     }
     const opcionesDeSolicitud = {
       enableHighAccuracy: true, // Alta precisión
@@ -228,6 +294,7 @@ const Delivery = () => {
     const onUbicacionConcedida = (ubicacion) => {
       const coordenadas = ubicacion.coords
       let { latitude, longitude } = coordenadas
+      setUbicacionDeliveryTiempoReal([longitude, latitude])
       markerDelivery.setLngLat([longitude, latitude])
       socket.emit('delivery-mover', {
         _id: pedido._id,
@@ -241,6 +308,7 @@ const Delivery = () => {
       opcionesDeSolicitud
     )
   }
+
   async function cargarCordenadas(coordenadas) {
     const url = [
       'https://api.mapbox.com/directions/v5/mapbox/driving/',
@@ -249,7 +317,7 @@ const Delivery = () => {
     ].join('')
     const res = await fetch(url)
     const ruta = await res.json()
-    return ruta
+    return ruta.routes[0]
   }
   return (
     <>
@@ -307,7 +375,7 @@ const Delivery = () => {
                 </div>
 
                 <div className="col-lg-8 col-md-6">
-                  <div className="card card-static-2 mb-30">
+                  <div className="card card-static-2 mb-20">
                     <div className="card-title-2">
                       <h4>Ubicación de pedidos</h4>
                       {editarEstadoPedido && (
@@ -343,6 +411,50 @@ const Delivery = () => {
                       </div>
                     </div>
                   </div>
+                  {inputNumeroCelularCliente && (
+                    <>
+                      <div className="card-title-2">
+                        <div className="form-group">
+                          <label className="form-label">
+                            Numero Telefonico del cliente
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Numero celular"
+                            defaultValue={inputNumeroCelularCliente}
+                            disabled={true}
+                          />{' '}
+                        </div>
+                        <div style={{ marginLeft: '10px' }}>
+                          <a
+                            href={`tel:+591 ${inputNumeroCelularCliente}`}
+                            className="offer-link"
+                          >
+                            Llamar:<i className="fas fa-phone"></i>
+                          </a>
+                          <a
+                            target="_blank"
+                            style={{ marginLeft: '10px' }}
+                            href={`https://api.whatsapp.com/send/?phone=${inputNumeroCelularCliente}`}
+                          >
+                            Mensaje: <i className="fab fa-whatsapp"></i>
+                          </a>
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">
+                          Numero Telefonico del cliente
+                        </label>
+                        <textarea
+                          defaultValue={textareaDetalleDireccion}
+                          className="form-control"
+                          placeholder="Detalle de la dirección"
+                          disabled={true}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

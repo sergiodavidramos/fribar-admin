@@ -1,9 +1,9 @@
-export default () => (
+const Footer = () => (
   <footer className="py-4 bg-footer mt-auto">
     <div className="container-fluid">
       <div className="d-flex align-items-center justify-content-between small">
         <div className="text-muted-1">
-          © 2023 <b>FriBar</b>. De
+          © 2024 <b>FriBar</b>. De
           {` Potosí-Bolivia con `} <i className="fas fa-heart"></i>
           {` para el mundo`}
         </div>
@@ -16,3 +16,5 @@ export default () => (
     `}</style>
   </footer>
 )
+
+export default Footer

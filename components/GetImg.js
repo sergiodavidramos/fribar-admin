@@ -1,3 +1,5 @@
+import { API_URL } from './Config'
+
 export default function GetImg(img, urlGetImg) {
   let imgEx = null
   if (img) {
@@ -14,5 +16,5 @@ export default function GetImg(img, urlGetImg) {
         return img
       }
     }
-  } else return `http://localhost:3001/upload/user/no-img}`
+  } else return `${API_URL}/upload/user/no-img`
 }

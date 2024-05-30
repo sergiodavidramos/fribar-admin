@@ -340,6 +340,60 @@ const Reportes = () => {
       console.log(error)
     }
   }
+  async function generarCopiaSegurirdad(token, restaurar) {
+    try {
+      if (restaurar === false) {
+        const datos = await fetch(`${API_URL}/backup`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        const traslados = await datos.blob()
+        if (traslados.error)
+          notify.show(
+            'Error en la peticion de Poco stock de Productos',
+            'error'
+          )
+        else {
+          const fecha = new Date()
+          var url = window.URL.createObjectURL(traslados)
+          var a = document.createElement('a')
+          a.href = url
+          a.download = `Backup/${
+            fecha.getDate() +
+            '-' +
+            (fecha.getMonth() + 1) +
+            '-' +
+            fecha.getFullYear()
+          }.tar`
+          document.body.appendChild(a)
+          a.click()
+          a.remove()
+        }
+      } else {
+        const datos = await fetch(
+          `${API_URL}/backup?restaurar=${restaurar}`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+        if (datos.status === 200) {
+          notify.show('Base de datos restaurada con exito', 'success')
+        }
+      }
+    } catch (error) {
+      notify.show(
+        'Error en el servidor al obtener los datos de poco Stock'
+      )
+      console.log(error)
+    }
+  }
   return (
     <>
       <TopNavbar />
@@ -402,6 +456,10 @@ const Reportes = () => {
                             <option value="7">
                               Reporte de traslado de Productos
                             </option>
+                            <option value="8">
+                              Generar una copia de seguridad de la Base de
+                              datos
+                            </option>
                           </select>
                         </div>
                         {user && user.role === 'GERENTE-ROLE' ? (
@@ -427,7 +485,6 @@ const Reportes = () => {
                         ) : (
                           ''
                         )}
-
                         {(reporteSeleccionado === '1' ||
                           reporteSeleccionado === '2' ||
                           reporteSeleccionado === '3' ||
@@ -499,6 +556,20 @@ const Reportes = () => {
                         </button>
                       </div>
                     </div>
+                    <button
+                      className="save-btn hover-btn"
+                      type="submit"
+                      onClick={() => generarCopiaSegurirdad(token, false)}
+                    >
+                      Generar Copia de seguridad de la Base de Datos
+                    </button>
+                    <button
+                      className="save-btn hover-btn"
+                      type="submit"
+                      onClick={() => generarCopiaSegurirdad(token, true)}
+                    >
+                      Restaurar base de datos
+                    </button>
                   </div>
                 </div>
                 <div className="col-lg-8 col-md-7">

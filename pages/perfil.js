@@ -8,8 +8,9 @@ import Link from 'next/link'
 import Notifications, { notify } from 'react-notify-toast'
 import FormData from 'form-data'
 import GetImg from '../components/GetImg'
+import { API_URL } from '../components/Config'
 export default function Perfil() {
-  const urlGetImg = 'http://localhost:3001/upload/user'
+  const urlGetImg = `${API_URL}/upload/user`
   const { user, token, signOut, setUser } = useContext(UserContext)
   const [image, setImage] = useState(null)
   const [imageUpload, setImageUpload] = useState(null)
@@ -24,7 +25,7 @@ export default function Perfil() {
     const target = event.target
     if (imageUpload) {
       formData.append('imagen', imageUpload)
-      fetch(`http://localhost:3001/upload/user/${user._id}`, {
+      fetch(`${API_URL}/upload/user/${user._id}`, {
         method: 'PUT',
         body: formData,
         headers: {
@@ -39,7 +40,7 @@ export default function Perfil() {
           if (response.error) {
             notify.show(response.body, 'error', 2000)
           } else {
-            fetch(`http://localhost:3001/user/${user._id}`, {
+            fetch(`${API_URL}/user/${user._id}`, {
               method: 'PATCH',
               body: JSON.stringify({
                 nombre_comp: target[0].value,
@@ -76,7 +77,7 @@ export default function Perfil() {
           notify.show('No se pudo subir las imagenes', 'error')
         })
     } else {
-      fetch(`http://localhost:3001/user/${user._id}`, {
+      fetch(`${API_URL}/user/${user._id}`, {
         method: 'PATCH',
         body: JSON.stringify({
           nombre_comp: target[0].value,
