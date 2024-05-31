@@ -123,7 +123,7 @@ export async function getStaticPaths() {
     paths.push({
       params: {
         id: p._id,
-        title: p.name.toLowerCase().replace(/\s/g, '-'),
+        title: p.name ? p.name.toLowerCase().replace(/\s/g, '-') : '',
       },
     })
   }
