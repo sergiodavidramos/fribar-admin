@@ -130,14 +130,15 @@ export async function getStaticPaths() {
     headers: { 'Content-Type': 'application/json' },
   })
   const temp = await pro.json()
-  const paths =
-    temp &&
-    temp.body.map((pro) => ({
+  let paths
+  if (temp.body.length > 0) {
+    paths = temp.body.map((pro) => ({
       params: {
         id: pro._id,
         title: pro.name.toLowerCase().replace(/\s/g, '-'),
       },
     }))
+  } else paths = {}
 
   return {
     paths,
