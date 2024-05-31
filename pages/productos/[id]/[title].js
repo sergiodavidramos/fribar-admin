@@ -122,7 +122,7 @@ export async function getStaticPaths() {
   for (let p of temp.body) {
     paths.push({
       params: {
-        id: p._id,
+        id: p._id ? p._id : '',
         title: p.name ? p.name.toLowerCase().replace(/\s/g, '-') : '',
       },
     })
