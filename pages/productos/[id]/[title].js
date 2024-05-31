@@ -131,14 +131,14 @@ export async function getStaticPaths() {
   })
   const temp = await pro.json()
   const paths =
-    temp.body.length > 0
-      ? temp.body.map((pro) => ({
-          params: {
-            id: pro._id,
-            title: pro.name.toLowerCase().replace(/\s/g, '-'),
-          },
-        }))
-      : []
+    temp &&
+    temp.body.map((pro) => ({
+      params: {
+        id: pro._id,
+        title: pro.name.toLowerCase().replace(/\s/g, '-'),
+      },
+    }))
+
   return {
     paths,
     fallback: false,
