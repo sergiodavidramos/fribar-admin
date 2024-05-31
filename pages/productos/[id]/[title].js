@@ -5,18 +5,6 @@ import moment from 'moment'
 import { API_URL } from '../../../components/Config'
 function ProductView({ pro }) {
   moment.locale('es')
-  //   const router = useRouter()
-  //   if (router.isFallback) {
-  //     return <div>Loading...</div>
-  //   }
-  //   const { id } = router.query
-  //   if (slug === undefined) {
-  //     console.log('weeee')
-  //   } else
-  //   if (!id) {
-  //     return null
-  //   }
-  //   console.log(id)
 
   return (
     <>
@@ -130,16 +118,15 @@ export async function getStaticPaths() {
     headers: { 'Content-Type': 'application/json' },
   })
   const temp = await pro.json()
-  let paths
-  if (temp.body.length > 0) {
-    paths = temp.body.map((pro) => ({
+  let paths = []
+  for (let p of temp.body) {
+    paths.push({
       params: {
-        id: pro._id,
-        title: pro.name.toLowerCase().replace(/\s/g, '-'),
+        id: p._id,
+        title: p.name.toLowerCase().replace(/\s/g, '-'),
       },
-    }))
-  } else paths = {}
-
+    })
+  }
   return {
     paths,
     fallback: false,
