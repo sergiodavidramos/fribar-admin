@@ -5,6 +5,18 @@ import moment from 'moment'
 import { API_URL } from '../../../components/Config'
 function ProductView({ pro }) {
   moment.locale('es')
+  //   const router = useRouter()
+  //   if (router.isFallback) {
+  //     return <div>Loading...</div>
+  //   }
+  //   const { id } = router.query
+  //   if (slug === undefined) {
+  //     console.log('weeee')
+  //   } else
+  //   if (!id) {
+  //     return null
+  //   }
+  //   console.log(id)
 
   return (
     <>
@@ -37,7 +49,7 @@ function ProductView({ pro }) {
                       <div className="shopowner-content-left text-center pd-20">
                         <div className="shop_img">
                           <img
-                            src={`${API_URL}/upload/producto/${pro.img[0]}`}
+                            src={`http://localhost:3001/upload/producto/${pro.img[0]}`}
                             alt=""
                           />
                         </div>
@@ -118,15 +130,13 @@ export async function getStaticPaths() {
     headers: { 'Content-Type': 'application/json' },
   })
   const temp = await pro.json()
-  let paths = []
-  for (let p of temp.body) {
-    paths.push({
-      params: {
-        id: p._id ? p._id : '',
-        title: p.name ? p.name.toLowerCase().replace(/\s/g, '-') : '',
-      },
-    })
-  }
+  const datos = temp.body
+  const paths = datos.map((pro) => ({
+    params: {
+      id: pro._id,
+      title: pro.name.toLowerCase().replace(/\s/g, '-'),
+    },
+  }))
   return {
     paths,
     fallback: false,

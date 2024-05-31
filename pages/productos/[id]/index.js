@@ -371,14 +371,11 @@ export async function getStaticPaths() {
     headers: { 'Content-Type': 'application/json' },
   })
   const temp = await pro.json()
-  let paths = []
-  for (let p of temp.body) {
-    paths.push({
-      params: {
-        id: p._id ? p._id : '',
-      },
-    })
-  }
+  const paths = temp.body.map((pro) => ({
+    params: {
+      id: pro._id,
+    },
+  }))
   return {
     paths,
     fallback: false,
