@@ -17,7 +17,7 @@ const Sucursal = () => {
     if (!tokenLocal) {
       signOut()
     } else {
-      setUser(u)
+      setUser(JSON.parse(u))
       fetch(`${API_URL}/sucursal/all`, {
         method: 'GET',
         headers: {
