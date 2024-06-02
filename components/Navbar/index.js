@@ -43,11 +43,13 @@ const TopNavbar = () => {
           sucursalEncontrado = det.body.find(
             (sucursal) => sucursal._id === sucursalElegido
           )
-          setNombreSucursal(sucursalEncontrado.nombre)
+          if (sucursalEncontrado)
+            setNombreSucursal(sucursalEncontrado.nombre)
         }
       }
     } catch (error) {
-      alert(error.message)
+      console.log(error)
+      //   alert(error.message)
     }
   }
 
@@ -64,7 +66,7 @@ const TopNavbar = () => {
       {user ? (
         user.role === 'GERENTE-ROLE' ? (
           <div className="col-lg-3">
-            {getSucursales || getSucursales.length > 0 ? (
+            {getSucursales && getSucursales.length > 0 ? (
               <select
                 id="sucursal"
                 name="sucursal"
