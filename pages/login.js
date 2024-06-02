@@ -16,10 +16,24 @@ const Login = () => {
         usuario.role === 'ADMIN-ROLE' ||
         usuario.role === 'USER-ROLE' ||
         usuario.role === 'DELIVERY-ROLE' ||
-        usuario.role === 'GERENTE-ROLE'
+        usuario.role === 'GERENTE-ROLE' ||
+        usuario.role === 'ALMACEN-ROLE'
       ) {
         signIn(usuario, token)
-        Router.push('/')
+        switch (usuario.role) {
+          case 'DELIVERY-ROLE':
+            Router.push('/delivery')
+            break
+          case 'ADMIN-ROLE' || 'GERENTE-ROLE':
+            Router.push('/')
+            break
+          case 'USER-ROLE':
+            Router.push('/pedidos')
+            break
+          case 'ALMACEN-ROLE':
+            Router.push('/productos')
+            break
+        }
       } else
         notify.show(
           'Su cuenta no tiene permisos para ingresar al sistema de administracion ',

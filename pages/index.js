@@ -25,7 +25,7 @@ function Home() {
   const [datosReporte, setDatosReporte] = useState([])
   const [datosReportePocoStock, setDatosReportePocoStock] = useState([])
 
-  const { token, getAdmSucursal } = useContext(UserContext)
+  const { token, getAdmSucursal, signOut, user } = useContext(UserContext)
   var config = {
     type: 'line',
     data: {
@@ -224,12 +224,17 @@ function Home() {
     },
   }
   useEffect(() => {
+    const tokenLocal = localStorage.getItem('fribar-token')
+    const user = localStorage.getItem('fribar-user')
+    if (!tokenLocal && !user) {
+      signOut()
+    }
     var ctx = document.getElementById('line-chart').getContext('2d')
     var ctx2 = document
       .getElementById('chartVentasOnlineAndPresencial')
       .getContext('2d')
     if (token && getAdmSucursal) {
-      getPedidosTablero()
+      getPedidosTablero(token)
       getVentasMes(
         token,
         getAdmSucursal,
@@ -251,17 +256,19 @@ function Home() {
     escucharPedidos()
     return () => socket.disconnect()
   }, [token])
-  async function getPedidosTablero() {
+  async function getPedidosTablero(token) {
     try {
       const pedidosTablero = await fetch(
         `${API_URL}/pedido/estado/tablero`,
         {
           method: 'GET',
           headers: {
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
       )
+      if (pedidosTablero.status === 401) signOut()
       const det = await pedidosTablero.json()
       det.error
         ? notify.show(
@@ -364,41 +371,47 @@ function Home() {
           'error'
         )
       else {
-        const ventasPresencial = datosPresencial.body
-        const ventasOnline = datosOnline.body
-        let labelInicial
-        let labelFinal
         if (
-          parseInt(ventasPresencial[0]._id) < parseInt(ventasOnline[0]._id)
+          datosPresencial.body.length > 0 &&
+          datosOnline.body.length > 0
         ) {
-          labelInicial = ventasPresencial[0]._id
-        } else {
-          labelInicial = ventasOnline[0]._id
+          const ventasPresencial = datosPresencial.body
+          const ventasOnline = datosOnline.body
+          let labelInicial
+          let labelFinal
+          if (
+            parseInt(ventasPresencial[0]._id) <
+            parseInt(ventasOnline[0]._id)
+          ) {
+            labelInicial = ventasPresencial[0]._id
+          } else {
+            labelInicial = ventasOnline[0]._id
+          }
+          if (
+            parseInt(ventasPresencial[ventasPresencial.length - 1]._id) >
+            parseInt(ventasOnline[ventasOnline.length - 1]._id)
+          ) {
+            labelFinal = ventasPresencial[ventasPresencial.length - 1]._id
+          } else {
+            labelFinal = ventasOnline[ventasOnline.length - 1]._id
+          }
+          for (
+            let l = parseInt(labelInicial);
+            l <= parseInt(labelFinal);
+            l++
+          ) {
+            labels.push(l)
+          }
+          for (let p = 0; p < ventasPresencial.length; p++) {
+            let indice = labels.indexOf(parseInt(ventasPresencial[p]._id))
+            presencial[indice] = ventasPresencial[p].ventasTotales
+          }
+          for (let o = 0; o < ventasOnline.length; o++) {
+            let indice = labels.indexOf(parseInt(ventasOnline[o]._id))
+            online[indice] = ventasOnline[o].pedidosTotales
+          }
+          window.myLine = new Chart(ctx, config2)
         }
-        if (
-          parseInt(ventasPresencial[ventasPresencial.length - 1]._id) >
-          parseInt(ventasOnline[ventasOnline.length - 1]._id)
-        ) {
-          labelFinal = ventasPresencial[ventasPresencial.length - 1]._id
-        } else {
-          labelFinal = ventasOnline[ventasOnline.length - 1]._id
-        }
-        for (
-          let l = parseInt(labelInicial);
-          l <= parseInt(labelFinal);
-          l++
-        ) {
-          labels.push(l)
-        }
-        for (let p = 0; p < ventasPresencial.length; p++) {
-          let indice = labels.indexOf(parseInt(ventasPresencial[p]._id))
-          presencial[indice] = ventasPresencial[p].ventasTotales
-        }
-        for (let o = 0; o < ventasOnline.length; o++) {
-          let indice = labels.indexOf(parseInt(ventasOnline[o]._id))
-          online[indice] = ventasOnline[o].pedidosTotales
-        }
-        window.myLine = new Chart(ctx, config2)
       }
     } catch (error) {
       console.log(error)

@@ -10,13 +10,14 @@ import { API_URL } from '../../components/Config'
 const Sucursal = () => {
   const { signOut } = useContext(UserContext)
   const [sucursal, setSucursales] = useState(false)
-  const [token, setToken] = useState(null)
+  const [user, setUser] = useState({})
   useEffect(() => {
     const tokenLocal = localStorage.getItem('fribar-token')
+    const u = localStorage.getItem('fribar-user')
     if (!tokenLocal) {
       signOut()
     } else {
-      setToken(tokenLocal)
+      setUser(u)
       fetch(`${API_URL}/sucursal/all`, {
         method: 'GET',
         headers: {
@@ -42,6 +43,7 @@ const Sucursal = () => {
         })
     }
   }, [])
+
   return (
     <>
       <TopNavbar />
@@ -60,9 +62,12 @@ const Sucursal = () => {
               </ol>
               <div className="row justify-content-between">
                 <div className="col-lg-12">
-                  <Link href="/sucursales/nuevo">
-                    <a className="add-btn hover-btn">Agregar sucursal</a>
-                  </Link>
+                  {(user.role === 'GERENTE-ROLE' ||
+                    user.role === 'ADMIN-ROLE') && (
+                    <Link href="/sucursales/nuevo">
+                      <a className="add-btn hover-btn">Agregar sucursal</a>
+                    </Link>
+                  )}
                 </div>
 
                 <div className="col-lg-12 col-md-12">
@@ -123,28 +128,36 @@ const Sucursal = () => {
                                         <i className="fas fa-eye"></i>
                                       </a>
                                     </Link>
-                                    <Link
-                                      href="/sucursales/tienda-productos/[id]"
-                                      as={`/sucursales/tienda-productos/${sucursal._id}`}
-                                    >
-                                      <a
-                                        className="list-btn"
-                                        title="Enviar productos a otra sucursal"
+                                    {(user.role === 'GERENTE-ROLE' ||
+                                      user.role === 'ADMIN-ROLE' ||
+                                      user.role === 'ALMACEN-ROLE' ||
+                                      user.role === 'USER-ROLE') && (
+                                      <Link
+                                        href="/sucursales/tienda-productos/[id]"
+                                        as={`/sucursales/tienda-productos/${sucursal._id}`}
                                       >
-                                        <i className="fas fa-list-alt"></i>
-                                      </a>
-                                    </Link>
-                                    <Link
-                                      href="/sucursales/editar/[id]"
-                                      as={`/sucursales/editar/${sucursal._id}`}
-                                    >
-                                      <a
-                                        className="edit-btn"
-                                        title="Editar Sucursal"
+                                        <a
+                                          className="list-btn"
+                                          title="Enviar productos a otra sucursal"
+                                        >
+                                          <i className="fas fa-list-alt"></i>
+                                        </a>
+                                      </Link>
+                                    )}
+                                    {(user.role === 'GERENTE-ROLE' ||
+                                      user.role === 'ADMIN-ROLE') && (
+                                      <Link
+                                        href="/sucursales/editar/[id]"
+                                        as={`/sucursales/editar/${sucursal._id}`}
                                       >
-                                        <i className="fas fa-edit"></i>
-                                      </a>
-                                    </Link>
+                                        <a
+                                          className="edit-btn"
+                                          title="Editar Sucursal"
+                                        >
+                                          <i className="fas fa-edit"></i>
+                                        </a>
+                                      </Link>
+                                    )}
                                   </td>
                                 </tr>
                               ))}
