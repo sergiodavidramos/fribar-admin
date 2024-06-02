@@ -42,14 +42,15 @@ const Users = () => {
     const user = localStorage.getItem('fribar-user')
     if (!tokenLocal && !user) {
       signOut()
+    } else {
+      getUserAPi(tokenLocal)
+      setToken(tokenLocal)
     }
     if (
       JSON.parse(user).role === 'GERENTE-ROLE' ||
       JSON.parse(user).role === 'ADMIN-ROLE'
     ) {
     } else signOut()
-    getUserAPi(tokenLocal)
-    setToken(tokenLocal)
   }, [])
   function handlerDelete(id) {
     setId(id)
@@ -151,8 +152,8 @@ const Users = () => {
                           </thead>
                           <tbody>
                             {usuarios.length > 0 ? (
-                              usuarios.map((cli) => (
-                                <tr key={cli._id}>
+                              usuarios.map((cli, index) => (
+                                <tr key={index}>
                                   <td>{cli.idSucursal.nombre}</td>
                                   <td>
                                     <div className="cate-img-6">
@@ -161,7 +162,7 @@ const Users = () => {
                                           cli.img,
                                           `${API_URL}/upload/user`
                                         )}
-                                        alt="cliente-fribar"
+                                        alt="usuario-fribar"
                                       />
                                     </div>
                                   </td>
