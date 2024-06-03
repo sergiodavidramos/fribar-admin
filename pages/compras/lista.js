@@ -10,7 +10,7 @@ import { API_URL } from '../../components/Config'
 import moment from 'moment'
 const ComprasLista = () => {
   moment.locale('es')
-  const { getAdmSucursal, signOut, token } = useContext(UserContext)
+  const { getAdmSucursal, signOut, token, user } = useContext(UserContext)
   const [compras, setCompras] = useState([])
   const inputId = useRef(null)
   const inputFechaInicio = useRef(null)
@@ -52,27 +52,31 @@ const ComprasLista = () => {
     )
       notify.show('Por favor seleccione un rango de fecha', 'warning')
     else {
-      const res = await fetch(
-        `${API_URL}/venta?fechaInicio=${moment(
-          inputFechaInicio.current.value
-        ).format('DD/MM/YYYY')}&fechaFin=${moment(
-          inputFechaFin.current.value
-        ).format('DD/MM/YYYY')}`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+      if (user) {
+        const res = await fetch(
+          `${API_URL}/compras/reporte/egresos/${
+            user.idSucursal
+          }?fechaInicio=${moment(inputFechaInicio.current.value).format(
+            'YYYY/MM/DD'
+          )}&fechaFin=${moment(inputFechaFin.current.value).format(
+            'YYYY/MM/DD'
+          )}`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+        if (res.status === 401) signOut()
+        const resCompras = await res.json()
+        if (resCompras.error) {
+          console.log('Error>>>>', resCompras)
+          notify.show('Error al mostrar los pedidos', 'error')
+        } else {
+          setCompras(resCompras.body)
         }
-      )
-      if (res.status === 401) signOut()
-      const resVentas = await res.json()
-      if (resVentas.error) {
-        console.log('Error>>>>', resVentas)
-        notify.show('Error al mostrar los pedidos', 'error')
-      } else {
-        setCompras(resVentas.body)
       }
     }
   }

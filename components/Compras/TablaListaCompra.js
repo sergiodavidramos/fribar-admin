@@ -8,62 +8,63 @@ const TablaListaPedidos = ({ compras }) => {
         <table className="table ucp-table table-hover">
           <thead>
             <tr>
-              <th>Item</th>
-              <th style={{ width: '150px' }}>Fecha</th>
-              <th style={{ width: '150px' }}>Proveedor</th>
-              <th style={{ width: '300px' }}>Sucursal</th>
-              <th style={{ width: '130px' }}>Comprado por</th>
-              <th style={{ width: '80px' }}>Total</th>
-              <th style={{ width: '50px' }}>Action</th>
+              <th>Fecha</th>
+              <th>Personal</th>
+              <th>Detalle</th>
+              <th>Numero factura</th>
+              <th>Total</th>
             </tr>
           </thead>
           <tbody>
             {compras.length > 0 &&
-              compras.map((compra, index) => (
-                <tr key={index}>
-                  <td>
-                    {compra.detalleCompra.detalle.map((pro) => {
-                      return (
-                        <div key={pro._id}>
-                          <Link
-                            href="/productos/[id]/[title]"
-                            as={`/productos/${
-                              pro.producto._id
-                            }/${pro.producto.name
-                              .toLowerCase()
-                              .replace(/\s/g, '-')}`}
-                          >
-                            <a target="_blank">{pro.producto.name} </a>
-                          </Link>
-                          {pro.cantidad}-{pro.producto.tipoVenta}
-                          <br />
-                        </div>
-                      )
-                    })}
-                  </td>
-                  <td>
-                    <span className="delivery-time">
-                      {moment(compra.fecha).format('LLLL')}
-                    </span>
-                  </td>
-                  <td>{compra.proveedor.nombreComercial}</td>
-                  <td style={{ width: '15%' }}>
-                    {compra.idSucursal.nombre}
-                  </td>
-                  <td>{compra.user.idPersona.nombre_comp}</td>
-                  <td>{compra.total.toFixed(2)} Bs</td>
-                  <td className="action-btns">
-                    <Link
-                      href="/compras/editar/[id]"
-                      as={`/compras/editar/${compra._id}`}
-                    >
-                      <a className="views-btn">
-                        <i className="fas fa-edit"></i>
-                      </a>
-                    </Link>
-                  </td>
-                </tr>
-              ))}
+              compras.map((datoEgreso, index) => {
+                return (
+                  <tr key={index}>
+                    <td>{moment(datoEgreso.fecha).format('LL')}</td>
+                    <td>
+                      {datoEgreso.user.length > 0
+                        ? datoEgreso.user[0].email
+                        : ''}
+                    </td>
+                    <td>
+                      {datoEgreso.detalleTexto
+                        ? datoEgreso.detalleTexto
+                        : datoEgreso.detalleCompra[0].detalle.map(
+                            (det, index) => (
+                              <table key={det._id}>
+                                <thead>
+                                  <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Tipo Venta</th>
+                                    <th>Sub Total</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td>
+                                      {datoEgreso.productos[index].name}
+                                    </td>
+
+                                    <td>{det.cantidad}</td>
+                                    <td>
+                                      {
+                                        datoEgreso.productos[index]
+                                          .tipoVenta
+                                      }
+                                    </td>
+                                    <td>{det.subTotal} Bs.</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            )
+                          )}
+                    </td>
+                    <td>{datoEgreso.numeroFacturaCompra}</td>
+                    <td>{datoEgreso.total} Bs.</td>
+                  </tr>
+                )
+              })}
           </tbody>
         </table>
       </div>

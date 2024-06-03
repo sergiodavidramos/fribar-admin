@@ -513,7 +513,6 @@ const SideNav = (props) => {
                             Realizar Compra
                           </a>
                         </Link>
-
                         <Link href="/compras/lista">
                           <a
                             className={`nav-link sub_nav_link ${
@@ -523,6 +522,17 @@ const SideNav = (props) => {
                             }`}
                           >
                             Compras anteriores
+                          </a>
+                        </Link>
+                        <Link href="/compras/egreso">
+                          <a
+                            className={`nav-link sub_nav_link ${
+                              props.router.pathname === '/compras/egreso'
+                                ? 'active'
+                                : ''
+                            }`}
+                          >
+                            Registrar un egreso
                           </a>
                         </Link>
                       </nav>
