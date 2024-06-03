@@ -669,6 +669,72 @@ const SideNav = (props) => {
                     </div>
                   </>
                 )}
+
+                {(user.role === 'GERENTE-ROLE' ||
+                  user.role === 'ADMIN-ROLE') && (
+                  <>
+                    <a
+                      style={{ cursor: 'pointer' }}
+                      className={`nav-link ${
+                        props.router.pathname.split('/')[1] ===
+                        'costo-envio'
+                          ? 'active'
+                          : 'collapsed'
+                      }`}
+                      data-toggle="collapse"
+                      data-target="#collapseCostoEnvio"
+                      aria-expanded="false"
+                      aria-controls="collapseCostoEnvio"
+                    >
+                      <div className="sb-nav-link-icon">
+                        <i className="fas fa-hand-holding-usd"></i>
+                      </div>
+                      Costos de envio
+                      <div className="sb-sidenav-collapse-arrow">
+                        <i className="fas fa-angle-down"></i>
+                      </div>
+                    </a>
+
+                    <div
+                      className={`collapse ${
+                        props.router.pathname.split('/')[1] ===
+                        'costo-envio'
+                          ? 'show'
+                          : ''
+                      }`}
+                      id="collapseCostoEnvio"
+                      aria-labelledby="headingTwo"
+                      data-parent="#sidenavAccordion"
+                    >
+                      <nav className="sb-sidenav-menu-nested nav">
+                        <Link href="/costo-envio">
+                          <a
+                            className={`nav-link sub_nav_link ${
+                              props.router.pathname === '/costo-envio'
+                                ? 'active'
+                                : ''
+                            }`}
+                          >
+                            Todos los costos
+                          </a>
+                        </Link>
+                        <Link href="/costo-envio/nuevo">
+                          <a
+                            className={`nav-link sub_nav_link ${
+                              props.router.pathname ===
+                              '/costo-envio/nuevo'
+                                ? 'active'
+                                : ''
+                            }`}
+                          >
+                            Agregar Precio
+                          </a>
+                        </Link>
+                      </nav>
+                    </div>
+                  </>
+                )}
+
                 {user.role === 'DELIVERY-ROLE' && (
                   <Link href={'/delivery'}>
                     <a className="nav-link">

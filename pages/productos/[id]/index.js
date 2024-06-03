@@ -60,7 +60,7 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
             stock: target[5].value,
             precioCompra: target[6].value,
             precioVenta: target[7].value,
-            detail: target[9].value,
+            detail: target[8].value,
           }),
           headers: {
             Authorization: `Bearer ${token}`,

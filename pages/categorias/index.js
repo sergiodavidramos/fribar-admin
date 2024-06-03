@@ -7,7 +7,6 @@ import UserContext from '../../components/UserContext'
 import { API_URL } from '../../components/Config'
 const Categorias = () => {
   const { categorias } = useContext(UserContext)
-  console.log(categorias)
   return (
     <>
       <TopNavbar />
