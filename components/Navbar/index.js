@@ -141,12 +141,6 @@ const TopNavbar = () => {
             </Link>
             <a
               className="dropdown-item admin-dropdown-item"
-              href="change_password.html"
-            >
-              Cambiar Contraseña
-            </a>
-            <a
-              className="dropdown-item admin-dropdown-item"
               onClick={() => signOut()}
             >
               Cerrar sesión

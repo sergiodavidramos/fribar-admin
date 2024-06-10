@@ -302,18 +302,31 @@ export default function Perfil() {
                                   <label className="form-label">
                                     Direccion*
                                   </label>
-                                  <textarea
-                                    disabled={true}
-                                    className="text-control"
-                                    placeholder="Direcciones (este campo no es editable.)"
-                                    defaultValue={
-                                      user.direccion[0].nombre +
-                                        ' ; ' +
-                                        user.direccion[0].direccion +
-                                        ' ; ' +
-                                        user.direccion[0].referencia || ''
-                                    }
-                                  ></textarea>
+
+                                  {user.direccion.length > 0 ? (
+                                    <textarea
+                                      disabled={true}
+                                      className="text-control"
+                                      placeholder="Direcciones (este campo no es editable.)"
+                                      defaultValue={
+                                        user.direccion[0].nombre +
+                                          ' ; ' +
+                                          user.direccion[0].direccion +
+                                          ' ; ' +
+                                          user.direccion[0].referencia ||
+                                        ''
+                                      }
+                                    ></textarea>
+                                  ) : (
+                                    <textarea
+                                      disabled={true}
+                                      className="text-control"
+                                      placeholder="Direcciones (este campo no es editable.)"
+                                      defaultValue={
+                                        'Aun no hay direccion registrada'
+                                      }
+                                    ></textarea>
+                                  )}
                                 </div>
                               </div>
                               <div className="col-lg-12">
