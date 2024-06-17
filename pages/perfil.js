@@ -140,12 +140,12 @@ export default function Perfil() {
                             {user.google || user.facebook ? (
                               <img
                                 src={user.img}
-                                alt="Usuario Frifolly Fb G"
+                                alt="Usuario Fribar Fb G"
                               />
                             ) : (
                               <img
                                 src={GetImg(user.img, urlGetImg)}
-                                alt="Usuario Frifolly"
+                                alt="Usuario Fribar"
                               />
                             )}
                           </div>
@@ -282,7 +282,7 @@ export default function Perfil() {
                                     {user.google || user.facebook ? (
                                       <img
                                         src={user.img}
-                                        alt="Usuario Frifolly"
+                                        alt="Usuario Fribar"
                                       />
                                     ) : (
                                       <img
@@ -291,7 +291,7 @@ export default function Perfil() {
                                             ? GetImg(user.img, urlGetImg)
                                             : image
                                         }
-                                        alt="Usuario Frifolly"
+                                        alt="Usuario Fribar"
                                       />
                                     )}
                                   </div>

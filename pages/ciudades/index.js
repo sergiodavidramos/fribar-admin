@@ -116,6 +116,8 @@ const Ciudad = () => {
                             <tr>
                               <th style={{ width: '60px' }}>ID</th>
                               <th>Nombre</th>
+                              <th>Latitud</th>
+                              <th>Longitud</th>
                               <th>Estado</th>
                               <th>Accion</th>
                             </tr>
@@ -130,6 +132,8 @@ const Ciudad = () => {
                                 <tr key={ciu._id}>
                                   <td>{ciu._id}</td>
                                   <td>{ciu.nombre}</td>
+                                  <td>{ciu.lat}</td>
+                                  <td>{ciu.lon}</td>
                                   <td>
                                     <span
                                       className={`badge-item ${

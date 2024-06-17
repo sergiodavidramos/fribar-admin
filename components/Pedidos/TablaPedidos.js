@@ -102,7 +102,8 @@ const TablaPedidos = ({ sucursal }) => {
     }
   }
   const getPedidosDia = async () => {
-    if (sucursal === null) notify.show('Por favor seleccione una sucursal')
+    if (sucursal === null)
+      notify.show('Por favor seleccione una sucursal', 'warning')
     try {
       const pedidosDia = await fetch(
         `${API_URL}/pedido/pedidos-dia/${moment().format(

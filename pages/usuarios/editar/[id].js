@@ -552,7 +552,7 @@ const editClient = () => {
                               <input
                                 ref={latitudRegistro}
                                 className="form-control"
-                                placeholder="0"
+                                placeholder="Latitud de la dirección"
                                 defaultValue={
                                   client.direccion.length > 0
                                     ? client.direccion[0].lat
@@ -567,7 +567,7 @@ const editClient = () => {
                               <input
                                 ref={longitudRegistro}
                                 className="form-control"
-                                placeholder="0"
+                                placeholder="Longitud de la dirección"
                                 defaultValue={
                                   client.direccion.length > 0
                                     ? client.direccion[0].lon
