@@ -54,9 +54,9 @@ const Ventas = () => {
       const res = await fetch(
         `${API_URL}/venta?fechaInicio=${moment(
           inputFechaInicio.current.value
-        ).format('DD/MM/YYYY')}&fechaFin=${moment(
+        ).format('YYYY/MM/DD')}&fechaFin=${moment(
           inputFechaFin.current.value
-        ).format('DD/MM/YYYY')}`,
+        ).format('YYYY/MM/DD')}`,
         {
           method: 'GET',
           headers: {

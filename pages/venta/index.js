@@ -253,6 +253,7 @@ const Venta = () => {
         (producto.descuento * producto.precioVenta) / 100
       const auxDetalle = {
         producto: producto._id,
+        nombreProducto: producto.name,
         cantidad: producto.cantidad,
         subTotal:
           producto.descuento > 0
