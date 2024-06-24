@@ -62,8 +62,8 @@ const CardTable = ({ proFilter }) => {
         </table>
         <div className="pages">
           <ReactPaginate
-            previousLabel={'previous'}
-            nextLabel={'next'}
+            previousLabel={'Anterior'}
+            nextLabel={'Siguiente'}
             breakLabel={'...'}
             breakClassName={'break-me'}
             activeClassName={'active-page'}

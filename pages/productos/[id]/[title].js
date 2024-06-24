@@ -49,7 +49,7 @@ function ProductView({ pro }) {
                       <div className="shopowner-content-left text-center pd-20">
                         <div className="shop_img">
                           <img
-                            src={`http://localhost:3001/upload/producto/${pro.img[0]}`}
+                            src={`${API_URL}/upload/producto/${pro.img[0]}`}
                             alt=""
                           />
                         </div>

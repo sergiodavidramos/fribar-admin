@@ -114,6 +114,7 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
                   'success',
                   2000
                 )
+                setButt(false)
               }
             }
           })
