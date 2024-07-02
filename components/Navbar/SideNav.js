@@ -3,7 +3,7 @@ import { withRouter } from 'next/router'
 import { useContext, useEffect } from 'react'
 import UserContext from '../UserContext'
 const SideNav = (props) => {
-  const { user, alarm } = useContext(UserContext)
+  const { user, alarm, pagoRealizado } = useContext(UserContext)
   return (
     <>
       {user && (
@@ -466,6 +466,25 @@ const SideNav = (props) => {
                     )}
                   </nav>
                 </div>
+                {(user.role === 'GERENTE-ROLE' ||
+                  user.role === 'ADMIN-ROLE' ||
+                  user.role === 'USER-ROLE') && (
+                  <Link href="/notificaciones-pagos">
+                    <a
+                      className={`nav-link ${
+                        props.router.pathname === '/notificaciones-pagos'
+                          ? 'active'
+                          : ''
+                      }`}
+                      onClick={() => pagoRealizado.play()}
+                    >
+                      <div className="sb-nav-link-icon">
+                        <i className="fas fa-hand-holding-usd"></i>
+                      </div>
+                      Notificacion de pagos
+                    </a>
+                  </Link>
+                )}
 
                 {(user.role === 'GERENTE-ROLE' ||
                   user.role === 'ADMIN-ROLE' ||

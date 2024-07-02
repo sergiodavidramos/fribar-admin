@@ -12,8 +12,10 @@ import Notifications from 'react-notify-toast'
 import { API_URL } from '../components/Config'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import sonidoPedido from '../components/Pedidos/sonido/sonidoPedido.mp3'
+import sonidoPago from '../components/Transacciones/sonido/pagoRealizado.mp3'
 export default class MyApp extends App {
   alarm
+  pagoRealizado
   constructor(props) {
     super(props)
     this.state = {
@@ -58,6 +60,7 @@ export default class MyApp extends App {
 
   componentDidMount() {
     this.alarm = new Audio(sonidoPedido)
+    this.pagoRealizado = new Audio(sonidoPago)
     this.getCategorias()
     const user = localStorage.getItem('fribar-user')
     const token = localStorage.getItem('fribar-token')
@@ -124,6 +127,7 @@ export default class MyApp extends App {
             getAdmSucursal: this.state.admSucursal,
             sid: this.state.sid,
             alarm: this.alarm,
+            pagoRealizado: this.pagoRealizado,
             signIn: this.signIn,
             signOut: this.signOut,
             setUser: this.setUser,

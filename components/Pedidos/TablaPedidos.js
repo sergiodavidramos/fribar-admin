@@ -169,7 +169,7 @@ const TablaPedidos = ({ sucursal }) => {
               <th style={{ width: '50px' }}>Action</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody style={{ height: '400px' }}>
             {pedidos.length > 0 &&
               pedidos.map((pedido, index) => (
                 <tr key={index}>

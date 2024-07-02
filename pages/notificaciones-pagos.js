@@ -1,28 +1,30 @@
 import Notifications, { notify } from 'react-notify-toast'
-import TopNavbar from '../../components/Navbar'
-import SideNav from '../../components/Navbar/SideNav'
-import Footer from '../../components/Footer'
+import TopNavbar from '../components/Navbar'
+import SideNav from '../components/Navbar/SideNav'
+import Footer from '../components/Footer'
 import Link from 'next/link'
-import TablaListaPedidos from '../../components/Pedidos/TablaListaPedidos'
-import { useContext, useRef, useState } from 'react'
-import UserContext from '../../components/UserContext'
-import { API_URL } from '../../components/Config'
+import { useContext, useEffect, useRef, useState } from 'react'
+import UserContext from '../components/UserContext'
+import { API_URL } from '../components/Config'
 import moment from 'moment'
-const Pedidos = () => {
+import TablaTransacciones from '../components/Transacciones/TablaTransacciones'
+import io from 'socket.io-client'
+const NotificacionesPago = () => {
+  let socket
   moment.locale('es')
-  const { getAdmSucursal, signOut, token } = useContext(UserContext)
-  const [pedidos, setPedidos] = useState([])
-  let filtroEstado = false
+  const { getAdmSucursal, signOut, token, pagoRealizado } =
+    useContext(UserContext)
+  const [transacciones, setTransacciones] = useState([])
   const inputId = useRef(null)
   const inputFechaInicio = useRef(null)
   const inputFechaFin = useRef(null)
-  async function buscarPedidoPorId() {
+  async function buscarTransaccionPorId() {
     if (inputId.current.value === '')
       notify.show('Por favor introduzca la ID del pedido', 'warning')
     else {
       try {
         const res = await fetch(
-          `${API_URL}/pedido/detalle/${inputId.current.value}`,
+          `${API_URL}/notificacion-transaccion/detalle/${inputId.current.value}`,
           {
             method: 'GET',
             headers: {
@@ -36,18 +38,13 @@ const Pedidos = () => {
         if (resPedido.error) {
           notify.show('Error al obtener el pedido', 'error')
         } else {
-          setPedidos([resPedido.body])
+          setTransacciones(resPedido.body)
         }
       } catch (error) {
         console.log(error)
         notify.show('Error en el servidor al obtener el pedido', 'error')
       }
     }
-  }
-  function handleChangeEstadoPedido() {
-    const value = event.target.value
-    if (value === 'false') filtroEstado = value
-    else filtroEstado = parseInt(value)
   }
   async function handlerFiltrarFecha() {
     if (
@@ -57,11 +54,11 @@ const Pedidos = () => {
       notify.show('Por favor seleccione un rango de fecha', 'warning')
     else {
       const res = await fetch(
-        `${API_URL}/pedido/filtrar/fecha?fechaInicio=${moment(
+        `${API_URL}/notificacion-transaccion?fechaInicio=${moment(
           inputFechaInicio.current.value
         ).format('YYYY/MM/DD')}&fechaFin=${moment(
           inputFechaFin.current.value
-        ).format('YYYY/MM/DD')}&estado=${filtroEstado}`,
+        ).format('YYYY/MM/DD')}`,
         {
           method: 'GET',
           headers: {
@@ -71,15 +68,69 @@ const Pedidos = () => {
         }
       )
       if (res.status === 401) signOut()
-      const resPedidos = await res.json()
-      if (resPedidos.error) {
-        console.log('Error>>>>', resPedidos)
-        notify.show('Error al mostrar los pedidos', 'error')
+      const resPagos = await res.json()
+      if (resPagos.error) {
+        console.log('Error>>>>', resPagos)
+        notify.show('Error al mostrar las Transacciones de pago', 'error')
       } else {
-        setPedidos(resPedidos.body)
+        console.log(resPagos)
+        setTransacciones(resPagos.body)
       }
     }
   }
+  const getNotificacionesDia = async () => {
+    try {
+      if (getAdmSucursal) {
+        const transaccionesDia = await fetch(
+          `${API_URL}/notificacion-transaccion/pagos-dia/${moment().format(
+            'YYYY-MM-DD'
+          )}/${getAdmSucursal}`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+        const response = await transaccionesDia.json()
+        response.error
+          ? notify.show(
+              'Error al obtener los pedidos, comuníquese con el administrador',
+              'error',
+              4000
+            )
+          : setTransacciones(response.body)
+      }
+    } catch (err) {
+      notify.show(
+        'Error en el servidor, comuníquese con el administrador',
+        'error',
+        4000
+      )
+    }
+  }
+  async function iniciarSocket() {
+    socket = io(API_URL, { transports: ['websocket'] })
+    socket.on('connect', () => {
+      console.log('Connected to the server')
+    })
+    socket.on(`transacciones-pago`, (pago) => {
+      pagoRealizado.play()
+      if (transacciones.length > 0) {
+        setTransacciones([...transacciones, pago])
+      } else {
+        getNotificacionesDia()
+      }
+    })
+  }
+  useEffect(() => {
+    getNotificacionesDia()
+    if (getAdmSucursal) {
+      iniciarSocket()
+      return () => socket.disconnect()
+    }
+  }, [getAdmSucursal])
   return (
     <>
       <TopNavbar />
@@ -89,14 +140,16 @@ const Pedidos = () => {
           <main>
             <Notifications options={{ zIndex: 9999, top: '56px' }} />
             <div className="container-fluid">
-              <h2 className="mt-30 page-title">Pedidos</h2>
+              <h2 className="mt-30 page-title">
+                Notificaciones de pagos online
+              </h2>
               <ol className="breadcrumb mb-30">
                 <li className="breadcrumb-item">
                   <Link href="/">
                     <a>Tablero</a>
                   </Link>
                 </li>
-                <li className="breadcrumb-item active">Pedidos</li>
+                <li className="breadcrumb-item active">Notificaciones</li>
               </ol>
               <div className="row justify-content-between">
                 <div className="col-lg-4 col-md-4">
@@ -105,7 +158,7 @@ const Pedidos = () => {
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="Buscar por ID"
+                        placeholder="Buscar por Codigo de transacción"
                         ref={inputId}
                       />
                     </div>
@@ -113,30 +166,10 @@ const Pedidos = () => {
                       <button
                         className="status-btn hover-btn"
                         type="submit"
-                        onClick={buscarPedidoPorId}
+                        onClick={buscarTransaccionPorId}
                       >
-                        Buscar por Id
+                        Buscar
                       </button>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-lg-3 col-md-4">
-                  <div className="bulk-section mb-30">
-                    <div className="input-group">
-                      <select
-                        id="action"
-                        name="action"
-                        className="form-control"
-                        defaultValue={false}
-                        onChange={handleChangeEstadoPedido}
-                      >
-                        <option value={false}>Todos los Estados</option>
-                        <option value={0}>Pendiente</option>
-                        <option value={1}>Preparando</option>
-                        <option value={2}>En camino</option>
-                        <option value={3}>Completo</option>
-                        <option value={4}>Cancelado</option>
-                      </select>
                     </div>
                   </div>
                 </div>
@@ -162,16 +195,6 @@ const Pedidos = () => {
                         ref={inputFechaFin}
                       />
                     </div>
-
-                    {/* <div className="input-group-append">
-                      <button
-                        className="status-btn hover-btn"
-                        type="submit"
-                        onClick={handlerFiltrarFecha}
-                      >
-                        Filtrar por fecha
-                      </button>
-                    </div> */}
                   </div>
                 </div>
                 <div className="col-lg-12 col-md-12">
@@ -191,14 +214,14 @@ const Pedidos = () => {
                 <div className="col-lg-12 col-md-12">
                   <div className="card card-static-2 mb-30">
                     <div className="card-title-2">
-                      <h4>Todos los pedidos</h4>
+                      <h4>Todas las transacciones</h4>
                     </div>
                     {getAdmSucursal === 'false' ||
                     getAdmSucursal === '0' ||
                     getAdmSucursal === false ? (
                       <h4>Por favor selecione una sucursal</h4>
                     ) : (
-                      <TablaListaPedidos pedidos={pedidos} />
+                      <TablaTransacciones pagos={transacciones} />
                     )}
                   </div>
                 </div>
@@ -211,4 +234,4 @@ const Pedidos = () => {
     </>
   )
 }
-export default Pedidos
+export default NotificacionesPago

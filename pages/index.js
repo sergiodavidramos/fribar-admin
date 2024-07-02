@@ -289,10 +289,10 @@ function Home() {
     for (let i = 0; i < pedidos.length; i++) {
       if (pedidos[i]._id === '0') setPendiente(pedidos[i].count)
       else if (pedidos[i]._id === '1') setProceso(pedidos[i].count)
-      else if (pedidos[i]._id === '2') {
+      else if (pedidos[i]._id === '3') {
         setCompletado(pedidos[i].count)
         setTotalVenta(pedidos[i].total)
-      } else if (pedidos[i]._id === '3') setCancelado(pedidos[i].count)
+      } else if (pedidos[i]._id === '4') setCancelado(pedidos[i].count)
     }
   }
   async function getVentasMes(
