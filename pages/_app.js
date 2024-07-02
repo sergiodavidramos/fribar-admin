@@ -25,6 +25,7 @@ export default class MyApp extends App {
       sid: false,
       sucursales: [],
       admSucursal: false,
+      generarQR: 100,
     }
   }
 
@@ -103,7 +104,11 @@ export default class MyApp extends App {
     })
     Router.replace('/login')
   }
-
+  setGenerarQR = () => {
+    this.setState({
+      generarQR: Math.floor(Math.random() * 99),
+    })
+  }
   render() {
     const { Component, pageProps } = this.props
     return (
@@ -128,12 +133,14 @@ export default class MyApp extends App {
             sid: this.state.sid,
             alarm: this.alarm,
             pagoRealizado: this.pagoRealizado,
+            generarQR: this.state.generarQR,
             signIn: this.signIn,
             signOut: this.signOut,
             setUser: this.setUser,
             setSitNav: this.setSitNav,
             setSucursales: this.setSucursales,
             setAdmSucursal: this.setAdmSucursal,
+            setGenerarQR: this.setGenerarQR,
           }}
         >
           <Component {...pageProps} />

@@ -16,7 +16,8 @@ const Venta = () => {
   const textBusqueda = useRef()
   const [total, setTotal] = useState(0)
 
-  const { getAdmSucursal, token, signOut } = useContext(UserContext)
+  const { getAdmSucursal, token, signOut, generarQR, setGenerarQR } =
+    useContext(UserContext)
 
   let auxTotal = 0
 
@@ -34,6 +35,11 @@ const Venta = () => {
 
   const [butt, setButt] = useState(false)
 
+  const [estadoBoton, setEstadoBoton] = useState(false)
+  const [infoPago, setInfoPago] = useState(false)
+
+  const url = 'https://test.sintesis.com.bo/iframe-simple-pagosnet/#/payQr'
+
   useEffect(() => {
     if (focus) textBusqueda.current.focus()
     setfocus(false)
@@ -42,6 +48,10 @@ const Venta = () => {
     if (user)
       user.role === 'GERENTE-ROLE' ? setGerente(true) : setGerente(false)
   }, [token, getAdmSucursal, focus])
+  useEffect(() => {
+    generarQr()
+  }, [generarQR])
+
   const handlerChange = (event) => {
     setBuscarText(event.target.value)
     if (event.target.value) {
@@ -426,6 +436,42 @@ const Venta = () => {
       )
     else setTotalCambio(0)
   }
+  const generarQr = async () => {
+    if (token) {
+      const pago = await fetch(`${API_URL}/pedido/pago-electronico/qr`, {
+        method: 'POST',
+        body: JSON.stringify({
+          total: total,
+          generarQR: generarQR,
+        }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const resPago = await pago.json()
+      if (resPago.error) {
+        console.log('ERROR--->', resPago)
+        notify.show(
+          'Error al generar QR por favor seleccione otro metodo de pago',
+          'error'
+        )
+      } else {
+        if (resPago.body.codigoError === 0) {
+          setInfoPago(resPago.body.idTransaccion)
+        } else {
+          if (resPago.body.descripcionError === 'Recaudacion duplicada') {
+            setInfoPago(false)
+          }
+        }
+      }
+    }
+  }
+  const handlerGenerarQR = () => {
+    setEstadoBoton(true)
+    setGenerarQR()
+    setEstadoBoton(false)
+  }
   return (
     <>
       <ConfirmacionModel
@@ -593,19 +639,27 @@ const Venta = () => {
                         </div>
                       </div>
 
-                      {/* 
                       <div className="col-lg-6">
-                        <div className="form-group mb-3">
-                          <label className="form-label">Direccion*</label>
-                          <textarea
-                            disabled={desactivarInput}
-                            ref={direccionCliente}
-                            className="form-control"
-                            placeholder="Direcciones (este campo no es editable.)"
-                            //   defaultValue={user.direccion || ''}
-                          ></textarea>
+                        <div className="col-lg-6">
+                          <button
+                            className="save-btn hover-btn"
+                            type="submit"
+                            onClick={handlerGenerarQR}
+                            disabled={estadoBoton}
+                          >
+                            Generar codigo QR
+                          </button>
                         </div>
-                      </div> */}
+                        {infoPago && (
+                          <iframe
+                            src={`${url}?entidad=903&ref=${infoPago}&red=https://admin.fribar.bo/redireccionar?datos=${total}`}
+                            scrolling="auto"
+                            width="100%"
+                            height="500px"
+                            border="0"
+                          ></iframe>
+                        )}
+                      </div>
                       <div className="col-lg-6">
                         <button
                           data-toggle="modal"
