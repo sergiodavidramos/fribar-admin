@@ -808,6 +808,22 @@ const SideNav = (props) => {
                     </a>
                   </Link>
                 )}
+                {user.role === 'GERENTE-ROLE' && (
+                  <Link href={'/comunicado'}>
+                    <a
+                      className={`nav-link ${
+                        props.router.pathname === '/comunicado'
+                          ? 'active'
+                          : ''
+                      }`}
+                    >
+                      <div className="sb-nav-link-icon">
+                        <i className="fas fa-bullhorn"></i>
+                      </div>
+                      Comunicado
+                    </a>
+                  </Link>
+                )}
               </div>
             </div>
           </nav>
