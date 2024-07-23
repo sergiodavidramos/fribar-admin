@@ -187,7 +187,7 @@ const Comunicado = () => {
                           </div>
                           <div className="form-group">
                             <label className="form-label">Estado*</label>
-                            {comunicado && (
+                            {comunicado ? (
                               <select
                                 id="status"
                                 name="status"
@@ -195,6 +195,16 @@ const Comunicado = () => {
                                 defaultValue={
                                   comunicado ? comunicado.state : false
                                 }
+                              >
+                                <option value={true}>Activo</option>
+                                <option value={false}>Inactivo</option>
+                              </select>
+                            ) : (
+                              <select
+                                id="status"
+                                name="status"
+                                className="form-control"
+                                defaultValue={false}
                               >
                                 <option value={true}>Activo</option>
                                 <option value={false}>Inactivo</option>
