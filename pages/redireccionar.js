@@ -4,23 +4,13 @@ import { notify } from 'react-notify-toast'
 import UserContext from '../components/UserContext'
 import { API_URL } from '../components/Config'
 export default () => {
-  const { user, token, setGenerarQR, generarQR } = useContext(UserContext)
+  const { token, setGenerarQR, generarQR } = useContext(UserContext)
 
   const [volverGenerarPago, setVolverGenerarPago] = useState(false)
   const [infoPago, setInfoPago] = useState(false)
   const [estadoBoton, setEstadoBoton] = useState(false)
 
-  const [idTransaccion, setIdTransaccion] = useState(false)
-  const [sucursalAsignado, setSucursalAsignado] = useState(false)
-  const [tiempoEstimado, setTiempoEstimado] = useState(false)
-  const [idDireccion, setIdDireccion] = useState(false)
-  const [ciudad, setCiudad] = useState(false)
-  const [direccion, setDireccion] = useState(false)
-  const [refDireccion, setRefDireccion] = useState(false)
-  const [tipoPago, setTipoPago] = useState(false)
-  const [costoEnvio, setCostoEnvio] = useState(0)
-
-  const url = 'https://test.sintesis.com.bo/iframe-simple-pagosnet/#/payQr'
+  const url = 'https://web.sintesis.com.bo/iframe-simple-pagosnet/#/payQr'
 
   const router = useRouter()
   const { datos, success } = router.query
@@ -97,7 +87,7 @@ export default () => {
         </div>
       ) : (
         <iframe
-          src={`${url}?entidad=903&ref=${infoPago}&red=https://admin.fribar.bo/redireccionar?datos=${datos}`}
+          src={`${url}?entidad=360&ref=${infoPago}&red=https://admin.fribar.bo/redireccionar?datos=${datos}`}
           scrolling="auto"
           width="100%"
           height="500px"
