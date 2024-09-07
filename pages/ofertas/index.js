@@ -5,14 +5,13 @@ import Link from 'next/link'
 import Notifications, { notify } from 'react-notify-toast'
 import { useState, useEffect, useContext } from 'react'
 import UserContext from '../../components/UserContext'
-import Model from '../../components/Model'
 import GetImg from '../../components/GetImg'
 import { API_URL } from '../../components/Config'
+import moment from 'moment'
 const Ofertas = () => {
-  const [token] = useState(false)
+  moment.locale('es')
   const { signOut } = useContext(UserContext)
   const [ofertas, setOfertas] = useState(false)
-  const [id, setId] = useState(null)
   function getUserAPi() {
     fetch(`${API_URL}/offers`, {
       method: 'GET',
@@ -49,7 +48,6 @@ const Ofertas = () => {
   }, [])
   return (
     <>
-      <Model id={id} token={token} notify={notify} ofertas={true} />
       <TopNavbar />
       <div id="layoutSidenav">
         <SideNav />
@@ -85,6 +83,7 @@ const Ofertas = () => {
                               <th style={{ width: '100px' }}>Imagen</th>
                               <th>Titulo</th>
                               <th>Descripción</th>
+                              <th>Fecha</th>
                               <th>Estado</th>
                               <th>Action</th>
                             </tr>
@@ -110,6 +109,13 @@ const Ofertas = () => {
                                   </td>
                                   <td>{offer.titulo}</td>
                                   <td>{offer.description}</td>
+                                  <td>
+                                    {offer.fecha
+                                      ? moment(offer.fecha)
+                                          .add(1, 'days')
+                                          .format('LL')
+                                      : 'Hasta agotar stock'}
+                                  </td>
                                   <td>
                                     {offer.status ? (
                                       <span className="badge-item badge-status">

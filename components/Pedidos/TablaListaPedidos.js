@@ -10,9 +10,10 @@ const TablaListaPedidos = ({ pedidos }) => {
           <thead>
             <tr>
               <th>Item</th>
+              <th>Repartidor</th>
               <th style={{ width: '150px' }}>Fecha</th>
               <th style={{ width: '150px' }}>Hora Entrega</th>
-              <th style={{ width: '300px' }}>Direccion</th>
+              <th style={{ width: '200px' }}>Direccion</th>
               <th style={{ width: '130px' }}>Estado</th>
               <th style={{ width: '80px' }}>Total</th>
               <th style={{ width: '50px' }}>Action</th>
@@ -42,6 +43,7 @@ const TablaListaPedidos = ({ pedidos }) => {
                       )
                     })}
                   </td>
+                  <td>{pedido.repartidor ? pedido.repartidor : ''}</td>
                   <td>
                     <span className="delivery-time">
                       {moment(pedido.fecha).format('LLLL')}

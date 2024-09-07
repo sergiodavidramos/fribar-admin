@@ -337,7 +337,6 @@ function EditOffer() {
   function handleChangeAgotarStock() {
     setHastaAgotarStock(event.target.value === 'true' ? true : false)
   }
-
   return (
     <>
       <TopNavbar />
@@ -496,10 +495,9 @@ function EditOffer() {
                                 <input
                                   type="date"
                                   className="form-control"
-                                  placeholder="Bs 0"
-                                  defaultValue={moment().format(
-                                    'YYYY-MM-DD'
-                                  )}
+                                  defaultValue={moment(oferta.fecha)
+                                    .add(1, 'days')
+                                    .format('YYYY-MM-DD')}
                                   required
                                 />
                               </div>

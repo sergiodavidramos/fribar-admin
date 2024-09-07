@@ -22,6 +22,7 @@ export default class MyApp extends App {
       user: null,
       token: null,
       categorias: [],
+      ofertas: [],
       sid: false,
       sucursales: [],
       admSucursal: false,
@@ -58,11 +59,35 @@ export default class MyApp extends App {
       })
     }
   }
+  getOfertas = () => {
+    fetch(`${API_URL}/offers`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((res) => {
+        return res.json()
+      })
+      .then((data) => {
+        if (data.error) {
+          notify.show('Error el en servidor', 'error')
+        } else {
+          this.setState({
+            ofertas: data.body,
+          })
+        }
+      })
+      .catch((error) => {
+        notify.show('Error en el servidor', 'error', 2000)
+      })
+  }
 
   componentDidMount() {
     this.alarm = new Audio(sonidoPedido)
     this.pagoRealizado = new Audio(sonidoPago)
     this.getCategorias()
+    this.getOfertas()
     const user = localStorage.getItem('fribar-user')
     const token = localStorage.getItem('fribar-token')
     const admSucursal = localStorage.getItem('fribar-sucursal')
@@ -134,6 +159,7 @@ export default class MyApp extends App {
             alarm: this.alarm,
             pagoRealizado: this.pagoRealizado,
             generarQR: this.state.generarQR,
+            getOfertas: this.state.ofertas,
             signIn: this.signIn,
             signOut: this.signOut,
             setUser: this.setUser,

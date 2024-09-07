@@ -312,7 +312,7 @@ const FormularioAgregarProducto = ({
                   </div>
                   <div className="form-group">
                     <label className="form-label">
-                      Puede seleccionar hasta 3 Images*
+                      Puede seleccionar hasta 2 Images*
                     </label>
                     <div className="input-group">
                       <div className="custom-file">

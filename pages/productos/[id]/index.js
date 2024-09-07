@@ -61,6 +61,8 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
             precioCompra: target[6].value,
             precioVenta: target[7].value,
             detail: target[8].value,
+            tipoVenta: target[9].value,
+            ventaOnline: target[10].value,
           }),
           headers: {
             Authorization: `Bearer ${token}`,
@@ -301,6 +303,34 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
                                 <div id="edit"></div>
                               </div>
                             </div>
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">
+                              Tipo Venta*
+                            </label>
+                            <select
+                              id="venta"
+                              name="venta"
+                              className="form-control"
+                              defaultValue={pro.tipoVenta}
+                            >
+                              <option value={'Kilos'}>Por Kilos</option>
+                              <option value={'Unidad'}>Por Unidad</option>
+                            </select>
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">
+                              Venta online*
+                            </label>
+                            <select
+                              id="categtory"
+                              name="categtory"
+                              className="form-control"
+                              defaultValue={pro.ventaOnline}
+                            >
+                              <option value={true}>Si</option>
+                              <option value={false}>No</option>
+                            </select>
                           </div>
                           <div className="form-group">
                             <label className="form-label">Images*</label>

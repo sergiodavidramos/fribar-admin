@@ -1,4 +1,13 @@
+import { useRef } from 'react'
+
 export default ({ confirmar, titulo }) => {
+  const botonConfirmar = useRef(null)
+  function escucharTeclado(event) {
+    var codigo = event.key
+    if (codigo === 'Enter') {
+      botonConfirmar.current.click()
+    }
+  }
   return (
     <div
       id="confirmacion_model"
@@ -6,6 +15,7 @@ export default ({ confirmar, titulo }) => {
       tabIndex="-1"
       role="dialog"
       aria-modal="false"
+      onKeyDown={escucharTeclado}
     >
       <div className="modal-dialog category-area" role="document">
         <div className="category-area-inner">
@@ -25,6 +35,7 @@ export default ({ confirmar, titulo }) => {
             </div>
             <div className="btn-confirmation">
               <a
+                ref={botonConfirmar}
                 data-dismiss="modal"
                 className="view-btn hover-btn btn-margin"
                 style={{ cursor: 'pointer' }}

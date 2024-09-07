@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react'
 import UserContext from '../UserContext'
 import Link from 'next/link'
 import { API_URL } from '../Config'
+import moment from 'moment'
 var sucursalElegido = ''
 const TopNavbar = () => {
   const {
@@ -14,6 +15,7 @@ const TopNavbar = () => {
     setSucursales,
     getSucursales,
     token,
+    getOfertas,
   } = useContext(UserContext)
   const [nobreSucursal, setNombreSucursal] = useState(false)
 
@@ -60,7 +62,63 @@ const TopNavbar = () => {
     } else {
       if (user) setAdmSucursal(user.idSucursal)
     }
-  }, [token])
+    // HACER LA ACTUALIZAFION DE LAS OFERTAS CADUCADA
+    if (getOfertas.length > 0) {
+      for (let ofer of getOfertas) {
+        if (ofer.fecha) {
+          if (
+            moment(ofer.fecha).add(1, 'days').format() <= moment().format()
+          ) {
+            if (ofer.status === true)
+              fetch(`${API_URL}/offers/${ofer._id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ status: false }),
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              })
+                .then((res) => {
+                  if (res.status === 401) signOut()
+                  return res.json()
+                })
+                .then(async (response) => {
+                  if (response.error) {
+                    console.log(response)
+                    notify.show(
+                      'Error al editar la Oferta caducada',
+                      'error',
+                      1000
+                    )
+                  } else {
+                    try {
+                      for (const aux of response.body.productos) {
+                        const proAct = await fetch(
+                          `${API_URL}/productos/agregar-oferta-producto/${aux}?agregar=false`,
+                          {
+                            method: 'PATCH',
+                            headers: {
+                              Authorization: `Bearer ${token}`,
+                              'Content-Type': 'application/json',
+                            },
+                          }
+                        )
+                      }
+                    } catch (error) {
+                      console.log(error)
+                      notify.show(
+                        'Error al editar los productos de la oferta',
+                        'error',
+                        1000
+                      )
+                    }
+                  }
+                })
+          }
+        }
+      }
+    }
+  }, [token, getOfertas])
   return (
     <nav className="sb-topnav navbar navbar-expand navbar-light bg-clr">
       {user ? (

@@ -17,7 +17,6 @@ function ProductView({ pro }) {
   //     return null
   //   }
   //   console.log(id)
-
   return (
     <>
       <TopNavbar />
@@ -77,6 +76,12 @@ function ProductView({ pro }) {
                             <span className="right-dt">{pro.name}</span>
                           </div>
                           <div className="shopowner-dt-list">
+                            <span className="left-dt">Descuento</span>
+                            <span className="right-dt">
+                              {pro.descuento}
+                            </span>
+                          </div>
+                          <div className="shopowner-dt-list">
                             <span className="left-dt">Precio Compra</span>
                             <span className="right-dt">
                               {pro.precioCompra} Bs
@@ -91,13 +96,26 @@ function ProductView({ pro }) {
                           <div className="shopowner-dt-list">
                             <span className="left-dt">Categoria</span>
                             <span className="right-dt">
-                              {' '}
                               {pro.category.name}
                             </span>
                           </div>
                           <div className="shopowner-dt-list">
+                            <span className="left-dt">Proveedor</span>
+                            <span className="right-dt">
+                              {pro.proveedor.nombreComercial}
+                            </span>
+                          </div>
+                          <div className="shopowner-dt-list">
+                            <span className="left-dt">
+                              Fecha Caducidad
+                            </span>
+                            <span className="right-dt">
+                              {moment(pro.fechaCaducidad).format('LL')}
+                            </span>
+                          </div>
+                          <div className="shopowner-dt-list">
                             <span className="left-dt">Detalle</span>
-                            <span className="right-dt">{pro.detail}</span>
+                            {pro.detail}
                           </div>
                           <div className="shopowner-dt-list">
                             <span className="left-dt">Estado</span>

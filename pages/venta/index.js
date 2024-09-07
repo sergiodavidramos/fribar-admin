@@ -26,11 +26,11 @@ const Venta = () => {
   const nombreCliente = useRef(false)
   const ciCliente = useRef(false)
   const efectivo = useRef(0)
+  const botonConfirmarVenta = useRef(null)
 
   const [idCliente, setIdCliente] = useState(false)
   const [sucursal, setSucursal] = useState(false)
   const [gerente, setGerente] = useState(false)
-  const [focus, setfocus] = useState(false)
   const [totalCambio, setTotalCambio] = useState(0)
 
   const [butt, setButt] = useState(false)
@@ -38,16 +38,15 @@ const Venta = () => {
   const [estadoBoton, setEstadoBoton] = useState(false)
   const [infoPago, setInfoPago] = useState(false)
 
-  const url = 'https://test.sintesis.com.bo/iframe-simple-pagosnet/#/payQr'
+  const url = 'https://web.sintesis.com.bo/iframe-simple-pagosnet/#/payQr'
 
   useEffect(() => {
-    if (focus) textBusqueda.current.focus()
-    setfocus(false)
+    if (textBusqueda.current) textBusqueda.current.focus()
     getSucursalId(token, getAdmSucursal)
     const user = JSON.parse(localStorage.getItem('fribar-user'))
     if (user)
       user.role === 'GERENTE-ROLE' ? setGerente(true) : setGerente(false)
-  }, [token, getAdmSucursal, focus])
+  }, [token, getAdmSucursal])
   useEffect(() => {
     generarQr()
   }, [generarQR])
@@ -94,7 +93,7 @@ const Venta = () => {
 
                 pro.producto.cantidad = 1
                 setProductFilter([pro.producto])
-                notify.show(`Producto Agregado`, 'success', 1000)
+                notify.show(`Producto Agregado`, 'success', 900)
                 const precioConDescuento =
                   pro.producto.precioVenta -
                   (pro.producto.descuento * pro.producto.precioVenta) / 100
@@ -154,7 +153,7 @@ const Venta = () => {
     let aux
     can < 0
       ? (productFilter[index].cantidad = 0)
-      : (productFilter[index].cantidad = parseInt(can))
+      : (productFilter[index].cantidad = parseFloat(can))
     aux = productFilter
     setProductFilter([])
     setProductFilter(aux)
@@ -177,7 +176,7 @@ const Venta = () => {
           productFilter[j].cantidad * productFilter[j].precioVenta
       }
     }
-    setTotal(auxTotal.toFixed(2))
+    setTotal(expectedRound.round10(auxTotal, -1).toFixed(2))
   }
 
   const deleteProduct = (index) => {
@@ -255,6 +254,15 @@ const Venta = () => {
         'Por favor ingrese almenos un producto para vender',
         'warning'
       )
+      textBusqueda.current.focus()
+      return
+    }
+    if (!efectivo.current.value) {
+      notify.show(
+        'Por favor el efectivo cancelado por en cliente es necesario',
+        'warning'
+      )
+      textBusqueda.current.focus()
       return
     }
     for (let producto of productFilter) {
@@ -333,6 +341,7 @@ const Venta = () => {
                   blob: await res.blob(),
                 }))
                 .then((resObj) => {
+                  setInfoPago(false)
                   notify.show(
                     'Venta realizada con exito!',
                     'success',
@@ -368,6 +377,7 @@ const Venta = () => {
                   nombreCliente.current.value = ''
                   ciCliente.current.value = ''
                   setIdCliente(false)
+                  textBusqueda.current.focus()
                 })
                 .catch((err) => {
                   console.log('Sergio Error Primero', err)
@@ -472,6 +482,21 @@ const Venta = () => {
     setGenerarQR()
     setEstadoBoton(false)
   }
+  function escucharTeclado(event) {
+    var codigo = event.key
+    if (codigo === 'F11') {
+      efectivo.current.focus()
+    }
+    if (codigo === 'F12') {
+      ciCliente.current.focus()
+    }
+    if (codigo === 'Enter') {
+      botonConfirmarVenta.current.click()
+    }
+    if (codigo === 'F9') {
+      textBusqueda.current.focus()
+    }
+  }
   return (
     <>
       <ConfirmacionModel
@@ -511,8 +536,9 @@ const Venta = () => {
                             value={buscarText}
                             type="text"
                             className="form-control"
-                            placeholder="Buscar Producto"
+                            placeholder="Buscar Producto por codigo"
                             onChange={handlerChange}
+                            onKeyDown={escucharTeclado}
                           />
                         </div>
                       </div>
@@ -546,7 +572,6 @@ const Venta = () => {
                                   setCantidad={setCantidad}
                                   index={index}
                                   deleteProduct={deleteProduct}
-                                  setfocus={setfocus}
                                 />
                               ))
                             )}
@@ -578,6 +603,7 @@ const Venta = () => {
                                       className="form-control"
                                       placeholder="Ingrese el efectivo recibido"
                                       onChange={handlerCalcularCambio}
+                                      onKeyDown={escucharTeclado}
                                     />
                                   </div>
                                 </div>
@@ -621,6 +647,7 @@ const Venta = () => {
                             className="form-control"
                             placeholder="Ingrese El C.I. o NIT"
                             onChange={handlerBuscarCi}
+                            onKeyDown={escucharTeclado}
                           />
                         </div>
                       </div>
@@ -652,7 +679,7 @@ const Venta = () => {
                         </div>
                         {infoPago && (
                           <iframe
-                            src={`${url}?entidad=903&ref=${infoPago}&red=https://admin.fribar.bo/redireccionar?datos=${total}`}
+                            src={`${url}?entidad=360&ref=${infoPago}&red=https://admin.fribar.bo/redireccionar?datos=${total}`}
                             scrolling="auto"
                             width="100%"
                             height="500px"
@@ -662,11 +689,13 @@ const Venta = () => {
                       </div>
                       <div className="col-lg-6">
                         <button
+                          ref={botonConfirmarVenta}
                           data-toggle="modal"
                           data-target="#confirmacion_model"
                           className="save-btn hover-btn"
                           type="submit"
                           disabled={butt}
+                          //   onKeyDown={escucharTeclado}
                         >
                           Confirmar la venta
                         </button>

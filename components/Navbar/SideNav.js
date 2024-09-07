@@ -764,7 +764,9 @@ const SideNav = (props) => {
                   </>
                 )}
 
-                {user.role === 'DELIVERY-ROLE' && (
+                {(user.role === 'DELIVERY-ROLE' ||
+                  user.role === 'GERENTE-ROLE' ||
+                  user.role === 'ADMIN-ROLE') && (
                   <Link href={'/delivery'}>
                     <a className="nav-link">
                       <div
@@ -805,6 +807,24 @@ const SideNav = (props) => {
                         <i className="fas fa-chart-bar"></i>
                       </div>
                       Reportes
+                    </a>
+                  </Link>
+                )}
+                {(user.role === 'GERENTE-ROLE' ||
+                  user.role === 'ADMIN-ROLE' ||
+                  user.role === 'USER-ROLE') && (
+                  <Link href={'/solicitudes'}>
+                    <a
+                      className={`nav-link ${
+                        props.router.pathname === '/solicitudes'
+                          ? 'active'
+                          : ''
+                      }`}
+                    >
+                      <div className="sb-nav-link-icon">
+                        <i className="fas fa-envelope-open-text"></i>
+                      </div>
+                      Atencion al cliente
                     </a>
                   </Link>
                 )}

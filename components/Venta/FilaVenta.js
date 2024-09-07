@@ -1,21 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import expectedRound from 'expected-round'
-const FilaVenta = ({
-  pro,
-  setCantidad,
-  index,
-  deleteProduct,
-  setfocus,
-}) => {
+const FilaVenta = ({ pro, setCantidad, index, deleteProduct }) => {
   const [cantidad, setCa] = useState(pro.cantidad)
-
-  const textCantidad = useRef(null)
+  const inputCantidad = useRef(null)
   const precioConDescuento =
     pro.precioVenta - (pro.descuento * pro.precioVenta) / 100
 
-  useEffect(() => {
-    textCantidad.current.focus()
-  }, [])
   const handlerCantidad = (event) => {
     setCa(event.target.value)
     setCantidad(index, event.target.value)
@@ -23,24 +13,17 @@ const FilaVenta = ({
   const handlerDeleteProduct = () => {
     deleteProduct(index)
   }
-  function obtenerTeclado(event) {
-    var codigo = event.key
-    if (codigo === 'Tab') {
-      setfocus(true)
-    }
-  }
-
   return (
     <tr>
       <td>
         <input
-          ref={textCantidad}
+          ref={inputCantidad}
           type="number"
           className="check-item"
           defaultValue={cantidad}
-          min="1"
+          min={pro.tipoVenta === 'Unidad' ? '1' : '0.25'}
+          step={pro.tipoVenta === 'Unidad' ? '1' : '0.25'}
           onInput={handlerCantidad}
-          onKeyDown={obtenerTeclado}
         />
       </td>
       <td>{pro.code}</td>
@@ -57,9 +40,9 @@ const FilaVenta = ({
         }`}
       </td>
       <td>
-        {(
-          pro.cantidad * expectedRound.round10(precioConDescuento, -1)
-        ).toFixed(2)}
+        {expectedRound
+          .round10(pro.cantidad * precioConDescuento, -1)
+          .toFixed(2)}
       </td>
       <td className="action-btns">
         <a className="edit-btn" title="Editar">
