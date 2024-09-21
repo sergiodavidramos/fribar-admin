@@ -61,6 +61,7 @@ const Compras = ({ categorias, marcas }) => {
             notify.show(data.body, 'error')
             setBuscarText('')
           } else {
+            console.log('Probando el body', data.body)
             if (data.body !== null) {
               setMostrarFormulario(false)
               setBuscarText('')
