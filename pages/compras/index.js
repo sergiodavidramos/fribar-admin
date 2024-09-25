@@ -44,7 +44,10 @@ const Compras = ({ categorias, marcas }) => {
   }, [token, getAdmSucursal, focus])
   const handlerChange = (event) => {
     setBuscarText(event.target.value)
-    if (event.target.value) {
+    if (
+      event.target.value.length === 6 ||
+      event.target.value.length === 13
+    ) {
       fetch(
         `${API_URL}/productos/codigoproducto?code=${event.target.value}`,
         {
@@ -61,7 +64,6 @@ const Compras = ({ categorias, marcas }) => {
             notify.show(data.body, 'error')
             setBuscarText('')
           } else {
-            console.log('Probando el body', data.body)
             if (data.body !== null) {
               setMostrarFormulario(false)
               setBuscarText('')
@@ -82,8 +84,6 @@ const Compras = ({ categorias, marcas }) => {
           }
         })
         .catch((err) => console.log('Errorrrrr', err))
-    } else {
-      setProductFilter([])
     }
   }
 
