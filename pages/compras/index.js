@@ -46,7 +46,7 @@ const Compras = ({ categorias, marcas }) => {
     setBuscarText(event.target.value)
     if (
       event.target.value.length === 6 ||
-      event.target.value.length === 13
+      event.target.value.length >= 12
     ) {
       fetch(
         `${API_URL}/productos/codigoproducto?code=${event.target.value}`,
