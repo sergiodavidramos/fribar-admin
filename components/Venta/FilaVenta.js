@@ -1,6 +1,15 @@
 import { useState, useRef, useEffect } from 'react'
 import expectedRound from 'expected-round'
-const FilaVenta = ({ pro, setCantidad, index, deleteProduct }) => {
+const FilaVenta = ({
+  pro,
+  setCantidad,
+  index,
+  deleteProduct,
+  textBusqueda,
+  efectivo,
+  ciCliente,
+  botonConfirmarVenta,
+}) => {
   const [cantidad, setCa] = useState(pro.cantidad)
   const inputCantidad = useRef(null)
   const precioConDescuento =
@@ -28,6 +37,21 @@ const FilaVenta = ({ pro, setCantidad, index, deleteProduct }) => {
       }
     }
   }
+  function escucharTeclado(event) {
+    var codigo = event.key
+    if (codigo === 'F9') {
+      textBusqueda.current.focus()
+    }
+    if (codigo === 'F10') {
+      efectivo.current.focus()
+    }
+    if (codigo === 'F11') {
+      ciCliente.current.focus()
+    }
+    if (codigo === 'Enter') {
+      botonConfirmarVenta.current.click()
+    }
+  }
   return (
     <tr>
       <td>
@@ -39,6 +63,7 @@ const FilaVenta = ({ pro, setCantidad, index, deleteProduct }) => {
           min={pro.tipoVenta === 'Unidad' ? '1' : '0.25'}
           step={pro.tipoVenta === 'Unidad' ? '1' : '0.25'}
           onInput={handlerCantidad}
+          onKeyDown={escucharTeclado}
         />
       </td>
       {pro.tipoVenta === 'Kilos' ? (
@@ -49,6 +74,7 @@ const FilaVenta = ({ pro, setCantidad, index, deleteProduct }) => {
             type="number"
             className="check-item"
             onChange={() => handlerValorKilo(event, pro.descuento)}
+            onKeyDown={escucharTeclado}
           />
         </td>
       ) : (
@@ -59,6 +85,7 @@ const FilaVenta = ({ pro, setCantidad, index, deleteProduct }) => {
             type="number"
             disabled={true}
             className="check-item"
+            onKeyDown={escucharTeclado}
           />
         </td>
       )}

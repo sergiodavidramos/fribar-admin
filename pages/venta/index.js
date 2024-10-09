@@ -487,17 +487,17 @@ const Venta = () => {
   }
   function escucharTeclado(event) {
     var codigo = event.key
-    if (codigo === 'F11') {
+    if (codigo === 'F9') {
+      textBusqueda.current.focus()
+    }
+    if (codigo === 'F10') {
       efectivo.current.focus()
     }
-    if (codigo === 'F12') {
+    if (codigo === 'F11') {
       ciCliente.current.focus()
     }
     if (codigo === 'Enter') {
       botonConfirmarVenta.current.click()
-    }
-    if (codigo === 'F9') {
-      textBusqueda.current.focus()
     }
   }
   return (
@@ -576,6 +576,10 @@ const Venta = () => {
                                   setCantidad={setCantidad}
                                   index={index}
                                   deleteProduct={deleteProduct}
+                                  textBusqueda={textBusqueda}
+                                  efectivo={efectivo}
+                                  ciCliente={ciCliente}
+                                  botonConfirmarVenta={botonConfirmarVenta}
                                 />
                               ))
                             )}
@@ -666,6 +670,7 @@ const Venta = () => {
                             required
                             disabled={desactivarInput}
                             placeholder="Ingrese su nombre completo"
+                            onKeyDown={escucharTeclado}
                           />
                         </div>
                       </div>
