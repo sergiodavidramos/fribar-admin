@@ -553,6 +553,7 @@ const Venta = () => {
                           <thead>
                             <tr>
                               <th>Cantidad</th>
+                              <th>Valor de</th>
                               <th>Código</th>
                               <th>Nombre</th>
                               <th>Precio Un/Kg</th>

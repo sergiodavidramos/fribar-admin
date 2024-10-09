@@ -13,6 +13,21 @@ const FilaVenta = ({ pro, setCantidad, index, deleteProduct }) => {
   const handlerDeleteProduct = () => {
     deleteProduct(index)
   }
+  const handlerValorKilo = (event, descuento) => {
+    if (event.target.value) {
+      if (descuento > 0) {
+        let cant = parseFloat(event.target.value) / precioConDescuento
+        inputCantidad.current.value = cant.toFixed(2)
+        setCa(cant)
+        setCantidad(index, cant)
+      } else {
+        let cant = parseFloat(event.target.value) / pro.precioVenta
+        inputCantidad.current.value = cant.toFixed(2)
+        setCa(cant)
+        setCantidad(index, cant)
+      }
+    }
+  }
   return (
     <tr>
       <td>
@@ -26,6 +41,27 @@ const FilaVenta = ({ pro, setCantidad, index, deleteProduct }) => {
           onInput={handlerCantidad}
         />
       </td>
+      {pro.tipoVenta === 'Kilos' ? (
+        <td>
+          <input
+            defaultValue="0"
+            style={{ width: '50px' }}
+            type="number"
+            className="check-item"
+            onChange={() => handlerValorKilo(event, pro.descuento)}
+          />
+        </td>
+      ) : (
+        <td>
+          <input
+            defaultValue="0"
+            style={{ width: '50px' }}
+            type="number"
+            disabled={true}
+            className="check-item"
+          />
+        </td>
+      )}
       <td>{pro.code}</td>
       <td>{pro.name}</td>
       <td>{pro.precioVenta}</td>

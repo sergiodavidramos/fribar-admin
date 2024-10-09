@@ -239,7 +239,7 @@ const ProductoNuevo = ({ categorias, pro, marcas }) => {
                               id="categtory"
                               name="categtory"
                               className="form-control"
-                              defaultValue={pro.proveedor}
+                              defaultValue={pro.proveedor._id}
                             >
                               <option value="0">
                                 --Seleccionar Marca--
