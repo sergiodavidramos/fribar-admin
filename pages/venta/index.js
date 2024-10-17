@@ -55,7 +55,9 @@ const Venta = () => {
     setBuscarText(event.target.value)
     if (
       event.target.value.length === 6 ||
-      event.target.value.length >= 12
+      event.target.value.length >= 12 ||
+      event.target.value.length === 11 ||
+      event.target.value.length === 8
     ) {
       fetch(
         `${API_URL}/inventario/buscar/codigoProducto?code=${event.target.value}&idSucursal=${getAdmSucursal}`,
