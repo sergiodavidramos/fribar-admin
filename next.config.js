@@ -1,3 +1,15 @@
+const withPWA = require('next-pwa')
+
+module.exports = withPWA({
+  // next-pwa options
+  // Add your options here
+  dest: 'public', // Directorio donde se guardará el service worker
+  disable: process.env.NODE_ENV === 'development', // Deshabilitar en desarrollo
+  // Optional options
+  register: true, // Register the service worker
+  skipWaiting: true, // Skip waiting for the next service worker update
+  reloadOnUpgrade: false, // Don't reload on upgrade
+})
 module.exports = {
   webpack(config, options) {
     const { isServer } = options
